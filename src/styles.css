@@ -1,0 +1,424 @@
+/* --- CSS (Estilos) --- */
+:root {
+  /* --- TEMA CLARO (Padrão) --- */
+  --primary-color: #45a4c4;
+  --bg-color: #f4f6f8;
+  --text-color: #333;
+  --card-bg: #ffffff;
+
+  --text-secondary: #666666;
+  --input-bg: #fdfdfd;
+  --border-color: #dddddd;
+  --table-stripe: #f8f9fa;
+  --badge-bg: #f0f2f5;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --timer-display: #2c3e50;
+}
+
+/* --- TEMA ESCURO --- */
+[data-theme="dark"] {
+  --primary-color: #008ebd;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --input-bg: #2d2d2d;
+  --border-color: #444444;
+  --table-stripe: #252525;
+  --badge-bg: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --timer-display: #fff;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+
+  /* CORREÇÃO DO ESPAÇAMENTO E RESPONSIVIDADE: */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Muda de center para flex-start para permitir rolagem */
+  min-height: 100vh;
+  padding-top: 40px; /* Cria o espaço entre o topo e o App */
+  padding-bottom: 40px; /* Cria espaço no final */
+  padding-left: 10px; /* Margens laterais de segurança para mobile */
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 580px; /* Mantém largura máxima no PC */
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  margin: 0 auto; /* Centraliza horizontalmente */
+}
+
+.app-container,
+.cycle-card {
+  background: var(--card-bg);
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.logo svg {
+  stroke: var(--text-color);
+} /* Ícone muda de cor */
+
+/* --- RESPONSIVIDADE (MOBILE) --- */
+@media (max-width: 480px) {
+  body {
+    padding-top: 20px; /* Menos espaço no topo em celulares */
+  }
+  .app-container {
+    padding: 15px; /* Menos padding interno para ganhar espaço */
+  }
+  .timer-display {
+    font-size: 45px; /* Diminui um pouco o timer para não quebrar linha */
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .btn {
+    padding: 12px;
+  }
+}
+
+/* Classes utilitárias */
+.hidden {
+  display: none !important;
+}
+
+.btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  transition: 0.2s;
+  /* Sombra suave no botão */
+  box-shadow: 0 4px 6px rgba(0, 13, 255, 0.2);
+}
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  box-shadow: none;
+}
+.btn-black {
+  background-color: #2c3e50;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
+}
+
+/* Tela Inicial */
+.logo {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 25px;
+  display: block;
+  letter-spacing: -1px;
+}
+.logo span {
+  color: var(--primary-color);
+}
+
+.cycle-card {
+  border: 1px solid;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-color: var(--border-color);
+}
+
+.subject-badge {
+  background: #f0f2f5;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+/* Tela Timer */
+.timer-display {
+  font-size: 60px;
+  font-weight: 600;
+  margin: 25px 0;
+  color: var(--timer-display);
+  font-variant-numeric: tabular-nums; /* Evita que os números "pulem" */
+}
+.current-subject-title {
+  background: #fff3e0; /* Fundo laranja bem claro */
+  color: #d84315;
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: bold;
+  border: 1px solid #ffe0b2;
+}
+
+/* Formulários e Inputs */
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Ajustes de Input no Dark Mode */
+.form-group input,
+.form-group textarea {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Listas */
+.config-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+.config-list li {
+  background: var(--table-stripe);
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tabelas e Relatórios */
+.table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th {
+  background-color: #2c3e50; /* Cabeçalho escuro */
+  color: white;
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+td {
+  padding: 12px;
+  border-bottom: 1px solid;
+  text-align: center;
+}
+tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* Ajustes de Tabela no Dark Mode */
+td {
+  color: var(--text-color);
+  border-bottom-color: var(--border-color);
+}
+tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}
+th {
+  background-color: #2c3e50;
+  color: white;
+} /* Cabeçalho mantém cor fixa ou mude se preferir */
+
+.subject-badge {
+  background: var(--badge-bg);
+  color: var(--text-color);
+}
+
+/* Icone de arrastar (Handle) */
+.drag-handle {
+  cursor: grab;
+  color: #ccc;
+  margin-right: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  user-select: none; /* Impede seleção de texto ao arrastar */
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Ajuste no item da lista para alinhar o icone */
+.config-list li {
+  display: flex;
+  align-items: center; /* mantém o resto do estilo que você ja tinha */
+}
+
+/* TOAST */
+
+/* .toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+} */
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 380px;
+}
+
+.toast {
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: system-ui, sans-serif;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background: #2e7d32;
+}
+.toast.error {
+  background: #c62828;
+}
+.toast.info {
+  background: #1565c0;
+}
+.toast.warning {
+  background: #e65100;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.3rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Estilo do toast de confirmação */
+.confirm-toast {
+  background: #1e1e1e;
+  color: #f0f0f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.confirm-toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.confirm-toast h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.confirm-toast p {
+  margin: 0 0 20px 0;
+  opacity: 0.85;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  background: #3a3a3a;
+  color: #ddd;
+  box-shadow: 0 4px 6px rgb(0, 0, 0);
+}
+
+.btn-confirm {
+  background: #0066cc;
+  color: white;
+}
+
+.btn-confirm:hover {
+  background: #0055b3;
+}

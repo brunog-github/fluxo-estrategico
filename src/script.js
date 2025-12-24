@@ -329,7 +329,7 @@ function deleteHistoryItem(id) {
     renderHistoryTable();
     updateCharts();
 
-    showToast("success", "Matéria excluída!");
+    showToast("success", "Registro excluído!");
   });
 }
 

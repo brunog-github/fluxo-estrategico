@@ -33,6 +33,9 @@ function renderHome() {
     document.getElementById("home-subject-name").innerText = "Nenhuma matéria";
     document.getElementById("home-next-subject").innerText =
       "Configure o ciclo";
+    currentIndex = 0;
+    localStorage.setItem("currentIndex", currentIndex);
+
     return;
   }
 

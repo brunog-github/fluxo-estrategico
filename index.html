@@ -182,7 +182,7 @@
           style="
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 10px;
             margin-bottom: 30px;
           "
         >
@@ -192,7 +192,7 @@
           </div>
 
           <div class="cycle-card">
-            <h4>Tempo Total por Matéria (Minutos)</h4>
+            <h4>Tempo Total por Matéria (Horas)</h4>
             <canvas id="chart-time"></canvas>
           </div>
         </div>
@@ -221,15 +221,34 @@
           </p>
         </div>
 
+        <div class="table-actions">
+          <div style="display: flex; gap: 8px">
+            <button class="btn-sm" onclick="exportToCSV()">
+              📤 Exportar CSV
+            </button>
+            <button
+              class="btn-sm"
+              onclick="triggerImport()"
+              title="Use o mesmo formato do arquivo de exportação em .CSV"
+            >
+              📥 Importar
+            </button>
+            <input
+              type="file"
+              id="import-file"
+              style="display: none"
+              accept=".csv"
+              onchange="importFromCSV(this)"
+            />
+          </div>
+
+          <button class="btn-sm btn-danger-text" onclick="clearHistory()">
+            🗑️ Limpar tudo
+          </button>
+        </div>
+
         <button class="btn" onclick="switchScreen('screen-home')">
           Voltar
-        </button>
-        <button
-          class="btn btn-outline"
-          onclick="clearHistory()"
-          style="margin-top: 10px; border-color: #ff1616; color: #ff0000"
-        >
-          Limpar Histórico
         </button>
       </div>
     </div>

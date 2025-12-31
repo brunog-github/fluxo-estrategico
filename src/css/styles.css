@@ -422,3 +422,62 @@ th {
 .btn-confirm:hover {
   background: #0055b3;
 }
+
+.btn-green {
+  background-color: #27ae60; /* Verde Excel */
+  color: white;
+  box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+}
+.btn-green:hover {
+  background-color: #219150;
+}
+
+/* --- BARRA DE AÇÕES DA TABELA --- */
+.table-actions {
+  display: flex;
+  justify-content: space-between; /* Exportar na esq, Apagar na dir */
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Botão Pequeno e Discreto */
+.btn-sm {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-sm:hover {
+  background-color: var(--badge-bg);
+  color: var(--text-color);
+  border-color: var(--text-secondary);
+}
+
+/* Estilo específico para o botão de apagar (texto vermelho ao passar mouse) */
+.btn-danger-text:hover {
+  color: #e74c3c;
+  border-color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Ajuste Mobile para a barra de ações */
+@media (max-width: 400px) {
+  .table-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-sm {
+    justify-content: center;
+  }
+}

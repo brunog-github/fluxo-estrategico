@@ -47,11 +47,13 @@ function renderHome() {
     "Depois: " + nextSubject;
 
   switchScreen("screen-home");
+  renderStreak();
 }
 
 // Configuração de Matérias
 function showConfig() {
   renderConfigList();
+  loadRestDaysUI();
   switchScreen("screen-config");
 }
 

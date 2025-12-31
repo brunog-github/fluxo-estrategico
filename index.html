@@ -90,6 +90,35 @@
           </button>
         </div>
 
+        <div class="cycle-card" style="padding: 15px; margin-bottom: 20px">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+            "
+          >
+            <strong style="font-size: 14px; color: var(--text-secondary)"
+              >CONSTÂNCIA</strong
+            >
+            <small
+              id="streak-count"
+              style="font-weight: bold; color: var(--primary-color)"
+              >0 dias seguidos 🔥</small
+            >
+          </div>
+          <div
+            id="streak-visual"
+            style="
+              display: flex;
+              gap: 5px;
+              overflow-x: auto;
+              padding-bottom: 5px;
+            "
+          ></div>
+        </div>
+
         <div class="cycle-card">
           <h3>Fluxo Atual</h3>
           <p style="color: var(--text-color); font-size: 14px">
@@ -151,6 +180,69 @@
 
       <div id="screen-config" class="hidden">
         <h3>Configurar Fluxo</h3>
+
+        <div
+          style="
+            background: var(--badge-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <p
+            style="
+              font-size: 14px;
+              font-weight: bold;
+              margin-bottom: 10px;
+              color: var(--text-color);
+            "
+          >
+            Dias de Descanso (Não quebra a constância)
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 5px">
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="0" />
+              Dom</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="1" />
+              Seg</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="2" />
+              Ter</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="3" />
+              Qua</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="4" />
+              Qui</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="5" />
+              Sex</label
+            >
+            <label class="rest-day-selector"
+              ><input type="checkbox" class="rest-day-check" value="6" />
+              Sáb</label
+            >
+          </div>
+          <button
+            class="btn-sm"
+            onclick="saveRestDays()"
+            style="
+              margin-top: 15px;
+              background: var(--card-bg);
+              width: 100%;
+              justify-content: center;
+            "
+          >
+            Salvar Dias
+          </button>
+        </div>
+
         <p style="font-size: 12px; color: #666">
           Adicione as matérias que deseja estudar.
         </p>
@@ -260,6 +352,7 @@
     <script src="src/js/reports.js"></script>
     <script src="src/js/timer.js"></script>
     <script src="src/js/toast.js"></script>
+    <script src="src/js/streak.js"></script>
     <script src="src/js/app.js"></script>
   </body>
 </html>

@@ -123,7 +123,6 @@ function updateCharts() {
 
   // Dados para o gráfico de Tempo (Mostra tudo, pois pode ter estudado sem fazer questões)
   const timeData = allLabels.map((l) => stats[l].time.toFixed(1));
-  console.log(timeData);
 
   const timeInHours = timeData.map((str) => {
     const minutes = Number(str);
@@ -131,8 +130,6 @@ function updateCharts() {
 
     return hours.toFixed(2);
   });
-
-  console.log(timeInHours);
 
   // --- RENDERIZAR GRÁFICO 1 (Desempenho) ---
   const ctxPerformance = document
@@ -280,7 +277,7 @@ function importFromCSV(input) {
     } catch (err) {
       console.error(err);
       showToast(
-        "success",
+        "error",
         "Erro ao ler o arquivo. Certifique-se que é o mesmo formato .CSV gerado pelo site."
       );
     }

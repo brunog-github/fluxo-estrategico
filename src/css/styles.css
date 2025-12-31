@@ -468,3 +468,89 @@ th {
     justify-content: center;
   }
 }
+
+/* --- ESTILO DO STREAK (CONSTÂNCIA) --- */
+/* --- AJUSTES DO STREAK (CONSTÂNCIA) --- */
+#streak-visual {
+  /* Garante que as bolinhas fiquem alinhadas e com scroll se necessário */
+  display: flex;
+  gap: 6px; /* Espaço entre bolinhas */
+  overflow-x: auto;
+  padding-bottom: 5px;
+  justify-content: flex-start; /* Alinha à esquerda */
+
+  /* Esconde a barra de rolagem mas mantém funcional */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+#streak-visual::-webkit-scrollbar {
+  display: none;
+}
+
+.streak-dot {
+  /* Aumentei levemente para preencher melhor */
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px; /* Quadrado arredondado fica mais moderno que bolinha */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #999;
+  background-color: var(--badge-bg); /* Cor neutra padrão */
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.streak-dot.success {
+  background-color: #2ecc71;
+  color: white;
+}
+.streak-dot.fail {
+  background-color: #ff5252;
+  color: white;
+}
+.streak-dot.rest {
+  background-color: #f1c40f;
+  color: white;
+}
+.streak-dot.today {
+  border: 2px solid var(--text-color);
+}
+
+/* --- CHECKBOXES PERSONALIZADOS (DIAS DE DESCANSO) --- */
+/* Esconde o checkbox original feio */
+.rest-day-selector input[type="checkbox"] {
+  display: none;
+}
+
+/* Estilo do Label que age como botão */
+.rest-day-selector {
+  display: inline-block;
+  cursor: pointer;
+  padding: 10px 15px;
+  margin: 5px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  user-select: none;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* Quando selecionado (checked) */
+.rest-day-selector:has(input:checked) {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Fallback para navegadores antigos que não suportam :has */
+.rest-day-selector input:checked + span {
+  /* Não necessário se usar a estrutura correta, mas garante compatibilidade */
+}

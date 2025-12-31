@@ -73,7 +73,7 @@ body {
     padding-top: 20px; /* Menos espaço no topo em celulares */
   }
   .app-container {
-    padding: 15px; /* Menos padding interno para ganhar espaço */
+    padding: 10px; /* Menos padding interno para ganhar espaço */
   }
   .timer-display {
     font-size: 45px; /* Diminui um pouco o timer para não quebrar linha */
@@ -299,19 +299,6 @@ th {
   display: flex;
   align-items: center; /* mantém o resto do estilo que você ja tinha */
 }
-
-/* TOAST */
-
-/* .toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-end;
-} */
 
 .toast-container {
   position: fixed;

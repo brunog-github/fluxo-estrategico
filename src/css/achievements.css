@@ -35,7 +35,7 @@
 .ach-card.unlocked {
   border-color: var(--primary-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(to right, var(--card-bg), rgba(255, 69, 0, 0.05));
+  background: linear-gradient(to right, var(--card-bg), rgba(0, 89, 255, 0.05));
 }
 
 .ach-icon {

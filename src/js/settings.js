@@ -85,6 +85,10 @@ function importConfigCSV(input) {
   reader.readAsText(file);
 }
 
+function triggerImportConfig() {
+  document.getElementById("import-file-config").click();
+}
+
 function processConfigCSV(csvText) {
   const lines = csvText.split("\n");
   if (lines.length < 2) return alert("Arquivo inválido ou vazio.");

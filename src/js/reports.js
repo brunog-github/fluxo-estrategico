@@ -77,6 +77,7 @@ function clearHistory() {
       localStorage.removeItem("studyHistory");
       renderHistoryTable();
       localStorage.removeItem("unlockedAchievements");
+      location.reload();
     }
   );
 }

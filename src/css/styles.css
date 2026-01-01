@@ -70,7 +70,7 @@ body {
 /* --- RESPONSIVIDADE (MOBILE) --- */
 @media (max-width: 480px) {
   body {
-    padding-top: 20px; /* Menos espaço no topo em celulares */
+    padding: 20px; /* Menos espaço no topo em celulares */
   }
   .app-container {
     padding: 10px; /* Menos padding interno para ganhar espaço */

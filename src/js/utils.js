@@ -37,6 +37,8 @@ function toggleTheme() {
 
   // Atualiza os gráficos para corrigir a cor da fonte
   updateChartTheme();
+  // NOVO: Verifica se a conquista foi atingida (se foi para dark)
+  checkAndUnlockAchievements();
 }
 
 function initTheme() {

@@ -1,0 +1,128 @@
+/* --- TELA DE CONQUISTAS (ESTILO STEAM) --- */
+.achievements-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ach-card {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Estado Bloqueado (Cinza e Opaco) */
+.ach-card.locked {
+  opacity: 0.6;
+  background: #f0f0f0;
+}
+[data-theme="dark"] .ach-card.locked {
+  background: #252525;
+}
+
+.ach-card.locked .ach-icon {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+/* Estado Desbloqueado (Steam Style) */
+.ach-card.unlocked {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, var(--card-bg), rgba(255, 69, 0, 0.05));
+}
+
+.ach-icon {
+  width: 50px;
+  height: 50px;
+  margin-right: 15px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+.ach-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ach-info {
+  flex: 1;
+  text-align: left;
+}
+.ach-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+.ach-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.ach-date {
+  font-size: 10px;
+  color: var(--primary-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-left: 10px;
+}
+
+/* --- TOAST NOTIFICATION (POPUP) --- */
+
+/* 1. CONTAINER: Âncora para todas as notificações */
+#arc-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column; /* Empilha verticalmente */
+  align-items: flex-end; /* Alinha os toasts à direita do container */
+  gap: 10px; /* Espaço entre uma notificação e outra */
+  pointer-events: none; /* Permite clicar através do container (importante!) */
+}
+
+/* 2. ITEM: Estilo da notificação individual */
+.ach-toast-item {
+  width: 300px;
+  background: #1b2838; /* Azul escuro Steam */
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  border-top: 3px solid var(--primary-color);
+
+  /* Estado inicial: fora da tela, à direita */
+  transform: translateX(350px);
+  opacity: 0;
+
+  /* Animação suave de entrada e saída */
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    opacity 0.5s ease;
+
+  pointer-events: auto; /* Reativa o clique na notificação para que ela apareça */
+}
+
+/* 3. ESTADO VISÍVEL */
+.ach-toast-item.show {
+  transform: translateX(0); /* Move para a posição final (na tela) */
+  opacity: 1;
+}
+
+/* Mantenha os estilos internos (ach-toast-icon, ach-toast-content) se já existirem, 
+   mas verifique se o prefixo está correto (sem o `#` e usando a classe `.ach-toast-icon`): */
+
+.ach-toast-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}

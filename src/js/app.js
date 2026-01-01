@@ -8,6 +8,7 @@ function switchScreen(screenId) {
     "screen-finish",
     "screen-config",
     "screen-reports",
+    "screen-achievements",
   ];
   screens.forEach((id) => {
     let el = document.getElementById(id);
@@ -175,6 +176,8 @@ function saveAndAdvance() {
   // Salva de volta
   localStorage.setItem("studyHistory", JSON.stringify(history));
 
+  checkAndUnlockAchievements();
+
   // 3. Lógica original de avançar o ciclo
   currentIndex++;
   if (currentIndex >= subjects.length) {
@@ -184,6 +187,11 @@ function saveAndAdvance() {
 
   showToast("success", "Dados salvos no histórico!");
   renderHome();
+}
+
+function showAchievements() {
+  renderAchievementsList(); // Gera a lista atualizada
+  switchScreen("screen-achievements");
 }
 
 function init() {
@@ -196,6 +204,7 @@ function init() {
     startStudy(true);
   } else {
     renderHome();
+    checkAndUnlockAchievements();
   }
 }
 

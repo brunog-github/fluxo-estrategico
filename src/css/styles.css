@@ -482,6 +482,7 @@ th {
   /* Esconde a barra de rolagem mas mantém funcional */
   scrollbar-width: none;
   -ms-overflow-style: none;
+  flex-wrap: nowrap;
 }
 #streak-visual::-webkit-scrollbar {
   display: none;
@@ -550,7 +551,20 @@ th {
   transform: translateY(-2px);
 }
 
-/* Fallback para navegadores antigos que não suportam :has */
-.rest-day-selector input:checked + span {
-  /* Não necessário se usar a estrutura correta, mas garante compatibilidade */
+/* Estilo do Dropdown de Filtro */
+.form-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-select:focus {
+  border-color: var(--primary-color);
 }

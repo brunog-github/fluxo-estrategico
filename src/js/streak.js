@@ -113,6 +113,10 @@ function renderStreak() {
 
     container.appendChild(div);
   }
+
+  setTimeout(() => {
+    container.scrollLeft = container.scrollWidth;
+  }, 0);
 }
 
 // Helper: Converte string "dd/mm/aaaa às HH:MM" para Date Object real

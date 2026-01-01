@@ -15,6 +15,7 @@
     />
 
     <link rel="stylesheet" href="src/css/styles.css" />
+    <link rel="stylesheet" href="src/css/achievements.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       rel="stylesheet"
@@ -108,15 +109,18 @@
               >0 dias seguidos 🔥</small
             >
           </div>
-          <div
-            id="streak-visual"
+          <div id="streak-visual"></div>
+          <button
+            class="btn btn-outline"
+            onclick="showAchievements()"
             style="
-              display: flex;
-              gap: 5px;
-              overflow-x: auto;
-              padding-bottom: 5px;
+              margin-top: 10px;
+              border-color: #666;
+              color: var(--text-color);
             "
-          ></div>
+          >
+            🏆 Conquistas
+          </button>
         </div>
 
         <div class="cycle-card">
@@ -181,6 +185,27 @@
       <div id="screen-config" class="hidden">
         <h3>Configurar Fluxo</h3>
 
+        <p style="font-size: 12px; color: #666">
+          Adicione as matérias que deseja estudar.
+        </p>
+
+        <div class="form-group">
+          <input
+            type="text"
+            id="new-subject-input"
+            placeholder="Nome da matéria (ex: Português)"
+          />
+          <button
+            class="btn btn-outline"
+            onclick="addSubject()"
+            style="margin-top: 5px"
+          >
+            Adicionar
+          </button>
+        </div>
+
+        <ul class="config-list" id="config-list"></ul>
+
         <div
           style="
             background: var(--badge-bg);
@@ -242,28 +267,7 @@
             Salvar Dias
           </button>
         </div>
-
-        <p style="font-size: 12px; color: #666">
-          Adicione as matérias que deseja estudar.
-        </p>
-
-        <div class="form-group">
-          <input
-            type="text"
-            id="new-subject-input"
-            placeholder="Nome da matéria (ex: Português)"
-          />
-          <button
-            class="btn btn-outline"
-            onclick="addSubject()"
-            style="margin-top: 5px"
-          >
-            Adicionar
-          </button>
-        </div>
-
-        <ul class="config-list" id="config-list"></ul>
-
+        
         <button class="btn" onclick="goHome()">Voltar / Salvar</button>
       </div>
 
@@ -343,6 +347,27 @@
           Voltar
         </button>
       </div>
+
+      <div id="screen-achievements" class="hidden">
+        <div class="achievements-header" style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h2 style="margin:0;">Conquistas 🏆</h2>
+                <span id="ach-counter" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 12px; font-size: 14px; font-weight: bold;">0/0</span>
+            </div>
+        </div>
+        
+        <select id="ach-filter" onchange="renderAchievementsList()" class="form-select">
+            <option value="all">Todas as Conquistas</option>
+            <option value="unlocked">Apenas Desbloqueadas</option>
+            <option value="locked">Apenas Bloqueadas</option>
+        </select>
+    </div>
+
+    <div id="achievements-grid" class="achievements-container">
+        </div>
+
+    <button class="btn btn-black" onclick="goHome()" style="margin-top: 20px;">Voltar</button>
     </div>
 
     <div class="toast-container" id="toast-container"></div>
@@ -353,6 +378,7 @@
     <script src="src/js/timer.js"></script>
     <script src="src/js/toast.js"></script>
     <script src="src/js/streak.js"></script>
+    <script src="src/js/achievements.js"></script>
     <script src="src/js/app.js"></script>
   </body>
 </html>

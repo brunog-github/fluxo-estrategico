@@ -267,6 +267,34 @@
             Salvar Dias
           </button>
         </div>
+
+        <div class="table-actions">
+          <div style="display: flex; gap: 8px">
+            <button class="btn-sm" onclick="exportConfigCSV()">
+              📤 Exportar CSV
+            </button>
+            <button
+              class="btn-sm"
+              onclick="triggerImport()"
+              title="Use o mesmo formato do arquivo de exportação em .CSV"
+            >
+              📥 Importar
+            </button>
+            <input
+              type="file"
+              id="import-file"
+              style="display: none"
+              accept=".csv"
+              onchange="importConfigCSV(this)"
+            />
+          </div>
+          <button class="btn-sm btn-danger-text" onclick="clearConfig()">
+            🗑️ Limpar tudo
+          </button>
+          <p style="font-size: 12px; color: #888; margin-top: 5px;">
+        O CSV deve ter as colunas: <strong>Materia</strong> e <strong>Dias_Descanso</strong> (ex: "Sábado, Domingo").
+    </p>
+        </div>
         
         <button class="btn" onclick="goHome()">Voltar / Salvar</button>
       </div>
@@ -282,7 +310,7 @@
             margin-bottom: 30px;
           "
         >
-          <div class="cycle-card">
+          <div id="chart-subjects" class="cycle-card chart-scroll-container">
             <h4>Desempenho por Matéria</h4>
             <canvas id="chart-performance"></canvas>
           </div>
@@ -379,6 +407,7 @@
     <script src="src/js/toast.js"></script>
     <script src="src/js/streak.js"></script>
     <script src="src/js/achievements.js"></script>
+    <script src="src/js/settings.js"></script>
     <script src="src/js/app.js"></script>
   </body>
 </html>

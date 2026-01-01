@@ -136,6 +136,7 @@ function updateCharts() {
   const ctxPerformance = document
     .getElementById("chart-performance")
     .getContext("2d");
+
   if (performanceChartInstance) performanceChartInstance.destroy();
 
   performanceChartInstance = new Chart(ctxPerformance, {
@@ -143,13 +144,42 @@ function updateCharts() {
     data: {
       labels: perfLabels, // Usa as labels filtradas
       datasets: [
-        { label: "Acertos", data: perfCorrect, backgroundColor: "#4CAF50" },
-        { label: "Erros", data: perfWrong, backgroundColor: "#F44336" },
+        {
+          label: "Acertos",
+          data: perfCorrect,
+          backgroundColor: "#4CAF50",
+        },
+        {
+          label: "Erros",
+          data: perfWrong,
+          backgroundColor: "#F44336",
+        },
       ],
     },
     options: {
-      indexAxis: "y",
+      indexAxis: "x",
       responsive: true,
+      scales: {
+        x: {
+          stacked: true,
+          maintainAspectRatio: false, // Importante para mobile
+          ticks: {
+            autoSkip: false, // <--- OBRIGA A MOSTRAR TODAS AS MATÉRIAS
+            maxRotation: 90, // Permite girar até 90 graus (vertical)
+            minRotation: 45, // Mínimo de 45 graus de inclinação
+            font: {
+              size: 11, // Reduz um pouco a fonte para caber mais
+            },
+          },
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: { position: "bottom" },
+      },
     },
   });
 
@@ -165,14 +195,100 @@ function updateCharts() {
         {
           label: "Tempo (hr)",
           data: timeInHours,
-          indexAxis: "y",
+          indexAxis: "x",
         },
       ],
     },
-    options: { indexAxis: "y", responsive: true },
+    options: {
+      indexAxis: "x",
+      responsive: true,
+      responsive: true,
+      scales: {
+        x: {
+          stacked: true,
+          maintainAspectRatio: false, // Importante para mobile
+          ticks: {
+            autoSkip: false, // <--- OBRIGA A MOSTRAR TODAS AS MATÉRIAS
+            maxRotation: 90, // Permite girar até 90 graus (vertical)
+            minRotation: 45, // Mínimo de 45 graus de inclinação
+            font: {
+              size: 11, // Reduz um pouco a fonte para caber mais
+            },
+          },
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: { position: "bottom" },
+      },
+    },
   });
 
   updateChartTheme();
+
+  summaryQuestions(history);
+}
+
+function summaryQuestions(history) {
+  // --- NOVO: RESUMO GERAL DE QUESTÕES ---
+  // Calcula os totais
+  let totalQ = 0;
+  let totalC = 0;
+
+  history.forEach((h) => {
+    totalQ += parseInt(h.questions) || 0;
+    totalC += parseInt(h.correct) || 0;
+  });
+
+  let totalE = totalQ - totalC;
+  let accPerc = totalQ > 0 ? ((totalC / totalQ) * 100).toFixed(1) : 0;
+
+  // Encontra o container onde o gráfico de matérias está
+  const subjectChartContainer =
+    document.getElementById("chart-subjects").parentElement;
+
+  // Cria (ou atualiza) o elemento de resumo
+  let summaryDiv = document.getElementById("report-summary-box");
+  if (!summaryDiv) {
+    summaryDiv = document.createElement("div");
+    summaryDiv.id = "report-summary-box";
+    summaryDiv.style.cssText = `
+            display: flex; 
+            justify-content: space-around; 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-top: 15px; 
+            border: 1px solid var(--border-color);
+            text-align: center;
+            flex-wrap: wrap; 
+            gap: 10px;
+        `;
+    // Insere DEPOIS do gráfico de matérias
+    subjectChartContainer.appendChild(summaryDiv);
+  }
+
+  summaryDiv.innerHTML = `
+        <div>
+            <div style="font-size:12px; opacity:0.7;">Questões</div>
+            <div style="font-size:18px; font-weight:bold;">${totalQ}</div>
+        </div>
+        <div>
+            <div style="font-size:12px; opacity:0.7; color:var(--success-color);">Acertos</div>
+            <div style="font-size:18px; font-weight:bold; color:var(--success-color);">${totalC}</div>
+        </div>
+        <div>
+            <div style="font-size:12px; opacity:0.7; color:#ff4444;">Erros</div>
+            <div style="font-size:18px; font-weight:bold; color:#ff4444;">${totalE}</div>
+        </div>
+        <div>
+            <div style="font-size:12px; opacity:0.7;">Precisão de Acertos</div>
+            <div style="font-size:18px; font-weight:bold;">${accPerc}%</div>
+        </div>
+    `;
 }
 
 function updateChartTheme() {

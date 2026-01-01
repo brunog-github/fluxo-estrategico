@@ -18,7 +18,7 @@ let sortableInstance = null;
 
 // NOVO: Dias de Descanso (Array de números 0-6)
 // Padrão: Sábado (6) e Domingo (0)
-let restDays = JSON.parse(localStorage.getItem("restDays")) || [0, 6];
+let restDays = JSON.parse(localStorage.getItem("restDays")) || [];
 
 // 1. Definição das Conquistas (Dados e Ícones SVG)
 const ACHIEVEMENTS = [

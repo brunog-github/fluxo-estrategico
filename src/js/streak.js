@@ -152,6 +152,7 @@ function getMinutesStudiedOnDate(dateObj, history) {
 function saveRestDays() {
   let checkboxes = document.querySelectorAll(".rest-day-check");
   let selected = [];
+
   checkboxes.forEach((cb) => {
     if (cb.checked) selected.push(parseInt(cb.value));
   });

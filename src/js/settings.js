@@ -75,6 +75,20 @@ function importConfigCSV(input) {
   const file = input.files[0];
   if (!file) return;
 
+  const fileName = file.name;
+  const fileExtension = fileName
+    .substring(fileName.lastIndexOf("."))
+    .toLowerCase();
+
+  if (fileExtension !== ".csv") {
+    showToast(
+      "error",
+      "Erro de Importação: Por favor, selecione um arquivo no formato CSV (.csv)."
+    );
+    input.value = "";
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = function (e) {
     const text = e.target.result;
@@ -92,6 +106,17 @@ function triggerImportConfig() {
 function processConfigCSV(csvText) {
   const lines = csvText.split("\n");
   if (lines.length < 2) return alert("Arquivo inválido ou vazio.");
+
+  const expectedHeader = "Materia,Dias_Descanso";
+  const actualHeader = lines[0].trim();
+
+  if (actualHeader !== expectedHeader) {
+    showToast(
+      "warning",
+      `O arquivo não é compativel com as configurações. -- Cabeçalho Esperado: ${expectedHeader} -- Cabeçalho Encontrado: ${actualHeader}`
+    );
+    return;
+  }
 
   let newSubjects = [];
   let newRestDaysString = "";

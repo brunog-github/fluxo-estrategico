@@ -383,6 +383,20 @@ function importFromCSV(input) {
   const file = input.files[0];
   if (!file) return;
 
+  const fileName = file.name;
+  const fileExtension = fileName
+    .substring(fileName.lastIndexOf("."))
+    .toLowerCase();
+
+  if (fileExtension !== ".csv") {
+    showToast(
+      "error",
+      "Erro de Importação: Por favor, selecione um arquivo no formato CSV (.csv)."
+    );
+    input.value = "";
+    return;
+  }
+
   const reader = new FileReader();
 
   reader.onload = function (e) {
@@ -409,6 +423,17 @@ function importFromCSV(input) {
 function processCSVData(csvText) {
   const lines = csvText.split("\n");
   const newHistory = [];
+
+  const expectedHeader = "Data,Hora,Materia,Tempo,Total Questoes,Acertos,Erros";
+  const actualHeader = lines[0].trim();
+
+  if (actualHeader !== expectedHeader) {
+    showToast(
+      "warning",
+      `O arquivo não é compativel com as configurações. -- Cabeçalho Esperado: ${expectedHeader} -- Cabeçalho Encontrado: ${actualHeader}`
+    );
+    throw new Error("Arquivo incorreto!");
+  }
 
   // Começa do 1 para pular o cabeçalho
   for (let i = 1; i < lines.length; i++) {

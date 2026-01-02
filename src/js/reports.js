@@ -3,6 +3,7 @@
 function showReports() {
   renderHistoryTable(); // Sua função antiga da tabela
   updateCharts(); // NOVA função dos gráficos
+  showMobileRotateTip();
   switchScreen("screen-reports");
 }
 
@@ -463,3 +464,38 @@ function processCSVData(csvText) {
 
   localStorage.setItem("studyHistory", JSON.stringify(mergedHistory));
 }
+
+/**
+ * Exibe a dica para girar a tela apenas se for detectado um dispositivo mobile/estreito.
+ */
+function showMobileRotateTip() {
+  const tipElement = document.getElementById("rotate-tip");
+  if (!tipElement) return;
+
+  // Se a largura da janela for menor que 600px, consideramos ser um celular em retrato
+  if (window.innerWidth < 600) {
+    tipElement.style.display = "block";
+    // Adiciona um ícone simples de celular girando (usando SVG ou Unicode)
+    tipElement.innerHTML = `
+            <span style="font-size: 1.5em; vertical-align: middle; margin-right: 5px;">📱⟳</span>
+            Gire o celular para o modo paisagem para melhor visualização do gráfico.
+        `;
+  } else {
+    tipElement.style.display = "none";
+  }
+}
+
+// 4. Integração: Chamar no final de renderReports()
+
+// No final da sua função renderReports(), adicione a chamada:
+/*
+function renderReports() {
+    // ... todo o código de cálculo e renderização dos gráficos ...
+    
+    // NOVO: Chama a dica
+    showMobileRotateTip(); 
+}
+*/
+
+// É uma boa prática também checar a dica se o usuário redimensionar a tela
+window.addEventListener("resize", showMobileRotateTip);

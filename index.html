@@ -183,7 +183,25 @@
       </div>
 
       <div id="screen-config" class="hidden">
-        <h3>Configurar Fluxo</h3>
+        <div class="nav-header">
+          <button
+            class="btn-back"
+            onclick="goHome()"
+            title="Voltar para o Início"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <h2>Configurações</h2>
+        </div>
 
         <p style="font-size: 12px; color: #666">
           Adicione as matérias que deseja estudar.
@@ -268,40 +286,90 @@
           </button>
         </div>
 
-        <div class="table-actions">
+        <button
+          class="btn-sm btn-danger-text"
+          onclick="clearConfig()"
+          title="reseta as configurações da pagina de configurar fluxo"
+        >
+          ⟲ Resetar as Configurações
+        </button>
+
+        <div
+          class="table-actions"
+          style="
+            background: var(--badge-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+          "
+        >
+          <h3 style="font-weight: bold; margin: 10px; color: var(--text-color)">
+            📦 Dados e Backup
+          </h3>
+          <p
+            style="
+              font-size: 13px;
+              color: var(--text-color);
+              margin-bottom: 15px;
+            "
+          >
+            Gere um arquivo único contendo todo o seu histórico e configurações
+            para salvar ou transferir para outro Celular / Dispositivo.
+          </p>
           <div style="display: flex; gap: 8px">
-            <button class="btn-sm" onclick="exportConfigCSV()">
-              📤 Exportar CSV
+            <button class="btn-sm" onclick="exportBackupFile()">
+              <span>☁️</span> Fazer Backup dos Dados
             </button>
             <button
               class="btn-sm"
               onclick="triggerImportConfig()"
               title="Use o mesmo formato do arquivo de exportação em .CSV"
             >
-              📥 Importar
+              <span>📥</span> Restaurar Backup
             </button>
             <input
               type="file"
-              id="import-file-config"
+              id="backup-upload"
               style="display: none"
-              accept=".csv, text/csv, text/plain */*"
-              onchange="importConfigCSV(this)"
+              accept=".json, .estudos, application/json, text/plain"
+              onchange="importBackupFile(this)"
             />
           </div>
-          <button class="btn-sm btn-danger-text" onclick="clearConfig()">
-            🗑️ Limpar tudo
-          </button>
-          <p style="font-size: 12px; color: #888; margin-top: 5px">
-            O CSV deve ter as colunas: <strong>Materia</strong> e
-            <strong>Dias_Descanso</strong> (ex: "Sábado, Domingo").
+
+          <p
+            style="
+              font-size: 11px;
+              color: #e74c3c;
+              margin-top: 10px;
+              text-align: center;
+            "
+          >
+            Nota: Restaurar um backup substituirá seus dados atuais.
           </p>
         </div>
-
-        <button class="btn" onclick="goHome()">Voltar / Salvar</button>
       </div>
 
       <div id="screen-reports" class="hidden">
-        <h3>Relatórios de Desempenho</h3>
+        <div class="nav-header">
+          <button
+            class="btn-back"
+            onclick="goHome()"
+            title="Voltar para o Início"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <h2>Relatórios</h2>
+        </div>
 
         <div
           style="
@@ -358,46 +426,33 @@
         </div>
 
         <div class="table-actions">
-          <div style="display: flex; gap: 8px">
-            <button class="btn-sm" onclick="exportToCSV()">
-              📤 Exportar CSV
-            </button>
-            <button
-              class="btn-sm"
-              onclick="triggerImport()"
-              title="Use o mesmo formato do arquivo de exportação em .CSV"
-            >
-              📥 Importar
-            </button>
-            <input
-              type="file"
-              id="import-file"
-              style="display: none"
-              accept=".csv, text/csv, text/plain */*"
-              onchange="importFromCSV(this)"
-            />
-          </div>
+          <div style="display: flex; gap: 8px"></div>
 
           <button class="btn-sm btn-danger-text" onclick="clearHistory()">
             🗑️ Limpar tudo
           </button>
         </div>
-
-        <button class="btn" onclick="switchScreen('screen-home')">
-          Voltar
-        </button>
       </div>
 
       <div id="screen-achievements" class="hidden">
         <div class="achievements-header" style="margin-bottom: 20px">
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              margin-bottom: 15px;
-            "
-          >
+          <div class="nav-header">
+            <button
+              class="btn-back"
+              onclick="goHome()"
+              title="Voltar para o Início"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
             <div style="display: flex; align-items: center; gap: 10px">
               <h2 style="margin: 0">Conquistas 🏆</h2>
               <span
@@ -427,14 +482,6 @@
         </div>
 
         <div id="achievements-grid" class="achievements-container"></div>
-
-        <button
-          class="btn btn-black"
-          onclick="goHome()"
-          style="margin-top: 20px"
-        >
-          Voltar
-        </button>
       </div>
     </div>
 

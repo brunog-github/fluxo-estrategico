@@ -31,141 +31,8 @@ function convertStringToRestDays(text) {
   return result;
 }
 
-// --- 1. EXPORTAR CONFIGURAÇÕES ---
-function exportConfigCSV() {
-  const subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
-  const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
-
-  // Transforma os números dos dias em texto legível para o usuário
-  const restDaysText = convertRestDaysToString(restDays);
-
-  // Cabeçalho
-  let csvContent = "Materia,Dias_Descanso\n";
-
-  // Lógica: Listamos todas as matérias.
-  // Colocamos a string de dias de descanso apenas na primeira linha para não ficar repetitivo,
-  // mas o usuário pode colocar em qualquer linha se quiser na importação.
-
-  // Se não houver matérias, exportamos pelo menos os dias
-  const maxRows = Math.max(subjects.length, 1);
-
-  for (let i = 0; i < maxRows; i++) {
-    const mat = subjects[i] || ""; // Matéria da linha ou vazio
-
-    // Apenas na primeira linha escrevemos os dias de descanso.
-    // Colocamos entre aspas para evitar bugs se tiver vírgulas na string
-    const dias = i === 0 ? `"${restDaysText}"` : "";
-
-    csvContent += `${mat},${dias}\n`;
-  }
-
-  // Download do arquivo
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "config_estudos.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-// --- 2. IMPORTAR CONFIGURAÇÕES ---
-function importConfigCSV(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const fileName = file.name;
-  const fileExtension = fileName
-    .substring(fileName.lastIndexOf("."))
-    .toLowerCase();
-
-  if (fileExtension !== ".csv") {
-    showToast(
-      "error",
-      "Erro de Importação: Por favor, selecione um arquivo no formato CSV (.csv)."
-    );
-    input.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const text = e.target.result;
-    processConfigCSV(text);
-    // Limpa o input para permitir importar o mesmo arquivo novamente se errar
-    input.value = "";
-  };
-  reader.readAsText(file);
-}
-
 function triggerImportConfig() {
-  document.getElementById("import-file-config").click();
-}
-
-function processConfigCSV(csvText) {
-  const lines = csvText.split("\n");
-  if (lines.length < 2) return alert("Arquivo inválido ou vazio.");
-
-  const expectedHeader = "Materia,Dias_Descanso";
-  const actualHeader = lines[0].trim();
-
-  if (actualHeader !== expectedHeader) {
-    showToast(
-      "warning",
-      `O arquivo não é compativel com as configurações. -- Cabeçalho Esperado: ${expectedHeader} -- Cabeçalho Encontrado: ${actualHeader}`
-    );
-    return;
-  }
-
-  let newSubjects = [];
-  let newRestDaysString = "";
-
-  // Começa do 1 para pular o cabeçalho
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-
-    // Regex complexo para lidar com aspas no CSV (caso dias sejam "Sabado, Domingo")
-    // Divide por vírgula, mas ignora vírgulas dentro de aspas
-    const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-    // Remove aspas extras que o CSV possa ter adicionado
-    const mat = cols[0] ? cols[0].replace(/^"|"$/g, "").trim() : "";
-    const dias = cols[1] ? cols[1].replace(/^"|"$/g, "").trim() : "";
-
-    if (mat) newSubjects.push(mat);
-
-    // Se encontrar alguma definição de dias em qualquer linha, salva
-    if (dias && dias.length > 2) {
-      newRestDaysString = dias;
-    }
-  }
-
-  if (newSubjects.length === 0 && newRestDaysString === "") {
-    return showToast("error", "Nenhuma configuração encontrada no arquivo.");
-  }
-
-  confirmAction(
-    "Isso irá substituir suas matérias e dias de descanso atuais. Continuar?",
-    () => {
-      // Salva Matérias
-      if (newSubjects.length > 0) {
-        // Remove duplicatas
-        newSubjects = [...new Set(newSubjects)];
-        localStorage.setItem("studyCycle", JSON.stringify(newSubjects));
-      }
-
-      // Salva Dias de Descanso (Converte Texto -> Números)
-      if (newRestDaysString) {
-        const restIndices = convertStringToRestDays(newRestDaysString);
-        localStorage.setItem("restDays", JSON.stringify(restIndices));
-      }
-
-      showToast("success", "Configurações importadas com sucesso!");
-      location.reload(); // Recarrega para aplicar mudanças
-    }
-  );
+  document.getElementById("backup-upload").click();
 }
 
 function clearConfig() {
@@ -178,4 +45,122 @@ function clearConfig() {
       location.reload();
     }
   );
+}
+
+// --- SISTEMA DE BACKUP UNIFICADO (JSON) ---
+
+// 1. EXPORTAR TUDO (Histórico + Configs)
+function exportBackupFile() {
+  // Coleta os dados do localStorage
+  const backupData = {
+    version: 1.0, // Bom para controlar versões futuras do seu app
+    date: new Date().toISOString(),
+    data: {
+      studyHistory: JSON.parse(localStorage.getItem("studyHistory")) || [],
+      studyCycle: JSON.parse(localStorage.getItem("studyCycle")) || [],
+      restDays: JSON.parse(localStorage.getItem("restDays")) || [],
+      theme: localStorage.getItem("theme") || "light",
+      currentIndex: localStorage.getItem("currentIndex") || 0,
+      unlockedAchievements:
+        JSON.parse(localStorage.getItem("unlockedAchievements")) || [],
+    },
+  };
+
+  // Converte para texto JSON bonito
+  const jsonString = JSON.stringify(backupData, null, 2);
+
+  // Cria o arquivo Blob
+  // Usamos a extensão .estudos para parecer um arquivo do sistema, mas é texto puro
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  // Gera nome do arquivo com data: "backup_estudos_2023-10-25.json"
+  const dateStr = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
+  const fileName = `backup_estudos_${dateStr}.json`;
+
+  // Download forçado
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast("success", "Dados exportados com sucesso!");
+}
+
+// 2. IMPORTAR BACKUP
+function importBackupFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Verificação de segurança simples (tamanho e extensão se quiser)
+  // Aqui vamos confiar no JSON.parse para validar o conteúdo
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    try {
+      const text = e.target.result;
+      const backup = JSON.parse(text);
+
+      // Validação: O arquivo tem a estrutura certa?
+      if (
+        !backup.data ||
+        !Array.isArray(backup.data.studyHistory) ||
+        !Array.isArray(backup.data.studyCycle)
+      ) {
+        throw new Error("Estrutura do arquivo inválida.");
+      }
+
+      // Confirmação final
+
+      confirmAction(
+        `Backup de ${new Date(
+          backup.date
+        ).toLocaleDateString()} encontrado. Isso irá SUBSTITUIR todo o seu histórico e configurações atuais. Deseja continuar?`,
+        () => {
+          // Restaura os dados
+          localStorage.setItem(
+            "studyHistory",
+            JSON.stringify(backup.data.studyHistory)
+          );
+          localStorage.setItem(
+            "studyCycle",
+            JSON.stringify(backup.data.studyCycle)
+          );
+          localStorage.setItem(
+            "restDays",
+            JSON.stringify(backup.data.restDays)
+          );
+          localStorage.setItem("theme", backup.data.theme);
+          localStorage.setItem("currentIndex", backup.data.currentIndex);
+
+          // Opcional: Restaurar conquistas também?
+          if (backup.data.unlockedAchievements) {
+            localStorage.setItem(
+              "unlockedAchievements",
+              JSON.stringify(backup.data.unlockedAchievements)
+            );
+          }
+
+          showToast(
+            "success",
+            "Dados restaurados com sucesso! O aplicativo será recarregado."
+          );
+          window.location.reload();
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      showToast(
+        "error",
+        "Erro ao restaurar: O arquivo selecionado está corrompido ou não é um backup válido deste aplicativo."
+      );
+    } finally {
+      input.value = ""; // Limpa o input
+    }
+  };
+
+  reader.readAsText(file);
 }

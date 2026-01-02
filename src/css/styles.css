@@ -568,3 +568,73 @@ th {
 .form-select:focus {
   border-color: var(--primary-color);
 }
+
+/* --- CABEÇALHO DE NAVEGAÇÃO (MODERNO) --- */
+.nav-header {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Espaço entre a seta e o título */
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color); /* Linha sutil opcional */
+}
+
+.nav-header h2 {
+  margin: 0; /* Remove margem padrão do h2 para alinhar */
+  font-size: 1.5rem;
+}
+
+/* --- BOTÃO VOLTAR (COM ANIMAÇÃO) --- */
+.btn-back {
+  background: transparent; /* Fundo transparente por padrão */
+  border: none;
+  cursor: pointer;
+  width: 40px; /* Tamanho fixo para garantir o clique */
+  height: 40px;
+  border-radius: 50%; /* Perfeitamente redondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+
+  /* Transição suave para o fundo e cor */
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+
+  /* Remove o outline padrão feio ao clicar (mas mantém acessibilidade se usar Tab) */
+  outline: none;
+}
+
+/* O SVG (A Seta) tem sua própria transição independente */
+.btn-back svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efeito "elástico" */
+}
+
+/* --- ESTADO HOVER (MOUSE EM CIMA) --- */
+.btn-back:hover {
+  background-color: var(--card-bg-hover); /* Círculo de fundo aparece */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  color: var(--primary-color); /* A seta muda para a cor de destaque */
+}
+
+/* A mágica: A seta desliza para a esquerda indicando "voltar" */
+.btn-back:hover svg {
+  transform: translateX(-4px);
+}
+
+/* --- ESTADO ACTIVE (CLICANDO) --- */
+.btn-back:active {
+  background-color: var(--border-color); /* Fica um pouco mais escuro */
+  transition-duration: 0.1s; /* Resposta rápida */
+}
+
+.btn-back:active svg {
+  transform: translateX(-6px) scale(0.9); /* Vai mais longe e encolhe um pouco */
+}
+
+/* Foco pelo teclado (Acessibilidade) */
+.btn-back:focus-visible {
+  border: 2px solid var(--primary-color);
+}

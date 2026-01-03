@@ -83,6 +83,7 @@ function renderConfigList() {
 function addSubject() {
   let input = document.getElementById("new-subject-input");
   let val = input.value.trim();
+
   if (val) {
     subjects.push(val);
     localStorage.setItem("studyCycle", JSON.stringify(subjects));

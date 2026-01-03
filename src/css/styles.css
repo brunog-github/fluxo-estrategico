@@ -217,6 +217,7 @@ body {
   list-style: none;
   padding: 0;
   text-align: left;
+  text-transform: uppercase;
 }
 .config-list li {
   background: var(--table-stripe);
@@ -574,7 +575,7 @@ th {
   display: flex;
   align-items: center;
   gap: 15px; /* Espaço entre a seta e o título */
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color); /* Linha sutil opcional */
 }

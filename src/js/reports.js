@@ -75,9 +75,9 @@ function clearHistory() {
   confirmAction(
     "Tem certeza que deseja apagar todo o histórico de estudos?",
     () => {
-      localStorage.removeItem("studyHistory");
-      renderHistoryTable();
       localStorage.removeItem("unlockedAchievements");
+      localStorage.removeItem("studyhistor");
+      renderHistoryTable();
       location.reload();
     }
   );
@@ -273,6 +273,16 @@ function summaryQuestions(history) {
     subjectChartContainer.appendChild(summaryDiv);
   }
 
+  let accPercTextColor = "";
+
+  if (accPerc < 50) {
+    accPercTextColor = "#ff5252";
+  } else if (accPerc >= 70) {
+    accPercTextColor = "#28a745";
+  } else {
+    accPercTextColor = "#ffc107";
+  }
+
   summaryDiv.innerHTML = `
         <div>
             <div style="font-size:12px; opacity:0.7;">Questões</div>
@@ -283,12 +293,12 @@ function summaryQuestions(history) {
             <div style="font-size:18px; font-weight:bold; color:var(--success-color);">${totalC}</div>
         </div>
         <div>
-            <div style="font-size:12px; opacity:0.7; color:#ff4444;">Erros</div>
+            <div style="font-size:12px; opacity:0.7; color:#ff0000;">Erros</div>
             <div style="font-size:18px; font-weight:bold; color:#ff4444;">${totalE}</div>
         </div>
         <div>
             <div style="font-size:12px; opacity:0.7;">Precisão de Acertos</div>
-            <div style="font-size:18px; font-weight:bold;">${accPerc}%</div>
+            <div style="font-size:18px; font-weight:bold; color:${accPercTextColor}">${accPerc}%</div>
         </div>
     `;
 }

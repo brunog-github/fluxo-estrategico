@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="src/css/styles.css" />
     <link rel="stylesheet" href="src/css/achievements.css" />
     <link rel="stylesheet" href="src/css/calendar.css" />
+    <link rel="stylesheet" href="src/css/globalTooltip.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -112,6 +113,17 @@
               >
                 CONSTÂNCIA
               </strong>
+
+              <div>
+                <span
+                  class="tip-strike-icon"
+                  data-tooltip="Para contabilizar um dia de estudo, 
+                  você deve estudar no mínimo 20 minutos."
+                  data-tooltip-position="top"
+                  >?</span
+                >
+              </div>
+
               <button
                 class="btn-calendar-toggle"
                 onclick="toggleCalendarModal()"
@@ -560,6 +572,7 @@
 
     <div class="toast-container" id="toast-container"></div>
 
+    <script src="src/js/tooltip.js"></script>
     <script src="src/js/globals.js"></script>
     <script src="src/js/utils.js"></script>
     <script src="src/js/reports.js"></script>

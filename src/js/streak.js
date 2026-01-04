@@ -10,106 +10,92 @@ function renderStreak() {
 
   const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Zerar hora para comparação justa
+  today.setHours(0, 0, 0, 0);
 
-  // 1. Descobrir a data de INÍCIO REAL (Data mais antiga do histórico)
+  // 1. Descobrir data inicial real
   let startDate = new Date();
-
   if (history.length > 0) {
-    // Encontrar a data mais antiga no array
-    // Formato esperado history[i].date: "31/12/2025 às 14:00"
-    let timestamps = history.map((h) => parseDateStr(h.date).getTime());
-    let oldestTs = Math.min(...timestamps);
-    startDate = new Date(oldestTs);
+    const timestamps = history.map((h) => parseDateStr(h.date).getTime());
+    startDate = new Date(Math.min(...timestamps));
   }
   startDate.setHours(0, 0, 0, 0);
 
-  // 2. Calcular Streak Atual (Lógica numérica)
+  // 2. Calcular streak atual
   let currentStreak = 0;
 
-  // Loop de segurança de 365 dias para trás para calcular o número
   for (let i = 0; i < 365; i++) {
-    let day = new Date(today);
-    day.setDate(today.getDate() - i); // Começa hoje e vai voltando
-    day.setHours(0, 0, 0, 0);
-
-    // Se chegamos numa data ANTERIOR ao inicio real, paramos de exigir streak
-    if (day < startDate && i > 0) break;
-
-    let minutes = getMinutesStudiedOnDate(day, history);
-    let dayOfWeek = day.getDay();
-    let isRest = restDays.includes(dayOfWeek);
-
-    if (minutes >= 20) {
-      currentStreak++;
-    } else if (isRest) {
-      // Descanso mantém o streak mas não soma
-      continue;
-    } else if (i === 0) {
-      // Se é hoje e ainda não estudou, não quebra (ainda)
-      continue;
-    } else {
-      // Quebrou
-      break;
-    }
-  }
-  countDisplay.innerText = `${currentStreak} dias seguidos 🔥`;
-
-  // 3. Renderizar as bolinhas (VISUAL)
-  // Vamos mostrar fixo os últimos 14 dias para preencher a div visualmente
-  // Mas só vamos julgar (Vermelho/Verde) se a data for >= startDate
-
-  const daysToShow = 14; // Aumentei para 14 para ficar mais cheio
-
-  for (let i = daysToShow - 1; i >= 0; i--) {
-    let day = new Date(today);
+    const day = new Date(today);
     day.setDate(today.getDate() - i);
     day.setHours(0, 0, 0, 0);
 
-    let minutesStuded = getMinutesStudiedOnDate(day, history);
-    let dayOfWeek = day.getDay();
-    let isRest = restDays.includes(dayOfWeek);
-    let dateStr = day.toLocaleDateString("pt-BR").slice(0, 5); // "31/12"
+    if (day < startDate && i > 0) break;
 
-    let div = document.createElement("div");
-    div.className = "streak-dot";
+    const minutes = getMinutesStudiedOnDate(day, history);
+    const isRest = restDays.includes(day.getDay());
 
-    let minutesSplit = (minutesStuded / 60).toFixed(2);
-    let hour = minutesSplit.split(".")[0];
-    let minutes = ((minutesSplit - hour) * 60).toFixed(0);
-
-    if (minutesStuded >= 60) {
-      div.title = `${dateStr}: ${hour}h ${minutes}min`;
+    if (minutes >= 20) {
+      currentStreak++;
+    } else if (isRest || i === 0) {
+      continue;
     } else {
-      div.title = `${dateStr}: ${minutesStuded.toFixed(0)} min`;
+      break;
+    }
+  }
+
+  countDisplay.innerText = `${currentStreak} dias seguidos 🔥`;
+
+  // 3. Render visual (últimos 14 dias)
+  const daysToShow = 14;
+
+  for (let i = daysToShow - 1; i >= 0; i--) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - i);
+    day.setHours(0, 0, 0, 0);
+
+    const minutesStuded = getMinutesStudiedOnDate(day, history);
+    const isRest = restDays.includes(day.getDay());
+    const dateStr = day.toLocaleDateString("pt-BR").slice(0, 5);
+
+    const div = document.createElement("div");
+    div.className = "streak-dot";
+    div.innerText = dateStr.split("/")[0];
+
+    // Cálculo de horas/minutos
+    let tooltipText;
+    if (minutesStuded >= 60) {
+      const totalMinutes = Math.round(minutesStuded);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      tooltipText = `${dateStr} - ${h}h ${m}min`;
+    } else {
+      tooltipText = `${dateStr} - ${Math.round(minutesStuded)} min`;
     }
 
-    div.innerText = dateStr.split("/")[0]; // Dia do mês
-
-    // Lógica de Cores
+    // Lógica visual + tooltip
     if (day < startDate) {
-      // Data ANTERIOR ao começo do uso do app
-      // Deixa cinza padrão, sem ícone, indicando "não existia"
       div.style.opacity = "0.3";
       div.innerText = "-";
+      tooltipText = `${dateStr} - Sem dados`;
     } else if (minutesStuded >= 20) {
       div.classList.add("success");
       div.innerHTML = "✓";
     } else if (isRest) {
       div.classList.add("rest");
-      div.title = `${dateStr} - Dia de Descanso`;
       div.innerHTML = "😴";
+      tooltipText = `${dateStr} - Dia de descanso`;
     } else if (i === 0) {
-      // Hoje (Ainda incompleto)
       div.classList.add("today");
       div.style.backgroundColor = "transparent";
       div.style.color = "var(--text-color)";
+      tooltipText = `${dateStr} - Hoje`;
     } else {
-      // Falha
       div.classList.add("fail");
-      div.title = `${dateStr} - Não estudou esse dia`;
       div.innerHTML = "✕";
+      tooltipText = `${dateStr} - Não estudou`;
     }
+
+    // 🔥 Tooltip global
+    div.dataset.tooltip = tooltipText;
 
     container.appendChild(div);
   }

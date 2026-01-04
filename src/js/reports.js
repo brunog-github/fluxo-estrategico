@@ -75,9 +75,9 @@ function clearHistory() {
   confirmAction(
     "Tem certeza que deseja apagar todo o histórico de estudos?",
     () => {
-      localStorage.removeItem("unlockedAchievements");
-      localStorage.removeItem("studyhistor");
+      localStorage.removeItem("studyHistory");
       renderHistoryTable();
+      localStorage.removeItem("unlockedAchievements");
       location.reload();
     }
   );

@@ -1,0 +1,54 @@
+.tip-strike-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--table-stripe);
+  color: var(--text-color);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bolder;
+}
+
+.tooltip-floating {
+  position: fixed;
+  background: #222;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 999999;
+  pointer-events: none;
+
+  opacity: 0;
+  transform: translate(-50%, -4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tooltip-floating.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.tooltip-floating::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+}
+
+/* Tooltip abrindo PARA BAIXO (padrão) */
+.tooltip-floating.tooltip-bottom::after {
+  bottom: 100%;
+  border-bottom-color: #222;
+}
+
+/* Tooltip abrindo PARA CIMA */
+.tooltip-floating.tooltip-top::after {
+  top: 100%;
+  border-top-color: #222;
+}

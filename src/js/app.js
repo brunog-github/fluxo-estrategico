@@ -203,9 +203,11 @@ function init() {
   if (savedState === "timer") {
     seconds = parseInt(localStorage.getItem("currentTimerSeconds") || 0);
     startStudy(true);
+    initGlobalTooltip();
   } else {
     renderHome();
     checkAndUnlockAchievements();
+    initGlobalTooltip();
   }
 }
 

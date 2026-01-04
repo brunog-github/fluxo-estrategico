@@ -28,7 +28,7 @@ function renderHistoryTable() {
 
       tr.innerHTML = `
                 <td><small>${shortDate}</small></td>
-                <td style="text-align:left; font-weight:bold;">${
+                <td style="text-align:left; font-weight:bold; text-transform: capitalize;">${
                   item.subject
                 }</td>
                 <td>${item.duration}</td>
@@ -91,7 +91,7 @@ function updateCharts() {
   let stats = {};
 
   history.forEach((item) => {
-    let subj = item.subject;
+    let subj = item.subject.toUpperCase(); // deixa as letras maiusculas para os graficos
     if (!stats[subj]) {
       stats[subj] = { correct: 0, wrong: 0, time: 0 };
     }
@@ -115,12 +115,12 @@ function updateCharts() {
   let perfWrong = [];
 
   allLabels.forEach((label) => {
-    let s = stats[label];
+    let subject = stats[label];
     // SÓ ADICIONA SE TIVER PELO MENOS 1 QUESTÃO RESPONDIDA (Certa ou Errada)
-    if (s.correct + s.wrong > 0) {
+    if (subject.correct + subject.wrong > 0) {
       perfLabels.push(label);
-      perfCorrect.push(s.correct);
-      perfWrong.push(s.wrong);
+      perfCorrect.push(subject.correct);
+      perfWrong.push(subject.wrong);
     }
   });
 
@@ -144,7 +144,12 @@ function updateCharts() {
   performanceChartInstance = new Chart(ctxPerformance, {
     type: "bar",
     data: {
-      labels: perfLabels, // Usa as labels filtradas
+      labels: perfLabels.map((m) => {
+        if (!m.startsWith("DIREITO")) return m;
+
+        const resto = m.replace("DIREITO", "").trim();
+        return `D. ${resto}`;
+      }), // Usa as labels filtradas
       datasets: [
         {
           label: "Acertos",
@@ -180,7 +185,7 @@ function updateCharts() {
         },
       },
       plugins: {
-        legend: { position: "bottom" },
+        legend: { position: "bottom" }, //text-transform: capitalize
       },
     },
   });
@@ -192,7 +197,12 @@ function updateCharts() {
   timeChartInstance = new Chart(ctxTime, {
     type: "bar",
     data: {
-      labels: allLabels, // Usa todas as labels
+      labels: allLabels.map((m) => {
+        if (!m.startsWith("DIREITO")) return m;
+
+        const resto = m.replace("DIREITO", "").trim();
+        return `D. ${resto}`;
+      }), // Usa todas as labels
       datasets: [
         {
           label: "Tempo (hr)",

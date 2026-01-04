@@ -172,8 +172,16 @@
           <p style="color: var(--text-color); font-size: 14px">
             Próxima matéria:
           </p>
-          <h2 id="home-subject-name">Carregando...</h2>
-          <div class="subject-badge" id="home-next-subject">Depois: ...</div>
+          <h2 id="home-subject-name" style="text-transform: capitalize">
+            Carregando...
+          </h2>
+          <div
+            class="subject-badge"
+            id="home-next-subject"
+            style="text-transform: capitalize"
+          >
+            Depois: ...
+          </div>
 
           <button class="btn" onclick="startStudy()">Continuar</button>
           <button class="btn btn-black" onclick="showConfig()">
@@ -190,11 +198,19 @@
       </div>
 
       <div id="screen-timer" class="hidden">
-        <div class="subject-badge" id="timer-next-subject-display">
+        <div
+          class="subject-badge"
+          id="timer-next-subject-display"
+          style="text-transform: capitalize"
+        >
           Próxima: ...
         </div>
         <br />
-        <div class="current-subject-title" id="timer-subject-name">
+        <div
+          class="current-subject-title"
+          id="timer-subject-name"
+          style="text-transform: capitalize"
+        >
           Matéria Atual
         </div>
 
@@ -256,7 +272,6 @@
             type="text"
             id="new-subject-input"
             placeholder="Nome da matéria (ex: Português)"
-            style="text-transform: capitalize"
           />
           <button
             class="btn btn-outline"

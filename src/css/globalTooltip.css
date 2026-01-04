@@ -36,7 +36,7 @@
 .tooltip-floating::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: var(--arrow-x, 50%);
   transform: translateX(-50%);
   border: 6px solid transparent;
 }

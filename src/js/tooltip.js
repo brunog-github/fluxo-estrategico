@@ -10,8 +10,29 @@ function initGlobalTooltip() {
     const position = target.dataset.tooltipPosition || "bottom";
 
     const centerX = rect.left + rect.width / 2;
+    let leftMobile = centerX;
+    let arrowX = "50%"; // Posição padrão da seta
 
-    tooltipEl.style.left = centerX + "px";
+    // ✅ CORREÇÃO APENAS PARA MOBILE (evita overflow)
+    if (window.innerWidth <= 768) {
+      const tooltipWidth = tooltipEl.offsetWidth;
+      const padding = 8;
+
+      const minLeft = tooltipWidth / 2 + padding;
+      const maxLeft = window.innerWidth - tooltipWidth / 2 - padding;
+
+      if (leftMobile < minLeft) {
+        arrowX = ((centerX - minLeft) / tooltipWidth) * 100 + 50 + "%";
+        leftMobile = minLeft;
+      }
+      if (leftMobile > maxLeft) {
+        arrowX = ((centerX - maxLeft) / tooltipWidth) * 100 + 50 + "%";
+        leftMobile = maxLeft;
+      }
+    }
+
+    tooltipEl.style.left = leftMobile + "px";
+    tooltipEl.style.setProperty("--arrow-x", arrowX);
 
     if (position === "top") {
       tooltipEl.style.top = rect.top - tooltipEl.offsetHeight - 10 + "px";

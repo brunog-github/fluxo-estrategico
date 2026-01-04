@@ -462,8 +462,8 @@ th {
 /* Ajuste Mobile para a barra de ações */
 @media (max-width: 400px) {
   .table-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
   .btn-sm {
     justify-content: center;

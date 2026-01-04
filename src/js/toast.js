@@ -11,6 +11,38 @@ function showToast(type = "info", message, duration = 3500) {
 
   container.appendChild(toast);
 
+  // Adiciona funcionalidade de swipe para fechar no mobile
+  let startX = 0;
+  let currentX = 0;
+  let isDragging = false;
+
+  toast.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+    toast.style.transition = "none"; // Remove transição durante o drag para suavidade
+  });
+
+  toast.addEventListener("touchmove", (e) => {
+    if (!isDragging) return;
+    currentX = e.touches[0].clientX;
+    const diff = currentX - startX;
+    toast.style.transform = `translateX(${diff}px)`;
+  });
+
+  toast.addEventListener("touchend", (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diff = currentX - startX;
+    toast.style.transition = ""; // Restaura transição
+    if (Math.abs(diff) > 100) {
+      // Threshold para fechar
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 400);
+    } else {
+      toast.style.transform = ""; // Volta à posição original
+    }
+  });
+
   // Mostra com animação
   setTimeout(() => toast.classList.add("show"), 100);
 

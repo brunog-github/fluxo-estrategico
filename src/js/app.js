@@ -24,6 +24,18 @@ function goHome() {
   switchScreen("screen-home");
 }
 
+function goHomeFromTimeScreen() {
+  // Para o timer se estiver rodando
+  let appState = localStorage.getItem("appState");
+  if (appState === "timer") {
+    localStorage.setItem("appState", "home");
+    currentTimerSeconds = 0;
+    localStorage.setItem("currentTimerSeconds", currentTimerSeconds);
+  }
+  renderHome();
+  switchScreen("screen-home");
+}
+
 function renderHome() {
   if (subjects.length === 0) {
     document.getElementById("home-subject-name").innerText = "Nenhuma matéria";
@@ -142,6 +154,10 @@ function saveAndAdvance() {
   let correctQuestionsInput =
     parseInt(document.getElementById("input-correct").value) || 0;
 
+  let currentTimerSeconds = parseInt(
+    localStorage.getItem("currentTimerSeconds") || "0"
+  );
+
   if (correctQuestionsInput > questionsInput) {
     showToast(
       "error",
@@ -164,7 +180,7 @@ function saveAndAdvance() {
     id: Date.now(), // ID único baseado em timestamp
     date: dateString + " às " + timeString,
     subject: subjects[currentIndex],
-    duration: document.getElementById("timer-count").innerText,
+    duration: formatTime(currentTimerSeconds),
     questions: document.getElementById("input-questions").value || "0",
     correct: document.getElementById("input-correct").value || "0",
   };
@@ -176,6 +192,10 @@ function saveAndAdvance() {
   history.unshift(entry);
   // Salva de volta
   localStorage.setItem("studyHistory", JSON.stringify(history));
+
+  // muda o appstate para home e limpa o tempo salvo
+  localStorage.setItem("appState", "home");
+  localStorage.removeItem("currentTimerSeconds");
 
   checkAndUnlockAchievements();
 
@@ -204,6 +224,10 @@ function init() {
     seconds = parseInt(localStorage.getItem("currentTimerSeconds") || 0);
     startStudy(true);
     initGlobalTooltip();
+  } else if (savedState === "save-session") {
+    document.getElementById("finish-subject-name").innerText =
+      subjects[currentIndex];
+    switchScreen("screen-finish");
   } else {
     renderHome();
     checkAndUnlockAchievements();

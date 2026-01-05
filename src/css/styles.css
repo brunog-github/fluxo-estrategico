@@ -184,7 +184,7 @@ body {
   display: block;
   margin-bottom: 6px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-color);
   font-weight: 600;
 }
 .form-group input,
@@ -616,9 +616,9 @@ th {
 
 /* --- ESTADO HOVER (MOUSE EM CIMA) --- */
 .btn-back:hover {
-  background-color: var(--card-bg-hover); /* Círculo de fundo aparece */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  background-color: var(--card-bg); /* Círculo de fundo aparece */
   color: var(--primary-color); /* A seta muda para a cor de destaque */
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* A mágica: A seta desliza para a esquerda indicando "voltar" */

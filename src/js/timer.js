@@ -73,8 +73,7 @@ function togglePause() {
 
 function finishSession() {
   clearInterval(timerInterval);
-  localStorage.setItem("appState", "home"); // voltamos para o estado neutro
-  localStorage.removeItem("currentTimerSeconds"); // limpa o tempo salvo
+  localStorage.setItem("appState", "save-session");
 
   document.getElementById("finish-subject-name").innerText =
     subjects[currentIndex];

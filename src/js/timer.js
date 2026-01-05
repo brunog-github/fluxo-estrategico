@@ -81,5 +81,9 @@ function finishSession() {
   document.getElementById("input-questions").value = "";
   document.getElementById("input-correct").value = "";
 
+  // Atualiza o tempo de estudo
+  let currentTimerSeconds = parseInt(localStorage.getItem("currentTimerSeconds") || "0");
+  document.getElementById("finish-study-time").innerText = formatTime(currentTimerSeconds);
+
   switchScreen("screen-finish");
 }

@@ -28,9 +28,9 @@ function goHomeFromTimeScreen() {
   // Para o timer se estiver rodando
   let appState = localStorage.getItem("appState");
   if (appState === "timer") {
+    clearInterval(timerInterval); // Para o timer
     localStorage.setItem("appState", "home");
-    currentTimerSeconds = 0;
-    localStorage.setItem("currentTimerSeconds", currentTimerSeconds);
+    localStorage.removeItem("currentTimerSeconds");
   }
   renderHome();
   switchScreen("screen-home");
@@ -210,6 +210,12 @@ function saveAndAdvance() {
   renderHome();
 }
 
+function cancelSession() {
+  localStorage.removeItem("currentTimerSeconds");
+  localStorage.setItem("appState", "home");
+  renderHome();
+}
+
 function showAchievements() {
   renderAchievementsList(); // Gera a lista atualizada
   switchScreen("screen-achievements");
@@ -227,6 +233,12 @@ function init() {
   } else if (savedState === "save-session") {
     document.getElementById("finish-subject-name").innerText =
       subjects[currentIndex];
+    // Atualiza o tempo de estudo
+    let currentTimerSeconds = parseInt(
+      localStorage.getItem("currentTimerSeconds") || "0"
+    );
+    document.getElementById("finish-study-time").innerText =
+      formatTime(currentTimerSeconds);
     switchScreen("screen-finish");
   } else {
     renderHome();

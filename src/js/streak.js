@@ -45,7 +45,7 @@ function renderStreak() {
   countDisplay.innerText = `${currentStreak} dias seguidos 🔥`;
 
   // 3. Render visual (últimos 14 dias)
-  const daysToShow = 14;
+  const daysToShow = 18;
 
   for (let i = daysToShow - 1; i >= 0; i--) {
     const day = new Date(today);

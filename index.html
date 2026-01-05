@@ -240,9 +240,23 @@
         </button>
       </div>
 
-      <div id="screen-finish" class="hidden">
+      <div id="screen-finish" class="hidden screen-finish">
         <h3>Concluir Circuito</h3>
         <div class="subject-badge" id="finish-subject-name">Matéria</div>
+
+        <div class="form-group">
+          <label>Tempo de Estudo:</label>
+          <div
+            id="finish-study-time"
+            style="
+              font-size: 18px;
+              font-weight: bold;
+              color: var(--primary-color);
+            "
+          >
+            00:00:00
+          </div>
+        </div>
 
         <div class="form-group">
           <label for="input-questions">Quantidade de questões:</label>
@@ -267,6 +281,9 @@
           </p>
         </div>
 
+        <button class="btn btn-outline" onclick="cancelSession()">
+          Cancelar
+        </button>
         <button class="btn" onclick="saveAndAdvance()">
           Concluir e avançar
         </button>
@@ -306,7 +323,7 @@
           <button
             class="btn btn-outline"
             onclick="addSubject()"
-            style="margin-top: 15px"
+            style="margin: 15px auto 0; display: block"
           >
             Adicionar
           </button>

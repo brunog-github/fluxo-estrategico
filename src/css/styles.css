@@ -481,8 +481,7 @@ th {
   display: flex;
   gap: 6px; /* Espaço entre bolinhas */
   overflow-x: auto;
-  padding-bottom: 5px;
-  justify-content: flex-end; /* Alinha à esquerda */
+  padding-bottom: 5px; /* Alinha à esquerda */
 
   /* Esconde a barra de rolagem mas mantém funcional */
   scrollbar-width: none;

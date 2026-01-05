@@ -4,6 +4,7 @@ function showReports() {
   renderHistoryTable(); // Sua função antiga da tabela
   updateCharts(); // NOVA função dos gráficos
   showMobileRotateTip();
+  updateLifetimeStats();
   switchScreen("screen-reports");
 }
 

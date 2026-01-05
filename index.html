@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="src/css/achievements.css" />
     <link rel="stylesheet" href="src/css/calendar.css" />
     <link rel="stylesheet" href="src/css/globalTooltip.css" />
+    <link rel="stylesheet" href="src/css/life-time-stats.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -185,14 +186,14 @@
 
           <button class="btn" onclick="startStudy()">Estudar</button>
           <button class="btn btn-black" onclick="showConfig()">
-            Configurar Fluxo
+            Configurar
           </button>
           <button
             class="btn btn-outline"
             style="margin-top: 10px"
             onclick="showReports()"
           >
-            Ver Relatórios
+            Estatísticas
           </button>
         </div>
       </div>
@@ -485,6 +486,41 @@
             </svg>
           </button>
           <h2>Relatórios</h2>
+        </div>
+
+        <div class="lifetime-stats-card">
+          <div class="stats-details">
+            <h4
+              style="
+                margin: 0 0 15px 0;
+                color: var(--text-color);
+                font-weight: 700;
+                letter-spacing: 1px;
+                font-size: 0.8rem;
+              "
+            >
+              TEMPO DE ESTUDO
+            </h4>
+
+            <div class="stat-row">
+              <strong id="life-avg-time">0h00min</strong>
+              <span class="stat-label"> por dia estudado (média)</span>
+            </div>
+
+            <div class="stat-row">
+              <strong id="life-days-studied">0 dias</strong>
+              <span class="stat-label"> estudados</span>
+            </div>
+
+            <div class="stat-row">
+              <strong id="life-days-total">0 dias</strong>
+              <span class="stat-label"> totais (desde o início)</span>
+            </div>
+          </div>
+
+          <div class="stats-total-big">
+            <span id="life-total-time">0h00min</span>
+          </div>
         </div>
 
         <div

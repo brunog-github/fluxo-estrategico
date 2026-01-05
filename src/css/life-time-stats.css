@@ -1,0 +1,60 @@
+/* Card de Estatísticas Gerais */
+.lifetime-stats-card {
+  background-color: var(--card-bg, #1e1e1e); /* Fallback se a var não existir */
+  border: 1px solid var(--border-color, #333);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.stats-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Tipografia dos Detalhes */
+.stat-row {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.stat-row strong {
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--text-secondary); /* Texto cinza suave para a descrição */
+}
+
+/* O Totalzão na direita */
+.stats-total-big {
+  font-size: 2rem; /* Tamanho grande */
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1;
+  text-align: right;
+  min-width: 150px; /* Garante espaço para não quebrar */
+}
+
+/* Responsividade: Celular fica em coluna */
+@media (max-width: 480px) {
+  .lifetime-stats-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .stats-total-big {
+    text-align: left;
+    font-size: 2rem;
+  }
+}

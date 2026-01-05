@@ -221,6 +221,84 @@ function showAchievements() {
   switchScreen("screen-achievements");
 }
 
+function updateLifetimeStats() {
+  // 1. Pega o histórico
+  const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+
+  if (history.length === 0) {
+    // Se não tiver dados, zera tudo
+    document.getElementById("life-total-time").innerText = "0h00min";
+    document.getElementById("life-avg-time").innerText = "0h00min";
+    document.getElementById("life-days-studied").innerText = "0 dias";
+    document.getElementById("life-days-total").innerText = "0 dias";
+    return;
+  }
+
+  let totalMinutes = 0;
+  const uniqueDays = new Set();
+
+  // Variáveis para achar o range de datas
+  let firstDateObj = null;
+  const now = new Date(); // Data de hoje
+
+  history.forEach((item) => {
+    if (item.duration && item.date) {
+      // Soma o tempo (usando a função timeToMinutes que já criamos)
+      totalMinutes += timeToMinutes(item.duration);
+
+      // Guarda dia único
+      const dateOnly = item.date.split(" ")[0]; // "DD/MM/YYYY"
+      uniqueDays.add(dateOnly);
+
+      // Descobre a primeira data
+      const parts = dateOnly.split("/");
+      // Cria objeto Date (lembrando que mês em JS começa em 0)
+      const currentObj = new Date(parts[2], parts[1] - 1, parts[0]);
+
+      if (!firstDateObj || currentObj < firstDateObj) {
+        firstDateObj = currentObj;
+      }
+    }
+  });
+
+  // --- CÁLCULOS FINAIS ---
+
+  // 1. Total de Dias (Range: Primeiro dia até Hoje)
+  let totalDaysRange = 1;
+  if (firstDateObj) {
+    // Diferença em milissegundos
+    const diffTime = Math.abs(now - firstDateObj);
+    // Converte para dias (aprox) + 1 para contar o dia inclusivo
+    totalDaysRange = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (totalDaysRange < 1) totalDaysRange = 1;
+  }
+
+  // 2. Dias Estudados (Tamanho do Set)
+  const daysStudiedCount = uniqueDays.size;
+
+  // 3. Média (Total Minutos / Dias que DE FATO estudou)
+  // Se quiser média por dias totais, troque daysStudiedCount por totalDaysRange
+  const avgMinutes = daysStudiedCount > 0 ? totalMinutes / daysStudiedCount : 0;
+
+  // --- ATUALIZA A TELA ---
+
+  // Totalzão
+  document.getElementById("life-total-time").innerText =
+    formatMinutesToHm(totalMinutes);
+
+  // Média
+  document.getElementById("life-avg-time").innerText =
+    formatMinutesToHm(avgMinutes);
+
+  // Contadores
+  document.getElementById(
+    "life-days-studied"
+  ).innerText = `${daysStudiedCount} dias`;
+  document.getElementById(
+    "life-days-total"
+  ).innerText = `${totalDaysRange} dias`;
+}
+
 function init() {
   // Verifica se estava estudando antes de atualizar a página
   let savedState = localStorage.getItem("appState");

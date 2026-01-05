@@ -19,6 +19,14 @@ function formatTime(totalSeconds) {
   return [h, m, s].map((v) => (v < 10 ? "0" + v : v)).join(":");
 }
 
+// Função Auxiliar para formatar minutos em "XH Ymin" (ex: 661h 18min)
+function formatMinutesToHm(totalMinutes) {
+  const h = Math.floor(totalMinutes / 60);
+  const m = Math.floor(totalMinutes % 60);
+  // Se for 0 minutos, mostra 0h00min ou algo similar
+  return `${h}h${String(m).padStart(2, "0")}min`;
+}
+
 // --- TEMA DARK/LIGHT ---
 function toggleTheme() {
   const html = document.documentElement;

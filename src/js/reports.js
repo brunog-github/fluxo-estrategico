@@ -67,6 +67,7 @@ function deleteHistoryItem(id) {
     // Atualiza a tabela e o gráfico
     renderHistoryTable();
     updateCharts();
+    updateLifetimeStats();
 
     showToast("success", "Registro excluído!");
   });

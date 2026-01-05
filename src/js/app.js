@@ -39,8 +39,7 @@ function goHomeFromTimeScreen() {
 function renderHome() {
   if (subjects.length === 0) {
     document.getElementById("home-subject-name").innerText = "Nenhuma matéria";
-    document.getElementById("home-next-subject").innerText =
-      "Configure o ciclo";
+    document.getElementById("home-next-subject").innerText = "Configure";
     currentIndex = 0;
     localStorage.setItem("currentIndex", currentIndex);
 

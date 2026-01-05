@@ -158,7 +158,10 @@ body {
   font-weight: 600;
   color: #555;
   margin-bottom: 10px;
-  display: inline-block;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Tela Timer */

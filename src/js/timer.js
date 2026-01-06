@@ -14,6 +14,8 @@ function updateTimerDisplay() {
     (s < 10 ? "0" + s : s);
 
   document.getElementById("timer-count").innerText = text;
+
+  document.title = `(${text}) - Fluxo ESTRATÉGICO`;
 }
 
 function timerTick() {
@@ -82,6 +84,8 @@ function togglePause() {
     btn.innerText = "Retomar";
     btn.classList.add("btn-outline");
 
+    document.title = "(PAUSADO) - Fluxo ESTRATÉGICO";
+
     // Congela o tempo atual no 'accumulatedTime'
     // Se não fizermos isso, quando despausar ele vai pular o tempo que ficou pausado
     const now = Date.now();
@@ -121,5 +125,6 @@ function finishSession() {
   startTime = null;
   accumulatedTime = 0;
 
+  document.title = "Fluxo ESTRATÉGICO";
   switchScreen("screen-finish");
 }

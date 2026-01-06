@@ -31,6 +31,7 @@ function goHomeFromTimeScreen() {
     clearInterval(timerInterval); // Para o timer
     localStorage.setItem("appState", "home");
     localStorage.removeItem("currentTimerSeconds");
+    document.title = "Fluxo ESTRATÉGICO";
   }
   renderHome();
   switchScreen("screen-home");

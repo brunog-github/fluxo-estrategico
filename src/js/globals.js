@@ -7,7 +7,9 @@ let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
 // Variáveis do Timer
 let timerInterval = null;
 let seconds = 0;
-let isPaused = false;
+let startTime = null;
+let isPaused = false; // O timestamp de quando o play foi apertado
+let accumulatedTime = 0; // O tempo que já tinha passado antes de pausar (em segundos)
 
 // Variáveis dos Gráficos (Para poder destruir/atualizar)
 let performanceChartInstance = null;

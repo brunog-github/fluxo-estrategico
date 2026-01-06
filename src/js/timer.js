@@ -17,8 +17,15 @@ function updateTimerDisplay() {
 }
 
 function timerTick() {
-  if (!isPaused) {
-    seconds++;
+  if (!isPaused && startTime) {
+    // A MÁGICA ACONTECE AQUI:
+    // Em vez de seconds++, calculamos a diferença entre AGORA e o INÍCIO
+    const now = Date.now();
+    const diffInSeconds = Math.floor((now - startTime) / 1000);
+
+    // O tempo total é: o que já tinha acumulado antes + a diferença atual
+    seconds = accumulatedTime + diffInSeconds;
+
     updateTimerDisplay();
     localStorage.setItem("currentTimerSeconds", seconds);
   }
@@ -30,11 +37,18 @@ function startStudy(isResuming = false) {
     return;
   }
 
-  // Se não estiver retomando (é inicio novo), zera o tempo
+  // Configuração Inicial
   if (!isResuming) {
     seconds = 0;
+    accumulatedTime = 0; // Zera o acumulado
     localStorage.setItem("currentTimerSeconds", 0);
+  } else {
+    // Se está resumindo (ex: refresh na página), pegamos o que já tinha
+    accumulatedTime = seconds;
   }
+
+  // Define o marco inicial do relógio AGORA
+  startTime = Date.now();
 
   // Salva que o app está no modo TIMER
   localStorage.setItem("appState", "timer");
@@ -53,7 +67,7 @@ function startStudy(isResuming = false) {
   updateTimerDisplay();
 
   clearInterval(timerInterval);
-  timerInterval = setInterval(timerTick, 1000);
+  timerInterval = setInterval(timerTick, 1000); // O intervalo chama o cálculo
 
   document.getElementById("btn-pause").innerText = "Pausar";
   document.getElementById("btn-pause").classList.remove("btn-outline");
@@ -62,12 +76,26 @@ function startStudy(isResuming = false) {
 function togglePause() {
   isPaused = !isPaused;
   let btn = document.getElementById("btn-pause");
+
   if (isPaused) {
+    // --- AO PAUSAR ---
     btn.innerText = "Retomar";
-    btn.classList.add("btn-outline"); // Muda estilo visual
+    btn.classList.add("btn-outline");
+
+    // Congela o tempo atual no 'accumulatedTime'
+    // Se não fizermos isso, quando despausar ele vai pular o tempo que ficou pausado
+    const now = Date.now();
+    const diff = Math.floor((now - startTime) / 1000);
+    accumulatedTime += diff;
+    startTime = null; // Limpa o start time pois parou
   } else {
+    // --- AO RETOMAR ---
     btn.innerText = "Pausar";
     btn.classList.remove("btn-outline");
+
+    // Cria um novo marco de início agora
+    startTime = Date.now();
+    // (O accumulatedTime já guarda o valor antigo, então o timerTick vai somar corretamente)
   }
 }
 
@@ -77,13 +105,21 @@ function finishSession() {
 
   document.getElementById("finish-subject-name").innerText =
     subjects[currentIndex];
+
   // Limpa campos
   document.getElementById("input-questions").value = "";
   document.getElementById("input-correct").value = "";
 
   // Atualiza o tempo de estudo
-  let currentTimerSeconds = parseInt(localStorage.getItem("currentTimerSeconds") || "0");
-  document.getElementById("finish-study-time").innerText = formatTime(currentTimerSeconds);
+  let currentTimerSeconds = parseInt(
+    localStorage.getItem("currentTimerSeconds") || "0"
+  );
+  document.getElementById("finish-study-time").innerText =
+    formatTime(currentTimerSeconds);
+
+  // Reseta variáveis auxiliares para garantir limpeza
+  startTime = null;
+  accumulatedTime = 0;
 
   switchScreen("screen-finish");
 }

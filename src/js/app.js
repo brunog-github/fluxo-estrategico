@@ -31,6 +31,10 @@ function goHomeFromTimeScreen() {
     clearInterval(timerInterval); // Para o timer
     localStorage.setItem("appState", "home");
     localStorage.removeItem("currentTimerSeconds");
+    localStorage.removeItem("isPaused");
+    localStorage.removeItem("totalPausedSeconds");
+    localStorage.removeItem("pauseStartTime");
+    localStorage.removeItem("accumulatedTime");
     document.title = "Fluxo ESTRATÉGICO";
   }
   renderHome();
@@ -212,6 +216,7 @@ function saveAndAdvance() {
 
 function cancelSession() {
   localStorage.removeItem("currentTimerSeconds");
+  localStorage.removeItem("accumulatedTime");
   localStorage.setItem("appState", "home");
   renderHome();
 }

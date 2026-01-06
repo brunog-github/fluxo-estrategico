@@ -233,10 +233,27 @@
 
         <div class="timer-display" id="timer-count">00:00:00</div>
 
+        <small
+          id="timer-paused-display"
+          style="
+            display: none;
+            color: var(--text-secondary);
+            margin-top: -10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+          "
+        >
+          Tempo pausado: 00:00:00
+        </small>
+
         <button class="btn" id="btn-pause" onclick="togglePause()">
           Pausar
         </button>
-        <button class="btn btn-black" onclick="finishSession()">
+        <button
+          class="btn btn-black"
+          onclick="finishSession()"
+          style="margin-bottom: 15px"
+        >
           Finalizar Circuito
         </button>
       </div>

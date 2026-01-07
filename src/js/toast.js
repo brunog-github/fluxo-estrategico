@@ -60,37 +60,52 @@ function confirmAction(
   confirmText = "Confirmar",
   cancelText = "Cancelar"
 ) {
-  const container = document.getElementById("toast-container");
+  const container = document.getElementById("toast-confirm-container");
 
+  // Cria overlay
+  const overlay = document.createElement("div");
+  overlay.className = "confirm-overlay";
+  container.appendChild(overlay);
+
+  // Cria o toast modal
   const toast = document.createElement("div");
   toast.className = "confirm-toast";
 
   toast.innerHTML = `
-        <h3>${title}</h3>
-        <p>${message}</p>
-        <div class="confirm-buttons">
-          <button class="btn btn-cancel">${cancelText}</button>
-          <button class="btn btn-confirm">${confirmText}</button>
-        </div>
-      `;
-
-  // Eventos dos botões
-  const btnCancel = toast.querySelector(".btn-cancel");
-  const btnConfirm = toast.querySelector(".btn-confirm");
-
-  btnCancel.onclick = () => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 400);
-  };
-
-  btnConfirm.onclick = () => {
-    onConfirm();
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 400);
-  };
+    <h3>${title}</h3>
+    <p>${message}</p>
+    <div class="confirm-buttons">
+      <button class="btn btn-cancel">${cancelText}</button>
+      <button class="btn btn-confirm">${confirmText}</button>
+    </div>
+  `;
 
   container.appendChild(toast);
 
-  // Animação de entrada
-  setTimeout(() => toast.classList.add("show"), 50);
+  // Botões
+  const btnCancel = toast.querySelector(".btn-cancel");
+  const btnConfirm = toast.querySelector(".btn-confirm");
+
+  const closeModal = () => {
+    toast.classList.remove("show");
+    overlay.classList.remove("show");
+    setTimeout(() => {
+      toast.remove();
+      overlay.remove();
+    }, 300);
+  };
+
+  btnCancel.onclick = closeModal;
+  overlay.onclick = closeModal; // Clique fora também fecha
+
+  btnConfirm.onclick = () => {
+    onConfirm();
+    closeModal();
+  };
+
+  // Animações
+  setTimeout(() => {
+    overlay.classList.add("show");
+    toast.classList.add("show");
+  }, 20);
 }

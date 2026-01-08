@@ -42,7 +42,9 @@ function renderStreak() {
     }
   }
 
-  countDisplay.innerText = `${currentStreak} dias seguidos 🔥`;
+  if (currentStreak > 0) {
+    countDisplay.innerText = `${currentStreak} dias seguidos 🔥`;
+  }
 
   // 3. Render visual (últimos 14 dias)
   const daysToShow = 18;

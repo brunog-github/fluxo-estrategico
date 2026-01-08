@@ -148,6 +148,7 @@
 @media (max-width: 375px) {
   .modal-content.calendar-box {
     padding: 15px; /* Reduz mais o padding interno */
+    margin: 20px;
   }
 
   .calendar-weekdays,

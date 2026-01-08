@@ -73,9 +73,11 @@ function exportBackupFile() {
   const blob = new Blob([jsonString], { type: "application/json" });
   const url = URL.createObjectURL(blob);
 
-  // Gera nome do arquivo com data: "backup_estudos_2023-10-25.json"
-  const dateStr = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
-  const fileName = `backup_estudos_${dateStr}.json`;
+  // Gera nome do arquivo com data: "backup_estudos_08-01-26_15:45:50.json"
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit', year: '2-digit'}).replace(/\//g, "-");
+  const timeStr = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+  const fileName = `backup_estudos_${dateStr}_${timeStr}.json`;
 
   // Download forçado
   const link = document.createElement("a");

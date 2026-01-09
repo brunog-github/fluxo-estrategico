@@ -13,10 +13,6 @@ let accumulatedTime = 0; // O tempo que já tinha passado antes de pausar (em se
 let pauseStartTime = null; // Momento exato que apertou Pause
 let totalPausedSeconds = 0; // Acumulado total de pausas nessa sessão
 
-// Variáveis dos Gráficos (Para poder destruir/atualizar)
-let performanceChartInstance = null;
-let timeChartInstance = null;
-
 // Variável do Drag & Drop
 let sortableInstance = null;
 

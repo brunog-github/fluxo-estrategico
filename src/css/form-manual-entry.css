@@ -1,0 +1,177 @@
+/* Botão Pequeno Moderno (para o topo da tabela) */
+.btn-modern-small {
+  background: var(--primary-color); /* ou use linear-gradient se preferir */
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+.btn-modern-small:active {
+  transform: scale(0.95);
+}
+
+/* Container do Modal Manual */
+.manual-modal-container {
+  max-width: 450px !important;
+  padding: 25px !important;
+}
+
+.manual-modal-title {
+  margin: 0 0 20px 0;
+  font-size: 1.4rem;
+  color: var(--text-color);
+}
+
+.manual-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs customizados para o modal */
+.manual-input {
+  width: 100%;
+  background-color: var(
+    --input-bg
+  ) !important; /* Fundo bem escuro para contraste */
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  color: var(--text-color) !important;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.manual-input:focus {
+  border-color: var(--primary-color) !important;
+  outline: none;
+}
+
+/* Alinhamento de colunas (Horas/Minutos e Questões) */
+.manual-input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.manual-input-row .manual-input {
+  flex: 1;
+}
+
+/* Linha de botões inferior */
+.manual-actions-row {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.manual-btn-flex {
+  flex: 1;
+  padding: 12px !important;
+  justify-content: center;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 480px) {
+  .manual-modal-container {
+    width: 80% !important;
+    padding: 20px !important;
+  }
+}
+
+/* O Fundo escuro/fosco (Overlay) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--shadow-color); /* Escurece o fundo */
+  backdrop-filter: blur(4px); /* Efeito fosco/desfocado igual ao toast */
+  display: flex;
+  align-items: center; /* Centraliza verticalmente */
+  justify-content: center; /* Centraliza horizontalmente */
+  z-index: 9999; /* Garante que fique acima de tudo */
+  transition: all 0.3s ease;
+}
+
+/* Esconder o modal quando não estiver em uso */
+.modal.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* O Cartão do Modal (Container Branco/Escuro elevado) */
+.manual-modal-container {
+  background-color: var(--card-bg) !important; /* Cor do card elevado */
+  width: calc(100% - 32px);
+  max-width: 400px !important;
+  padding: 25px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px var(--shadow-color) !important;
+  animation: modalAppear 0.3s ease-out;
+}
+
+/* Animação suave de entrada */
+@keyframes modalAppear {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Estilo dos campos internos para ficarem limpos */
+.manual-field-group {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+/* Container dos botões de data */
+.date-chips-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Estilo do Botão (Chip) */
+.date-chip {
+  flex: 1; /* Divide o espaço igualmente */
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* Quando passar o mouse */
+.date-chip:hover {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Estado Selecionado (Ativo) */
+.date-chip.selected {
+  background-color: var(
+    --primary-color
+  ) !important; /* Usa a cor roxa do seu tema */
+  color: white !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}

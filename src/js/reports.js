@@ -1,4 +1,6 @@
-// --- RELATÓRIOS (GRÁFICOS E TABELAS) ---
+// Variáveis dos Gráficos (Para poder destruir/atualizar)
+let performanceChartInstance = null;
+let timeChartInstance = null;
 
 function showReports() {
   renderHistoryTable(); // Sua função antiga da tabela
@@ -20,15 +22,27 @@ function renderHistoryTable() {
   } else {
     emptyMsg.style.display = "none";
 
+    history.sort((a, b) => {
+      const parse = (s) => {
+        const [dmy, hm] = s.split(" às ");
+        const [day, mon, year] = dmy.split("/").map(Number);
+        const [hh, mm] = hm.split(":").map(Number);
+        return new Date(year, mon - 1, day, hh, mm).getTime();
+      };
+      return parse(b.date) - parse(a.date);
+    });
+
     // Loop para criar as linhas
     history.forEach((item) => {
       let tr = document.createElement("tr");
 
       // Simplificando a data para caber melhor na tabela (ex: pega só dd/mm)
-      let shortDate = item.date.split(" às ")[0].slice(0, 5);
+      let [date] = item.date.split(" às ");
+      const [day, mon, year] = date.split("/");
+      const yearShort = year.slice(-2);
 
       tr.innerHTML = `
-                <td><small>${shortDate}</small></td>
+                <td><small>${day}/${mon}/${yearShort}</small></td>
                 <td style="text-align:left; font-weight:bold; text-transform: capitalize;">${
                   item.subject
                 }</td>
@@ -140,6 +154,12 @@ function updateCharts() {
   const ctxPerformance = document
     .getElementById("chart-performance")
     .getContext("2d");
+
+  const divChartPerformance = document.getElementById("chart-subjects");
+
+  if (perfLabels.length === 0) {
+    divChartPerformance.style.display = "none";
+  }
 
   if (performanceChartInstance) performanceChartInstance.destroy();
 
@@ -352,24 +372,12 @@ function showMobileRotateTip() {
     // Adiciona um ícone simples de celular girando (usando SVG ou Unicode)
     tipElement.innerHTML = `
             <span style="font-size: 1.5em; vertical-align: middle; margin-right: 5px;">📱⟳</span>
-            Gire o celular para o modo paisagem para melhor visualização do gráfico.
+            Gire o celular para melhor visualização do gráfico.
         `;
   } else {
     tipElement.style.display = "none";
   }
 }
-
-// 4. Integração: Chamar no final de renderReports()
-
-// No final da sua função renderReports(), adicione a chamada:
-/*
-function renderReports() {
-    // ... todo o código de cálculo e renderização dos gráficos ...
-    
-    // NOVO: Chama a dica
-    showMobileRotateTip(); 
-}
-*/
 
 // É uma boa prática também checar a dica se o usuário redimensionar a tela
 window.addEventListener("resize", showMobileRotateTip);

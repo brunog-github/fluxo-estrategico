@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="src/css/calendar.css" />
     <link rel="stylesheet" href="src/css/globalTooltip.css" />
     <link rel="stylesheet" href="src/css/life-time-stats.css" />
+    <link rel="stylesheet" href="src/css/form-manual-entry.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -569,7 +570,22 @@
           </div>
         </div>
 
-        <h3>Histórico de Estudos</h3>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            margin-top: 30px;
+          "
+        >
+          <h3 style="margin: 0; display: flex; align-items: center; gap: 8px">
+            📜 Histórico de Estudos
+          </h3>
+          <button onclick="openManualEntryModal()" class="btn-modern-small">
+            + Novo Registro
+          </button>
+        </div>
 
         <div class="table-container">
           <table id="history-table">
@@ -696,6 +712,111 @@
     <div class="toast-container" id="toast-container"></div>
     <div class="toast-confirm-container" id="toast-confirm-container"></div>
 
+    <div id="modal-manual-entry" class="modal hidden">
+      <div class="modal-content card-elevated manual-modal-container">
+        <h3 class="manual-modal-title">Registrar Estudo</h3>
+
+        <form
+          id="form-manual-entry"
+          onsubmit="event.preventDefault(); saveManualEntry();"
+        >
+          <div class="manual-field-group">
+            <label class="manual-label">Matéria</label>
+            <select id="manual-subject" class="manual-input" required>
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
+          <div class="manual-field-group">
+            <label class="manual-label">Data</label>
+
+            <div class="date-chips-container">
+              <button
+                type="button"
+                class="date-chip selected"
+                id="chip-today"
+                onclick="setDateOption('today')"
+              >
+                Hoje
+              </button>
+              <button
+                type="button"
+                class="date-chip"
+                id="chip-yesterday"
+                onclick="setDateOption('yesterday')"
+              >
+                Ontem
+              </button>
+              <button
+                type="button"
+                class="date-chip"
+                id="chip-other"
+                onclick="setDateOption('other')"
+              >
+                Outro
+              </button>
+            </div>
+
+            <input
+              type="date"
+              id="manual-date"
+              class="manual-input"
+              style="display: none; margin-top: 10px"
+            />
+          </div>
+          <div class="manual-field-group">
+            <label for="manual-time" class="manual-label"
+              >Tempo de Estudo</label
+            >
+            <div class="manual-input-row">
+              <input
+                type="text"
+                id="manual-time"
+                class="manual-input"
+                placeholder="00:00:00"
+                maxlength="8"
+                required
+                oninput="maskTime(this)"
+              />
+            </div>
+          </div>
+
+          <div class="manual-field-group">
+            <label class="manual-label">Questões (Opcional)</label>
+            <div class="manual-input-row">
+              <input
+                type="number"
+                id="manual-questions"
+                class="manual-input"
+                placeholder="Total"
+                min="0"
+              />
+              <input
+                type="number"
+                id="manual-correct"
+                class="manual-input"
+                placeholder="Acertos"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div class="manual-actions-row">
+            <button
+              type="button"
+              onclick="closeManualEntryModal()"
+              class="btn btn-outline manual-btn-flex"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary manual-btn-flex">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script src="src/js/tooltip.js"></script>
     <script src="src/js/globals.js"></script>
     <script src="src/js/utils.js"></script>
@@ -706,6 +827,7 @@
     <script src="src/js/achievements.js"></script>
     <script src="src/js/settings.js"></script>
     <script src="src/js/calendar.js"></script>
+    <script src="src/js/manual-entry.js"></script>
     <script src="src/js/app.js"></script>
   </body>
 </html>

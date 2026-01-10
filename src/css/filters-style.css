@@ -2,10 +2,10 @@
 .filters-container {
   display: flex;
   gap: 15px;
-  background-color: #151515; /* Um pouco mais escuro que o fundo */
+  background-color: var(--card-bg); /* Um pouco mais escuro que o fundo */
   padding: 15px;
   border-radius: 12px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 20px;
   flex-wrap: wrap; /* Permite quebrar linha no mobile */
   align-items: center;
@@ -22,14 +22,14 @@
 
 .filter-group label {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 /* Inputs e Selects dos Filtros */
 .input-filter {
-  background-color: #252525;
-  border: 1px solid #444;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   color: var(--text-color);
   padding: 8px 12px;
   border-radius: 8px;
@@ -46,8 +46,8 @@
 /* Botão de Resetar Filtros */
 .btn-filter-reset {
   background-color: transparent;
-  border: 1px solid #444;
-  color: #aaa; /* Texto cinza discreto */
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary); /* Texto cinza discreto */
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -62,14 +62,6 @@
   border-color: #c0392b; /* Borda vermelha ao passar o mouse */
   color: #c0392b; /* Texto vermelho */
   background-color: rgba(192, 57, 43, 0.1);
-}
-
-.tag-subject {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  border: 1px solid #444;
 }
 
 /* Ajuste Mobile */

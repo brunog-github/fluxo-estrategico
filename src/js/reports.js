@@ -221,7 +221,7 @@ function updateCharts() {
   if (timeChartInstance) timeChartInstance.destroy();
 
   timeChartInstance = new Chart(ctxTime, {
-    type: "bar",
+    type: "pie",
     data: {
       labels: allLabels.map((m) => {
         if (!m.startsWith("DIREITO")) return m;
@@ -233,34 +233,24 @@ function updateCharts() {
         {
           label: "Tempo (hr)",
           data: timeInHours,
-          indexAxis: "x",
+          borderWidth: 1,
         },
       ],
     },
     options: {
-      indexAxis: "x",
       responsive: true,
-      responsive: true,
-      scales: {
-        x: {
-          stacked: true,
-          maintainAspectRatio: false, // Importante para mobile
-          ticks: {
-            autoSkip: false, // <--- OBRIGA A MOSTRAR TODAS AS MATÉRIAS
-            maxRotation: 90, // Permite girar até 90 graus (vertical)
-            minRotation: 45, // Mínimo de 45 graus de inclinação
-            font: {
-              size: 11, // Reduz um pouco a fonte para caber mais
-            },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            usePointStyle: true,
+            padding: 12,
+            color:
+              document.documentElement.getAttribute("data-theme") === "dark"
+                ? "#e0e0e0"
+                : "#333333",
           },
         },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-        },
-      },
-      plugins: {
-        legend: { position: "bottom" },
       },
     },
   });
@@ -360,7 +350,6 @@ function updateChartTheme() {
   };
 
   applyColors(performanceChartInstance);
-  applyColors(timeChartInstance);
 }
 
 /**

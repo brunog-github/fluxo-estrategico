@@ -11,9 +11,13 @@ function showReports() {
 }
 
 function renderHistoryTable() {
+  populateFilterSubjects();
+
   let listBody = document.getElementById("history-list");
   let emptyMsg = document.getElementById("empty-history-msg");
-  let history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  let rawHistory = JSON.parse(localStorage.getItem("studyHistory")) || [];
+
+  let history = getFilteredHistory(rawHistory);
 
   listBody.innerHTML = ""; // Limpa tabela atual
 

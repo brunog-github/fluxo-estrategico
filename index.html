@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="src/css/globalTooltip.css" />
     <link rel="stylesheet" href="src/css/life-time-stats.css" />
     <link rel="stylesheet" href="src/css/form-manual-entry.css" />
+    <link rel="stylesheet" href="src/css/filters-style.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -580,11 +581,51 @@
           "
         >
           <h3 style="margin: 0; display: flex; align-items: center; gap: 8px">
-            📜 Histórico de Estudos
+            📜 Histórico
           </h3>
           <button onclick="openManualEntryModal()" class="btn-modern-small">
             + Novo Registro
           </button>
+        </div>
+
+        <div class="filters-container card-inset">
+          <div class="filter-group">
+            <label>Matéria</label>
+            <select
+              id="filter-subject"
+              class="input-filter"
+              onchange="renderHistoryTable()"
+            >
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>De</label>
+            <input
+              type="date"
+              id="filter-start"
+              class="input-filter"
+              onchange="renderHistoryTable()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label>Até</label>
+            <input
+              type="date"
+              id="filter-end"
+              class="input-filter"
+              onchange="renderHistoryTable()"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label>&nbsp;</label>
+            <button onclick="clearHistoryFilters()" class="btn-filter-reset">
+              Limpar Filtros
+            </button>
+          </div>
         </div>
 
         <div class="table-container">
@@ -828,6 +869,7 @@
     <script src="src/js/settings.js"></script>
     <script src="src/js/calendar.js"></script>
     <script src="src/js/manual-entry.js"></script>
+    <script src="src/js/filter-history-table.js"></script>
     <script src="src/js/app.js"></script>
   </body>
 </html>

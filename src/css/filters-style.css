@@ -1,0 +1,83 @@
+/* Container da Barra de Filtros */
+.filters-container {
+  display: flex;
+  gap: 15px;
+  background-color: #151515; /* Um pouco mais escuro que o fundo */
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Permite quebrar linha no mobile */
+  align-items: center;
+}
+
+/* Grupos individuais */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1; /* Todos tentam ocupar espaço igual */
+  min-width: 120px;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+}
+
+/* Inputs e Selects dos Filtros */
+.input-filter {
+  background-color: #252525;
+  border: 1px solid #444;
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-filter:focus {
+  border-color: var(--primary-color);
+}
+
+/* Botão de Resetar Filtros */
+.btn-filter-reset {
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #aaa; /* Texto cinza discreto */
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  height: 38px; /* Mesma altura exata dos inputs */
+  width: 100%;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.btn-filter-reset:hover {
+  border-color: #c0392b; /* Borda vermelha ao passar o mouse */
+  color: #c0392b; /* Texto vermelho */
+  background-color: rgba(192, 57, 43, 0.1);
+}
+
+.tag-subject {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  border: 1px solid #444;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 600px) {
+  .filters-container {
+    gap: 10px;
+  }
+  .filter-group {
+    min-width: 45%; /* Fica 2 por linha */
+  }
+}

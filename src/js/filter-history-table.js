@@ -25,9 +25,12 @@ function populateFilterSubjects() {
   // Limpa e recria a opção padrão
   select.innerHTML = '<option value="">Todas as Matérias</option>';
 
-  const subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
+  const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  const subjectsFromHistory = [
+    ...new Set(history.map((entry) => entry.subject)),
+  ];
 
-  subjects.forEach((sub) => {
+  subjectsFromHistory.forEach((sub) => {
     const option = document.createElement("option");
     option.value = sub;
     option.innerText = sub;

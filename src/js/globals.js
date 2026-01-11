@@ -31,9 +31,9 @@ const ACHIEVEMENTS = [
   },
   {
     id: "marathon",
-    title: "Maratonista",
+    title: "Maratona Extrema",
     desc: "Acumule 10 horas totais de estudo.",
-    icon: `<embed src="./src/assets/icons/maratona.svg" type="image/svg+xml" />`,
+    icon: `<embed src="./src/assets/icons/maratona-extrema.svg" type="image/svg+xml" />`,
     check: (history) => {
       const totalMin = history.reduce(
         (acc, item) => acc + timeToMinutes(item.duration),
@@ -234,9 +234,9 @@ const ACHIEVEMENTS = [
   },
   {
     id: "total_focus",
-    title: "Maratona Extrema",
+    title: "Maratonista",
     desc: "Complete uma única sessão de estudos com mais de 120 minutos (2 horas).",
-    icon: `<embed src="./src/assets/icons/maratona-extrema.svg" type="image/svg+xml" />`,
+    icon: `<embed src="./src/assets/icons/maratona.svg" type="image/svg+xml" />`,
     check: (history) => history.some((h) => timeToMinutes(h.duration) > 120),
   },
   {

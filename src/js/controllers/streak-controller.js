@@ -97,7 +97,7 @@ export class StreakController {
 
     this.ui.updateStreakDisplay(streak, bestStreak);
 
-    const daysToShow = 18;
+    const daysToShow = 31;
 
     for (let i = daysToShow - 1; i >= 0; i--) {
       const day = new Date(today);

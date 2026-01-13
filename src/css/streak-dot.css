@@ -11,7 +11,12 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   flex-wrap: nowrap;
+
+  /* Indica ao usuário que é scrollável */
+  cursor: grab;
+  user-select: none;
 }
+
 #streak-visual::-webkit-scrollbar {
   display: none;
 }

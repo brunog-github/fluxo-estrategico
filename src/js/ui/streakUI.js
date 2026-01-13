@@ -4,6 +4,51 @@ export class StreakUI {
   constructor() {
     this.container = document.getElementById("streak-visual");
     this.countDisplay = document.getElementById("streak-count");
+
+    // Adiciona suporte a scroll horizontal com mouse wheel e drag
+    this.initScrollHandlers();
+  }
+
+  initScrollHandlers() {
+    if (!this.container) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // Suporte a drag horizontal (funciona em desktop e mobile)
+    this.container.addEventListener("mousedown", (e) => {
+      isDown = true;
+      startX = e.pageX - this.container.offsetLeft;
+      scrollLeft = this.container.scrollLeft;
+      this.container.style.cursor = "grabbing";
+    });
+
+    this.container.addEventListener("mouseleave", () => {
+      isDown = false;
+      this.container.style.cursor = "grab";
+    });
+
+    this.container.addEventListener("mouseup", () => {
+      isDown = false;
+      this.container.style.cursor = "grab";
+    });
+
+    this.container.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - this.container.offsetLeft;
+      const walk = (x - startX) * 1; // multiplicador de velocidade
+      this.container.scrollLeft = scrollLeft - walk;
+    });
+
+    // Suporte a scroll com mouse wheel
+    this.container.addEventListener("wheel", (e) => {
+      if (this.container.scrollWidth > this.container.clientWidth) {
+        e.preventDefault();
+        this.container.scrollLeft += e.deltaY > 0 ? 50 : -50;
+      }
+    });
   }
 
   clear() {

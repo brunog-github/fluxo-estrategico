@@ -1,4 +1,5 @@
 import { parseHistoryDatetime } from "../utils/reports-utils.js";
+import { getCategoryColor } from "../utils/category-colors.js";
 
 export class ReportsUI {
   constructor(toast, confirm, charts) {
@@ -36,6 +37,20 @@ export class ReportsUI {
       const [d, m, y] = date.split("/");
       const short = y.slice(-2);
 
+      // Calcular desempenho (%)
+      const performance =
+        item.questions > 0
+          ? Math.round((item.correct / item.questions) * 100)
+          : "-";
+
+      // Calcular erros
+      const errors = item.questions > 0 ? item.questions - item.correct : "0";
+
+      // Categoria com fallback para "-"
+      const category = item.category || "-";
+      const categoryColor = getCategoryColor(category);
+      const categoryOpacity = item.category ? "1" : "0.65";
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><small>${d}/${m}/${short}</small></td>
@@ -44,15 +59,26 @@ export class ReportsUI {
         }</td>
         <td>${item.duration}</td>
         <td>${item.questions}</td>
-        <td style="color:${item.correct > 0 ? "green" : "var(--text-color)"}">${
-        item.correct
+        <td style="color:${
+          item.correct > 0 ? "#2ecc71" : "var(--text-color)"
+        }">${item.correct}</td>
+        <td style="color:${
+          errors !== "0" && errors > 0 ? "red" : "var(--text-color)"
+        }">${errors}</td>
+        <td style="color:${
+          performance !== "-"
+            ? performance >= 70
+              ? "#2ecc71"
+              : performance >= 50
+              ? "orange"
+              : "red"
+            : "var(--text-color)"
+        }; font-weight:bold">${performance}${
+        performance !== "-" ? "%" : ""
       }</td>
-       <!-- <td><button style="background:transparent;
-       border:none;
-       font-size:16px;
-       color:red;
-       cursor:pointer;
-       font-weight:bold;" class="delete-row"><i class="fa fa-trash-o"></i></button></td> -->
+        <td>
+          <span style="background: ${categoryColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: ${categoryOpacity};">${category}</span>
+        </td>
 
         <td style="white-space: nowrap; width:1%; vertical-align: middle;">
           <div style="display:flex; gap:10px; justify-content:center; align-items:center;">

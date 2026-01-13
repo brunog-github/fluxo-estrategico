@@ -58,6 +58,7 @@ screens.on("screen-home", () => {
 });
 const session = new StudySessionManager(subjects, achievements, toast);
 const timer = new TimerController(subjects, screens, toast);
+timer.session = session; // Adiciona referência à session
 const settings = new SettingsController(toast, confirm);
 const reports = new ReportsController(toast, confirm, screens);
 const manualEntry = new ManualEntryController(toast, reports);
@@ -97,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (subject) {
       timer.ui.showFinishScreen(subject, formattedTime);
+      session.loadCategorySelect();
     }
 
     screens.switch("screen-finish");

@@ -1,0 +1,22 @@
+/* Color Picker Modal */
+#color-picker-modal {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#color-picker-modal button:first-of-type {
+  /* Botões de cor */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#color-picker-modal button:first-of-type:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}

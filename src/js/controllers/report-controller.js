@@ -74,6 +74,7 @@ export class ReportsController {
     if (!history.length) return;
 
     this.charts.destroy();
+    this.charts.allHistory = history; // guardar histórico completo
 
     const stats = this.charts.buildStats(history);
     const labels = Object.keys(stats);
@@ -100,10 +101,38 @@ export class ReportsController {
     const ctx2 = document.getElementById("chart-time").getContext("2d");
     this.charts.buildTimeChart(ctx2, labels, timeHours);
 
+    // Setup filtros
+    this.setupTimeFilterButtons();
+
     // theme
     const isDark =
       document.documentElement.getAttribute("data-theme") === "dark";
     this.charts.updateTheme(isDark);
+  }
+
+  setupTimeFilterButtons() {
+    const buttons = document.querySelectorAll(".btn-time-filter");
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const filter = e.target.dataset.filter;
+
+        // Atualizar UI dos botões
+        buttons.forEach((b) => {
+          if (b.dataset.filter === filter) {
+            b.style.background = "var(--primary-color)";
+            b.style.color = "white";
+            b.classList.add("active");
+          } else {
+            b.style.background = "transparent";
+            b.style.color = "var(--primary-color)";
+            b.classList.remove("active");
+          }
+        });
+
+        // Atualizar gráfico
+        this.charts.updateTimeChartFilter(filter);
+      });
+    });
   }
 
   updateSummary() {

@@ -16,7 +16,7 @@ export class TimerUI {
   }
 
   updatePauseButton(isPaused) {
-    const btn = document.getElementById("btn-pause");
+    const btn = document.getElementById("btn-study-pause");
     if (!btn) return;
 
     if (isPaused) {

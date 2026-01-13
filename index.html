@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="src/css/filters-style.css" />
     <link rel="stylesheet" href="src/css/form-manual-entry.css" />
     <link rel="stylesheet" href="src/css/life-time-stats.css" />
+    <link rel="stylesheet" href="src/css/categories-new.css" />
+    <link rel="stylesheet" href="src/css/color-picker.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -285,6 +287,13 @@
           <input type="number" id="input-correct" placeholder="Ex: 8" />
         </div>
 
+        <div class="form-group">
+          <label for="input-category">Categoria de Estudo:</label>
+          <select id="input-category">
+            <option value="">Selecione uma categoria...</option>
+          </select>
+        </div>
+
         <div>
           <p
             style="
@@ -348,6 +357,35 @@
         </div>
 
         <ul class="config-list" id="config-list"></ul>
+
+        <div class="categories-container">
+          <div class="categories-header">
+            <h2>Categorias de Estudo</h2>
+          </div>
+
+          <!-- CATEGORIAS FIXAS -->
+          <div class="fixed-categories-section">
+            <div class="section-title">Categorias Fixas</div>
+            <div id="fixed-categories-list" class="categories-list"></div>
+          </div>
+
+          <!-- CATEGORIAS PERSONALIZADAS -->
+          <div class="custom-categories-section">
+            <div class="section-title">Categorias Personalizadas</div>
+            <div id="custom-categories-list" class="categories-list"></div>
+
+            <div class="add-category-form">
+              <input
+                type="text"
+                id="new-category-input"
+                placeholder="Nome da nova categoria..."
+              />
+              <button id="btn-add-category" class="add-category-btn">
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div
           style="
@@ -586,6 +624,83 @@
 
           <div class="cycle-card">
             <h4>Tempo Total por Matéria (Horas)</h4>
+
+            <!-- Filtros de período -->
+            <div
+              style="
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+              "
+            >
+              <button
+                class="btn-time-filter"
+                data-filter="today"
+                style="
+                  padding: 6px 12px;
+                  border-radius: 20px;
+                  border: 1px solid var(--primary-color);
+                  background: transparent;
+                  color: var(--primary-color);
+                  cursor: pointer;
+                  font-size: 12px;
+                  font-weight: 500;
+                "
+              >
+                Hoje
+              </button>
+              <button
+                class="btn-time-filter"
+                data-filter="week"
+                style="
+                  padding: 6px 12px;
+                  border-radius: 20px;
+                  border: 1px solid var(--primary-color);
+                  background: transparent;
+                  color: var(--primary-color);
+                  cursor: pointer;
+                  font-size: 12px;
+                  font-weight: 500;
+                "
+              >
+                Semana
+              </button>
+              <button
+                class="btn-time-filter"
+                data-filter="month"
+                style="
+                  padding: 6px 12px;
+                  border-radius: 20px;
+                  border: 1px solid var(--primary-color);
+                  background: transparent;
+                  color: var(--primary-color);
+                  cursor: pointer;
+                  font-size: 12px;
+                  font-weight: 500;
+                "
+              >
+                Mês
+              </button>
+              <button
+                class="btn-time-filter active"
+                data-filter="all"
+                style="
+                  padding: 6px 12px;
+                  border-radius: 20px;
+                  border: 1px solid var(--primary-color);
+                  background: var(--primary-color);
+                  color: white;
+                  cursor: pointer;
+                  font-size: 12px;
+                  font-weight: 500;
+                "
+              >
+                Total
+              </button>
+            </div>
+
             <canvas id="chart-time"></canvas>
           </div>
         </div>
@@ -642,7 +757,10 @@
                 <th>Tempo</th>
                 <th>Questões</th>
                 <th>Acertos</th>
-                <th></th>
+                <th>Erros</th>
+                <th>Desempenho</th>
+                <th>Categoria</th>
+                <th>Edição</th>
               </tr>
             </thead>
             <tbody id="history-list"></tbody>
@@ -771,18 +889,14 @@
                 Outro
               </button>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <div style="display: flex; gap: 10px; margin-top: 10px">
               <input
                 type="date"
                 id="manual-date"
                 class="manual-input"
-                style="display: none;"
+                style="display: none"
               />
-              <input
-                type="time"
-                id="manual-entry-time"
-                class="manual-input"
-              />
+              <input type="time" id="manual-entry-time" class="manual-input" />
             </div>
           </div>
           <div class="manual-field-group">
@@ -819,6 +933,13 @@
                 min="0"
               />
             </div>
+          </div>
+
+          <div class="manual-field-group">
+            <label for="manual-category" class="manual-label">Categoria</label>
+            <select id="manual-category" class="manual-input" required>
+              <option value="">Selecione uma categoria</option>
+            </select>
           </div>
 
           <div class="manual-actions-row">

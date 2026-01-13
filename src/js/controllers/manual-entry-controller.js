@@ -16,6 +16,45 @@ export class ManualEntryController {
     this.attachInputMask();
   }
 
+  getAllCategories() {
+    // Pega categorias configuradas
+    const stored = localStorage.getItem("studyCategories");
+    const configuredCategories = stored ? JSON.parse(stored) : [];
+
+    // Pega categorias do histórico
+    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const historicalCategories = history
+      .map((item) => item.category)
+      .filter((cat) => cat && cat !== "-"); // Remove undefined, null e "-"
+
+    // Combina, remove duplicatas e ordena
+    return [
+      ...new Set([...configuredCategories, ...historicalCategories]),
+    ].sort();
+  }
+
+  loadCategorySelect() {
+    const select = document.getElementById("manual-category");
+    if (!select) return;
+
+    const allCategories = this.getAllCategories();
+
+    // Limpa opções anteriores mas mantém o placeholder
+    const placeholderOption = select.querySelector("option[value='']");
+    select.innerHTML = "";
+
+    if (placeholderOption) {
+      select.appendChild(placeholderOption);
+    }
+
+    allCategories.forEach((cat) => {
+      const option = document.createElement("option");
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+  }
+
   // ------------------------
   // ABRIR MODAL
   // ------------------------
@@ -28,6 +67,7 @@ export class ManualEntryController {
 
     this.ui.resetFields(todayISO);
     this.ui.setSubjectsList(subjects);
+    this.loadCategorySelect();
     this.setDateOption("today");
 
     this.ui.open();
@@ -40,6 +80,7 @@ export class ManualEntryController {
 
     const subjects = this.getCombinedSubjects();
     this.ui.setSubjectsList(subjects);
+    this.loadCategorySelect();
 
     // 1. Converter data "DD/MM/YYYY às HH:mm" para ISO "YYYY-MM-DD" e "HH:mm"
     const [datePart, timePart] = item.date.split(" às ");
@@ -50,11 +91,18 @@ export class ManualEntryController {
     this.ui.fillFields({
       subject: item.subject,
       dateISO: dateISO,
-      time: item.duration, // Verifica qual nome você usa no objeto
+      time: item.duration,
       questions: item.questions,
       correct: item.correct,
       entryTime: entryTime,
+      category: item.category || "Teoria",
     });
+
+    // 3. Selecionar a categoria no select
+    const categorySelect = document.getElementById("manual-category");
+    if (categorySelect && item.category) {
+      categorySelect.value = item.category;
+    }
 
     // Ajusta visualmente a seleção de data (Hoje ou Outro)
     const todayISO = toLocalISO(new Date());
@@ -117,6 +165,14 @@ export class ManualEntryController {
       return;
     }
 
+    const categorySelect = document.getElementById("manual-category");
+    const category = categorySelect?.value;
+
+    if (!category) {
+      this.toast.showToast("info", "Selecione uma categoria antes de salvar.");
+      return;
+    }
+
     if (
       data.questions &&
       data.correct &&
@@ -147,6 +203,7 @@ export class ManualEntryController {
           duration: data.time,
           questions: data.questions || 0,
           correct: data.correct || 0,
+          category: category,
         };
         this.toast.showToast("success", "Registro atualizado com sucesso!");
       } else {
@@ -166,6 +223,7 @@ export class ManualEntryController {
         duration: data.time,
         questions: data.questions || 0,
         correct: data.correct || 0,
+        category: category,
       };
       history.push(entry);
       this.toast.showToast("success", "Estudo registrado!");

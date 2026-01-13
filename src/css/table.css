@@ -2,10 +2,20 @@
 .table-container {
   max-height: 300px;
   overflow-y: auto;
+  overflow-x: auto;
   margin-bottom: 20px;
   border: 1px solid #eee;
   border-radius: 10px;
   box-shadow: inset 0 2px 4px var(--shadow-color);
+
+  /* Esconde scrollbars mantendo funcionalidade */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Webkit browsers (Chrome, Safari) */
+.table-container::-webkit-scrollbar {
+  display: none;
 }
 table {
   width: 100%;
@@ -26,7 +36,21 @@ td {
   padding: 12px;
   border-bottom: 1px solid;
   text-align: center;
+  vertical-align: middle;
+  min-height: 45px;
+  height: 45px;
 }
+
+/* Fix para badges de categoria (especialmente "-") */
+td span[style*="background"] {
+  display: inline-flex;
+  align-items: center;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 tr:nth-child(even) {
   background-color: #f8f9fa;
 }

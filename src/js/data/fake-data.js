@@ -78,7 +78,6 @@ export function generateFakeData() {
 
   // Também salva as matérias para que os filtros funcionem
   localStorage.setItem("studyCycle", JSON.stringify(subjects));
-  localStorage.setItem("subjects", JSON.stringify(subjects)); // Caso uses 'subjects'
 
   console.log(`✅ Sucesso! ${history.length} registos gerados.`);
   console.log("Recarrega a página para ver os gráficos e tabelas.");

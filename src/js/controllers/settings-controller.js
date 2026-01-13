@@ -9,11 +9,299 @@ import {
   restoreBackup,
 } from "../utils/backup-utils.js";
 
+import {
+  CATEGORY_COLORS,
+  getCategoryColor,
+  getDefaultCategories,
+  isDefaultCategory,
+  COLOR_PALETTE,
+  getCustomCategoryColors,
+  setCustomCategoryColor,
+  removeCustomCategoryColor,
+} from "../utils/category-colors.js";
+
 export class SettingsController {
   constructor(toast, confirmToast) {
     this.toast = toast;
     this.confirm = confirmToast;
     this.updateLastBackupUI();
+    this.loadDefaultCategories();
+  }
+
+  // Default categories
+  loadDefaultCategories() {
+    const stored = localStorage.getItem("studyCategories");
+    if (!stored) {
+      localStorage.setItem(
+        "studyCategories",
+        JSON.stringify(getDefaultCategories())
+      );
+    }
+  }
+
+  getCategories() {
+    const stored = localStorage.getItem("studyCategories");
+    return stored ? JSON.parse(stored) : getDefaultCategories();
+  }
+
+  getFixedCategories() {
+    return getDefaultCategories();
+  }
+
+  getCustomCategories() {
+    const all = this.getCategories();
+    const fixed = this.getFixedCategories();
+    return all.filter((cat) => !fixed.includes(cat));
+  }
+
+  renderCategories() {
+    const fixedContainer = document.getElementById("fixed-categories-list");
+    const customContainer = document.getElementById("custom-categories-list");
+
+    if (!fixedContainer && !customContainer) return;
+
+    const fixed = this.getFixedCategories();
+    const custom = this.getCustomCategories();
+
+    // Renderizar categorias fixas
+    if (fixedContainer) {
+      fixedContainer.innerHTML = "";
+      fixed.forEach((cat) => {
+        const item = this.createCategoryItem(cat, true);
+        fixedContainer.appendChild(item);
+      });
+    }
+
+    // Renderizar categorias personalizadas
+    if (customContainer) {
+      customContainer.innerHTML = "";
+      custom.forEach((cat, idx) => {
+        const item = this.createCategoryItem(cat, false, idx);
+        customContainer.appendChild(item);
+      });
+    }
+  }
+
+  createCategoryItem(category, isFixed, index = 0) {
+    const item = document.createElement("div");
+    item.className = "category-item";
+
+    const color = getCategoryColor(category);
+    item.style.borderLeftColor = color;
+
+    // Nome da categoria
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "category-name";
+
+    const colorDot = document.createElement("div");
+    colorDot.className = "category-color-dot";
+    colorDot.style.backgroundColor = color;
+    colorDot.style.cursor = "pointer";
+    colorDot.title = "Clique para mudar a cor";
+
+    // Evento de clique para abrir seletor de cores
+    if (!isFixed) {
+      colorDot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openColorPicker(category, colorDot);
+      });
+    }
+
+    const label = document.createElement("span");
+    label.textContent = category;
+
+    nameDiv.appendChild(colorDot);
+    nameDiv.appendChild(label);
+
+    // Badge (para categorias fixas)
+    if (isFixed) {
+      const badge = document.createElement("span");
+      badge.className = "category-badge";
+      badge.textContent = "FIXA";
+      nameDiv.appendChild(badge);
+    }
+
+    item.appendChild(nameDiv);
+
+    // Botão de remover (apenas para personalizadas)
+    if (!isFixed) {
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-category-btn";
+      removeBtn.textContent = "✕";
+      removeBtn.addEventListener("click", () => this.removeCategory(index));
+      item.appendChild(removeBtn);
+    }
+
+    return item;
+  }
+
+  openColorPicker(category, colorDot) {
+    // Remove picker anterior se existir
+    const existingPicker = document.getElementById("color-picker-modal");
+    if (existingPicker) existingPicker.remove();
+
+    const modal = document.createElement("div");
+    modal.id = "color-picker-modal";
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+    `;
+
+    const container = document.createElement("div");
+    container.style.cssText = `
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    `;
+
+    const title = document.createElement("h3");
+    title.textContent = `Escolha a cor para "${category}"`;
+    title.style.cssText = `
+      margin: 0 0 20px 0;
+      color: var(--text-color);
+      font-size: 16px;
+      font-weight: 600;
+    `;
+    container.appendChild(title);
+
+    // Grid de cores
+    const colorGrid = document.createElement("div");
+    colorGrid.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-items: center;
+    `;
+
+    COLOR_PALETTE.forEach((hexColor) => {
+      const colorBtn = document.createElement("button");
+      colorBtn.style.cssText = `
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        background: ${hexColor};
+        cursor: pointer;
+        transition: all 0.2s;
+      `;
+
+      // Destaca a cor atual
+      if (getCategoryColor(category) === hexColor) {
+        colorBtn.style.borderColor = "var(--text-color)";
+        colorBtn.style.transform = "scale(1.15)";
+      }
+
+      colorBtn.addEventListener("click", () => {
+        setCustomCategoryColor(category, hexColor);
+        colorDot.style.backgroundColor = hexColor;
+        modal.remove();
+        this.toast.showToast("success", `Cor atualizada para "${category}"`);
+      });
+
+      colorBtn.addEventListener("mouseover", () => {
+        colorBtn.style.transform = "scale(1.1)";
+      });
+
+      colorBtn.addEventListener("mouseout", () => {
+        if (getCategoryColor(category) !== hexColor) {
+          colorBtn.style.transform = "scale(1)";
+        }
+      });
+
+      colorGrid.appendChild(colorBtn);
+    });
+
+    container.appendChild(colorGrid);
+
+    // Botões
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.cssText = `
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    `;
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "Cancelar";
+    cancelBtn.style.cssText = `
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    `;
+    cancelBtn.addEventListener("click", () => modal.remove());
+    buttonContainer.appendChild(cancelBtn);
+
+    container.appendChild(buttonContainer);
+    modal.appendChild(container);
+    document.body.appendChild(modal);
+
+    // Fechar ao clicar fora
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.remove();
+    });
+  }
+
+  addCategory() {
+    const input = document.getElementById("new-category-input");
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+      this.toast.showToast("warning", "Digite um nome para a categoria");
+      return;
+    }
+
+    const categories = this.getCategories();
+    if (categories.some((c) => c.toLowerCase() === name.toLowerCase())) {
+      this.toast.showToast("warning", "Esta categoria já existe");
+      return;
+    }
+
+    categories.push(name);
+    localStorage.setItem("studyCategories", JSON.stringify(categories));
+    input.value = "";
+    this.renderCategories();
+    this.toast.showToast("success", "Categoria adicionada!");
+  }
+
+  removeCategory(idx) {
+    const custom = this.getCustomCategories();
+    if (idx < 0 || idx >= custom.length) return;
+
+    const categoryToRemove = custom[idx];
+    const all = this.getCategories();
+    const filtered = all.filter((cat) => cat !== categoryToRemove);
+
+    localStorage.setItem("studyCategories", JSON.stringify(filtered));
+
+    // Remove a cor personalizada se existir
+    removeCustomCategoryColor(categoryToRemove);
+
+    this.renderCategories();
+    this.toast.showToast(
+      "success",
+      `Categoria "${categoryToRemove}" removida!`
+    );
   }
 
   // -----------------------------
@@ -34,6 +322,7 @@ export class SettingsController {
         localStorage.removeItem("restDays");
         localStorage.removeItem("theme");
         localStorage.removeItem("currentIndex");
+        localStorage.removeItem("studyCategories");
 
         this.toast.showToast("success", "Configurações resetadas com sucesso!");
         location.reload();
@@ -70,6 +359,18 @@ export class SettingsController {
   // Exportação
   // -----------------------------
   exportBackupFile() {
+    // Valida se há dados para fazer backup
+    const studyHistory = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const studyCycle = JSON.parse(localStorage.getItem("studyCycle")) || [];
+
+    if (studyHistory.length === 0 && studyCycle.length === 0) {
+      this.toast.showToast(
+        "warning",
+        "Nada para fazer backup! Adicione matérias ou histórico."
+      );
+      return;
+    }
+
     const data = buildBackupData();
     saveBackupToFile(data);
 

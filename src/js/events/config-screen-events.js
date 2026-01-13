@@ -10,6 +10,7 @@ export function initConfigScreenEvents(
     .addEventListener("click", () => {
       configUI.renderList();
       streak.loadRestDaysUI();
+      settings.renderCategories();
       screens.switch("screen-config");
     });
 
@@ -32,6 +33,17 @@ export function initConfigScreenEvents(
       configUI.renderList();
     }
   });
+
+  // Categorias
+  document
+    .getElementById("btn-add-category")
+    .addEventListener("click", () => settings.addCategory());
+
+  document
+    .getElementById("new-category-input")
+    .addEventListener("keypress", (e) => {
+      if (e.key === "Enter") settings.addCategory();
+    });
 
   document
     .getElementById("btn-make-backup")

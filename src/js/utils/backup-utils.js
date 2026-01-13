@@ -6,6 +6,8 @@ export function buildBackupData() {
       studyHistory: JSON.parse(localStorage.getItem("studyHistory")) || [],
       studyCycle: JSON.parse(localStorage.getItem("studyCycle")) || [],
       restDays: JSON.parse(localStorage.getItem("restDays")) || [],
+      studyCategories:
+        JSON.parse(localStorage.getItem("studyCategories")) || [],
       theme: localStorage.getItem("theme") || "light",
       currentIndex: localStorage.getItem("currentIndex") || 0,
       unlockedAchievements:
@@ -60,6 +62,13 @@ export function restoreBackup(backup) {
   localStorage.setItem("restDays", JSON.stringify(backup.data.restDays));
   localStorage.setItem("theme", backup.data.theme);
   localStorage.setItem("currentIndex", backup.data.currentIndex);
+
+  if (backup.data.studyCategories) {
+    localStorage.setItem(
+      "studyCategories",
+      JSON.stringify(backup.data.studyCategories)
+    );
+  }
 
   if (backup.data.unlockedAchievements) {
     localStorage.setItem(

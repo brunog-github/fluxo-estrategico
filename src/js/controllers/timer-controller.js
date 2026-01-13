@@ -217,6 +217,12 @@ export class TimerController {
     localStorage.removeItem("totalPausedSeconds");
 
     document.title = "Fluxo ESTRATÉGICO";
+
+    // Carrega as categorias no select do screen-finish
+    if (this.session && this.session.loadCategorySelect) {
+      this.session.loadCategorySelect();
+    }
+
     this.screens.switch("screen-finish");
   }
 }

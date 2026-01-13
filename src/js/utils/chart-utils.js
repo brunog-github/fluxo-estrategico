@@ -4,6 +4,8 @@ export class ReportsCharts {
   constructor() {
     this.performanceChart = null;
     this.timeChart = null;
+    this.currentTimeFilter = "all"; // filtro ativo atualmente
+    this.allHistory = []; // guardar histórico completo
   }
 
   destroy() {
@@ -33,6 +35,31 @@ export class ReportsCharts {
     return stats;
   }
 
+  // Filtrar histórico por período
+  filterHistoryByPeriod(history, filter) {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    return history.filter((item) => {
+      const itemDate = new Date(
+        item.date.split(" às ")[0].split("/").reverse().join("-")
+      );
+      const daysAgo = Math.floor((now - itemDate) / (1000 * 60 * 60 * 24));
+
+      switch (filter) {
+        case "today":
+          return daysAgo === 0;
+        case "week":
+          return daysAgo < 7;
+        case "month":
+          return daysAgo < 30;
+        case "all":
+        default:
+          return true;
+      }
+    });
+  }
+
   buildPerformanceChart(ctx, labels, correct, wrong) {
     this.performanceChart = new Chart(ctx, {
       type: "bar",
@@ -59,6 +86,11 @@ export class ReportsCharts {
   }
 
   buildTimeChart(ctx, labels, hours) {
+    const textColor =
+      document.documentElement.getAttribute("data-theme") === "dark"
+        ? "#e0e0e0"
+        : "#333333";
+
     this.timeChart = new Chart(ctx, {
       type: "pie",
       data: {
@@ -74,7 +106,7 @@ export class ReportsCharts {
       options: {
         responsive: true,
         animation: {
-          duration: 0, // 0 = Instantâneo (Remove a sensação de atraso/piscar)
+          duration: 0,
         },
         plugins: {
           legend: {
@@ -82,17 +114,17 @@ export class ReportsCharts {
             labels: {
               usePointStyle: true,
               padding: 12,
-              color:
-                document.documentElement.getAttribute("data-theme") === "dark"
-                  ? "#e0e0e0"
-                  : "#333333",
+              color: textColor,
+              font: {
+                size: 13,
+              },
             },
           },
           tooltip: {
             callbacks: {
               label: (ctx) => {
-                const value = ctx.raw * 60; // minutos
-                return formatMinutesToHm(value); // usa sua função
+                const value = ctx.raw * 60;
+                return formatMinutesToHm(value);
               },
             },
           },
@@ -116,5 +148,21 @@ export class ReportsCharts {
     };
 
     apply(this.performanceChart);
+  }
+
+  updateTimeChartFilter(filter) {
+    if (!this.allHistory.length) return;
+
+    this.currentTimeFilter = filter;
+    const filtered = this.filterHistoryByPeriod(this.allHistory, filter);
+    const stats = this.buildStats(filtered);
+    const labels = Object.keys(stats);
+    const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));
+
+    if (this.timeChart) {
+      this.timeChart.data.labels = labels;
+      this.timeChart.data.datasets[0].data = timeHours;
+      this.timeChart.update();
+    }
   }
 }

@@ -24,14 +24,22 @@ export class StudySessionManager {
       return false;
     }
 
-    const now = new Date();
+    const sessionStartTimestamp = parseInt(
+      localStorage.getItem("sessionStartTimestamp")
+    );
+    const startDate = sessionStartTimestamp
+      ? new Date(sessionStartTimestamp)
+      : new Date();
 
     const entry = {
       id: Date.now(),
       date:
-        now.toLocaleDateString("pt-BR") +
+        startDate.toLocaleDateString("pt-BR") +
         " às " +
-        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        startDate.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       subject: this.subjectManager.getCurrent(),
       duration: formatTime(seconds),
       questions,
@@ -46,6 +54,7 @@ export class StudySessionManager {
     localStorage.removeItem("currentTimerSeconds");
     localStorage.removeItem("accumulatedTime");
     localStorage.removeItem("finishScreenSubject");
+    localStorage.removeItem("sessionStartTimestamp");
 
     this.achievements.checkAndUnlockAchievements();
 
@@ -58,6 +67,7 @@ export class StudySessionManager {
   cancelSession() {
     localStorage.removeItem("currentTimerSeconds");
     localStorage.removeItem("accumulatedTime");
+    localStorage.removeItem("sessionStartTimestamp");
     localStorage.setItem("appState", "home");
   }
 }

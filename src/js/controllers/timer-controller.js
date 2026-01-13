@@ -97,6 +97,10 @@ export class TimerController {
       localStorage.removeItem("pauseStartTime");
       localStorage.removeItem("totalPausedSeconds");
       localStorage.removeItem("accumulatedTime");
+      localStorage.removeItem("sessionStartTimestamp");
+
+      const sessionStartTimestamp = Date.now();
+      localStorage.setItem("sessionStartTimestamp", sessionStartTimestamp);
 
       this.startTime = Date.now();
     } else {

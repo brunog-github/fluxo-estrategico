@@ -73,6 +73,9 @@ export class ReportsCharts {
       },
       options: {
         responsive: true,
+        animation: {
+          duration: 0, // 0 = Instantâneo (Remove a sensação de atraso/piscar)
+        },
         plugins: {
           legend: {
             position: "bottom",

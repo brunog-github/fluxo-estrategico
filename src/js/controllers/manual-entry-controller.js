@@ -41,8 +41,10 @@ export class ManualEntryController {
     const subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
     this.ui.setSubjectsList(subjects);
 
-    // 1. Converter data "DD/MM/YYYY..." para ISO "YYYY-MM-DD" para o input
-    const dateISO = formatDateToISO(item.date);
+    // 1. Converter data "DD/MM/YYYY às HH:mm" para ISO "YYYY-MM-DD" e "HH:mm"
+    const [datePart, timePart] = item.date.split(" às ");
+    const dateISO = formatDateToISO(datePart);
+    const entryTime = timePart || "00:00";
 
     // 2. Preencher UI
     this.ui.fillFields({
@@ -51,6 +53,7 @@ export class ManualEntryController {
       time: item.duration, // Verifica qual nome você usa no objeto
       questions: item.questions,
       correct: item.correct,
+      entryTime: entryTime,
     });
 
     // Ajusta visualmente a seleção de data (Hoje ou Outro)
@@ -76,21 +79,22 @@ export class ManualEntryController {
   // SALVAR REGISTRO
   // ------------------------
   save() {
-    const subject = this.ui.subjectSelect.value;
-    const dateISO = this.ui.dateInput.value;
-    const time = this.ui.timeInput.value;
-    const questions = this.ui.questionsInput.value;
-    const correct = this.ui.correctInput.value;
+    const data = this.ui.getEntryData();
 
-    if (!subject || !dateISO || time.length < 8 || time === "00:00:00") {
+    if (!data.subject || !data.date || data.time.length < 8 || data.time === "00:00:00") {
       this.toast.showToast(
         "error",
         "Preencha matéria, data e o tempo completo (00:00:00)."
       );
       return;
     }
+    
+    if (!data.entryTime) {
+      this.toast.showToast("error", "A hora do registro é obrigatória.");
+      return;
+    }
 
-    if (questions && correct && Number(correct) > Number(questions)) {
+    if (data.questions && data.correct && Number(data.correct) > Number(data.questions)) {
       this.toast.showToast(
         "error",
         "Acertos não podem ser maiores que questões."
@@ -98,7 +102,7 @@ export class ManualEntryController {
       return;
     }
 
-    const formattedDate = formatDateToBR(dateISO);
+    const formattedDate = formatDateToBR(data.date);
     let history = JSON.parse(localStorage.getItem("studyHistory")) || [];
 
     // --- LÓGICA DE SALVAR (NOVO OU EDITAR) ---
@@ -111,11 +115,11 @@ export class ManualEntryController {
         // Atualiza mantendo o ID original
         history[index] = {
           id: this.editingId, // MANTÉM O MESMO ID
-          date: formattedDate + " às 00:00",
-          subject,
-          duration: time,
-          questions: questions || 0,
-          correct: correct || 0,
+          date: `${formattedDate} às ${data.entryTime}`,
+          subject: data.subject,
+          duration: data.time,
+          questions: data.questions || 0,
+          correct: data.correct || 0,
         };
         this.toast.showToast("success", "Registro atualizado com sucesso!");
       } else {
@@ -130,11 +134,11 @@ export class ManualEntryController {
       // MODO CRIAÇÃO (Novo ID)
       const entry = {
         id: Date.now(), // GERA NOVO ID
-        date: formattedDate + " às 00:00",
-        subject,
-        duration: time,
-        questions: questions || 0,
-        correct: correct || 0,
+        date: `${formattedDate} às ${data.entryTime}`,
+        subject: data.subject,
+        duration: data.time,
+        questions: data.questions || 0,
+        correct: data.correct || 0,
       };
       history.push(entry);
       this.toast.showToast("success", "Estudo registrado!");

@@ -3,6 +3,7 @@ export class ManualEntryUI {
     this.modal = document.getElementById("modal-manual-entry");
     this.subjectSelect = document.getElementById("manual-subject");
     this.dateInput = document.getElementById("manual-date");
+    this.entryTimeInput = document.getElementById("manual-entry-time");
     this.timeInput = document.getElementById("manual-time");
     this.questionsInput = document.getElementById("manual-questions");
     this.correctInput = document.getElementById("manual-correct");
@@ -21,13 +22,28 @@ export class ManualEntryUI {
     });
   }
 
+  getEntryData() {
+    return {
+      subject: this.subjectSelect.value,
+      date: this.dateInput.value,
+      entryTime: this.entryTimeInput.value,
+      time: this.timeInput.value,
+      questions: this.questionsInput.value,
+      correct: this.correctInput.value,
+    };
+  }
+
   fillFields(data) {
-    // data esperada: { subject, dateISO, time, questions, correct }
+    // data esperada: { subject, dateISO, time, questions, correct, entryTime }
     this.subjectSelect.value = data.subject;
     this.dateInput.value = data.dateISO;
     this.timeInput.value = data.time;
     this.questionsInput.value = data.questions;
     this.correctInput.value = data.correct;
+
+    if (data.entryTime) {
+      this.entryTimeInput.value = data.entryTime;
+    }
   }
 
   open() {
@@ -46,6 +62,7 @@ export class ManualEntryUI {
     this.timeInput.value = "";
     this.questionsInput.value = "";
     this.correctInput.value = "";
+    this.entryTimeInput.value = new Date().toTimeString().slice(0, 5);
 
     this.dateInput.setAttribute("max", todayISO);
     this.dateInput.value = todayISO;

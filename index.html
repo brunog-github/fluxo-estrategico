@@ -759,8 +759,7 @@
           </div>
 
           <div class="manual-field-group">
-            <label class="manual-label">Data</label>
-
+            <label class="manual-label">Data e Hora</label>
             <div class="date-chips-container">
               <button type="button" class="date-chip selected" id="chip-today">
                 Hoje
@@ -772,13 +771,19 @@
                 Outro
               </button>
             </div>
-
-            <input
-              type="date"
-              id="manual-date"
-              class="manual-input"
-              style="display: none; margin-top: 10px"
-            />
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <input
+                type="date"
+                id="manual-date"
+                class="manual-input"
+                style="display: none;"
+              />
+              <input
+                type="time"
+                id="manual-entry-time"
+                class="manual-input"
+              />
+            </div>
           </div>
           <div class="manual-field-group">
             <label for="manual-time" class="manual-label"

@@ -1,4 +1,4 @@
-import { timeToMinutes } from "./utils.js";
+import { timeToMinutes, formatMinutesToHm } from "./utils.js";
 
 export class ReportsCharts {
   constructor() {
@@ -63,7 +63,13 @@ export class ReportsCharts {
       type: "pie",
       data: {
         labels,
-        datasets: [{ label: "Tempo (hr)", data: hours, borderWidth: 1 }],
+        datasets: [
+          {
+            label: "Tempo (hr)",
+            data: hours,
+            borderWidth: 1,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -77,6 +83,14 @@ export class ReportsCharts {
                 document.documentElement.getAttribute("data-theme") === "dark"
                   ? "#e0e0e0"
                   : "#333333",
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const value = ctx.raw * 60; // minutos
+                return formatMinutesToHm(value); // usa sua função
+              },
             },
           },
         },

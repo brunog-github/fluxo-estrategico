@@ -23,7 +23,7 @@ export class ManualEntryController {
     this.editingId = null;
     this.ui.setTitle("Registrar Estudo");
 
-    const subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
+    const subjects = this.getCombinedSubjects();
     const todayISO = toLocalISO(new Date());
 
     this.ui.resetFields(todayISO);
@@ -38,7 +38,7 @@ export class ManualEntryController {
     this.editingId = item.id; // Guarda referência do item original
     this.ui.setTitle("Editar Estudo");
 
-    const subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
+    const subjects = this.getCombinedSubjects();
     this.ui.setSubjectsList(subjects);
 
     // 1. Converter data "DD/MM/YYYY às HH:mm" para ISO "YYYY-MM-DD" e "HH:mm"
@@ -75,26 +75,53 @@ export class ManualEntryController {
     this.ui.close();
   }
 
+  // Obtém matérias do Ciclo + Matérias que já existem no Histórico
+  getCombinedSubjects() {
+    // 1. Matérias ativas (Configurações)
+    const activeSubjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
+
+    // 2. Matérias do histórico (Legado)
+    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const historySubjects = history.map((item) => item.subject);
+
+    // 3. Junta tudo e remove duplicados usando Set
+    const uniqueSubjects = [
+      ...new Set([...activeSubjects, ...historySubjects]),
+    ];
+
+    // 4. Retorna ordenado alfabeticamente para ficar bonito
+    return uniqueSubjects.sort();
+  }
+
   // ------------------------
   // SALVAR REGISTRO
   // ------------------------
   save() {
     const data = this.ui.getEntryData();
 
-    if (!data.subject || !data.date || data.time.length < 8 || data.time === "00:00:00") {
+    if (
+      !data.subject ||
+      !data.date ||
+      data.time.length < 8 ||
+      data.time === "00:00:00"
+    ) {
       this.toast.showToast(
         "error",
         "Preencha matéria, data e o tempo completo (00:00:00)."
       );
       return;
     }
-    
+
     if (!data.entryTime) {
       this.toast.showToast("error", "A hora do registro é obrigatória.");
       return;
     }
 
-    if (data.questions && data.correct && Number(data.correct) > Number(data.questions)) {
+    if (
+      data.questions &&
+      data.correct &&
+      Number(data.correct) > Number(data.questions)
+    ) {
       this.toast.showToast(
         "error",
         "Acertos não podem ser maiores que questões."

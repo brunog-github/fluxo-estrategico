@@ -10,7 +10,9 @@ export class HistoryFilterController {
   // Preencher dropdown + datas
   init() {
     const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
-    const subjectsFromHistory = [...new Set(history.map((entry) => entry.subject))];
+    const subjectsFromHistory = [
+      ...new Set(history.map((entry) => entry.subject)),
+    ];
 
     this.ui.applyMaxDate();
     this.ui.fillSubjects(subjectsFromHistory);
@@ -23,12 +25,15 @@ export class HistoryFilterController {
 
     const filtered = filterHistory(history, filters);
 
-    this.reports.ui.renderHistoryTable(filtered, (id) => {
-      this.reports.deleteEntry(id);
-    });
-
-    // opcional: manter gráficos filtrados
-    // this.reports.updateChartsWithData(filtered);
+    this.reports.ui.renderHistoryTable(
+      filtered,
+      (id) => {
+        this.reports.deleteEntry(id);
+      },
+      (item) => {
+        this.reports.onEditHandler(item);
+      }
+    );
   }
 
   clearFilters() {

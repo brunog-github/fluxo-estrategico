@@ -72,7 +72,7 @@ export class ReportsUI {
       });
 
       tr.querySelector(".edit-row").addEventListener("click", () => {
-        if (editCallback) editCallback(item);
+        editCallback(item);
       });
 
       body.appendChild(tr);

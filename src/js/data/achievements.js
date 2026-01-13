@@ -1,27 +1,6 @@
-// --- ESTADO GLOBAL DA APLICAÇÃO ---
+import { timeToMinutes } from "../utils/utils.js";
 
-// Variáveis de Dados
-let subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
-let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
-
-// Variáveis do Timer
-let timerInterval = null;
-let seconds = 0;
-let startTime = null;
-let isPaused = false; // O timestamp de quando o play foi apertado
-let accumulatedTime = 0; // O tempo que já tinha passado antes de pausar (em segundos)
-let pauseStartTime = null; // Momento exato que apertou Pause
-let totalPausedSeconds = 0; // Acumulado total de pausas nessa sessão
-
-// Variável do Drag & Drop
-let sortableInstance = null;
-
-// NOVO: Dias de Descanso (Array de números 0-6)
-// Padrão: Sábado (6) e Domingo (0)
-let restDays = JSON.parse(localStorage.getItem("restDays")) || [];
-
-// 1. Definição das Conquistas (Dados e Ícones SVG)
-const ACHIEVEMENTS = [
+export const ACHIEVEMENTS = [
   {
     id: "first_step",
     title: "Primeiros Passos",

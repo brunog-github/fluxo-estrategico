@@ -14,13 +14,19 @@
 </svg>"
     />
 
-    <link rel="stylesheet" href="src/css/styles.css" />
+    <link rel="stylesheet" href="src/css/style.css" />
+    <link rel="stylesheet" href="src/css/global-tooltip.css" />
+    <link rel="stylesheet" href="src/css/toast.css" />
+    <link rel="stylesheet" href="src/css/timer.css" />
+    <link rel="stylesheet" href="src/css/form.css" />
+    <link rel="stylesheet" href="src/css/table.css" />
+    <link rel="stylesheet" href="src/css/streak-dot.css" />
+    <link rel="stylesheet" href="src/css/config-screen.css" />
     <link rel="stylesheet" href="src/css/achievements.css" />
     <link rel="stylesheet" href="src/css/calendar.css" />
-    <link rel="stylesheet" href="src/css/globalTooltip.css" />
-    <link rel="stylesheet" href="src/css/life-time-stats.css" />
-    <link rel="stylesheet" href="src/css/form-manual-entry.css" />
     <link rel="stylesheet" href="src/css/filters-style.css" />
+    <link rel="stylesheet" href="src/css/form-manual-entry.css" />
+    <link rel="stylesheet" href="src/css/life-time-stats.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -84,7 +90,6 @@
 
           <button
             id="theme-toggle"
-            onclick="toggleTheme()"
             style="
               background: transparent;
               border: none;
@@ -128,8 +133,8 @@
               </div>
 
               <button
+                id="btn-calendar-toggle"
                 class="btn-calendar-toggle"
-                onclick="toggleCalendarModal()"
                 title="Ver calendário mensal"
                 style="
                   background: none;
@@ -146,18 +151,14 @@
               </button>
             </div>
 
-            <small
-              id="streak-count"
-              style="font-weight: bold; color: var(--primary-color)"
-            >
-            </small>
+            <small id="streak-count"> </small>
           </div>
 
           <div id="streak-visual"></div>
 
           <button
+            id="btn-achievements-screen"
             class="btn btn-outline"
-            onclick="showAchievements()"
             style="
               margin-top: 10px;
               border-color: #666;
@@ -185,14 +186,14 @@
             Depois: ...
           </div>
 
-          <button class="btn" onclick="startStudy()">Estudar</button>
-          <button class="btn btn-black" onclick="showConfig()">
+          <button id="btn-start-study" class="btn">Estudar</button>
+          <button id="btn-to-screen-config" class="btn btn-black">
             Configurar
           </button>
           <button
+            id="btn-report-screen"
             class="btn btn-outline"
             style="margin-top: 10px"
-            onclick="showReports()"
           >
             Estatísticas
           </button>
@@ -201,8 +202,8 @@
 
       <div id="screen-timer" class="hidden">
         <button
+          id="btn-back-to-home"
           class="btn-back"
-          onclick="goHomeFromTimeScreen()"
           title="Voltar para o Início"
         >
           <svg
@@ -247,12 +248,10 @@
           Tempo pausado: 00:00:00
         </small>
 
-        <button class="btn screen-timer" id="btn-pause" onclick="togglePause()">
-          Pausar
-        </button>
+        <button id="btn-study-pause" class="btn screen-timer">Pausar</button>
         <button
+          id="btn-study-finish"
           class="btn btn-black screen-timer"
-          onclick="finishSession()"
           style="margin-bottom: 15px"
         >
           Finalizar
@@ -300,10 +299,10 @@
           </p>
         </div>
 
-        <button class="btn btn-outline" onclick="cancelSession()">
+        <button id="btn-cancel-session" class="btn btn-outline">
           Cancelar
         </button>
-        <button class="btn" onclick="saveAndAdvance()">
+        <button id="btn-save-study-screen-finish" class="btn">
           Concluir e avançar
         </button>
       </div>
@@ -311,8 +310,8 @@
       <div id="screen-config" class="hidden">
         <div class="nav-header">
           <button
+            id="btn-back-to-home-from-config"
             class="btn-back"
-            onclick="goHome()"
             title="Voltar para o Início"
           >
             <svg
@@ -340,8 +339,8 @@
             placeholder="Nome da matéria (ex: Português)"
           />
           <button
+            id="btn-save-subject"
             class="btn btn-outline"
-            onclick="addSubject()"
             style="margin: 15px auto 0; display: block"
           >
             Adicionar
@@ -399,8 +398,8 @@
             >
           </div>
           <button
+            id="btn-save-rest-days"
             class="btn-sm"
-            onclick="saveRestDays()"
             style="
               margin-top: 15px;
               background: var(--card-bg);
@@ -413,8 +412,8 @@
         </div>
 
         <button
+          id="btn-clear-config"
           class="btn-sm btn-danger-text"
-          onclick="clearConfig()"
           title="reseta as configurações da pagina de configurar fluxo"
         >
           ⟲ Resetar as Configurações
@@ -452,12 +451,12 @@
             para salvar ou transferir para outro Celular / Dispositivo.
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 8px">
-            <button class="btn-sm" onclick="exportBackupFile()">
+            <button id="btn-make-backup" class="btn-sm">
               <span>💾</span> Fazer Backup Local
             </button>
             <button
+              id="btn-restore-backup"
               class="btn-sm"
-              onclick="triggerImportConfig()"
               title="Use o mesmo formato do arquivo de exportação"
             >
               <span>📥</span> Restaurar Backup
@@ -467,9 +466,19 @@
               id="backup-upload"
               style="display: none"
               accept=".json, .estudos, application/json, text/plain"
-              onchange="importBackupFile(this)"
             />
           </div>
+          <small
+            id="last-backup-display"
+            style="
+              display: block;
+              margin-top: 8px;
+              color: var(--text-secondary);
+              font-size: 12px;
+            "
+          >
+            Último backup: Nunca realizado
+          </small>
 
           <p
             style="
@@ -488,8 +497,8 @@
       <div id="screen-reports" class="hidden">
         <div class="nav-header">
           <button
+            id="btn-back-to-home-from-reports"
             class="btn-back"
-            onclick="goHome()"
             title="Voltar para o Início"
           >
             <svg
@@ -563,7 +572,17 @@
               color: #888;
               display: none;
             "
-          ></div>
+          >
+            <span
+              style="
+                font-size: 1.5em;
+                vertical-align: middle;
+                margin-right: 5px;
+              "
+              >📱⟳</span
+            >
+            Gire o celular para melhor visualização do gráfico.
+          </div>
 
           <div class="cycle-card">
             <h4>Tempo Total por Matéria (Horas)</h4>
@@ -583,7 +602,7 @@
           <h3 style="margin: 0; display: flex; align-items: center; gap: 8px">
             📜 Histórico
           </h3>
-          <button onclick="openManualEntryModal()" class="btn-modern-small">
+          <button id="btn-add-manual-entry" class="btn-modern-small">
             + Novo Registro
           </button>
         </div>
@@ -591,38 +610,24 @@
         <div class="filters-container card-inset">
           <div class="filter-group">
             <label>Matéria</label>
-            <select
-              id="filter-subject"
-              class="input-filter"
-              onchange="renderHistoryTable()"
-            >
+            <select id="filter-subject" class="input-filter">
               <option value="">Todas</option>
             </select>
           </div>
 
           <div class="filter-group">
             <label>De</label>
-            <input
-              type="date"
-              id="filter-start"
-              class="input-filter"
-              onchange="renderHistoryTable()"
-            />
+            <input type="date" id="filter-start" class="input-filter" />
           </div>
 
           <div class="filter-group">
             <label>Até</label>
-            <input
-              type="date"
-              id="filter-end"
-              class="input-filter"
-              onchange="renderHistoryTable()"
-            />
+            <input type="date" id="filter-end" class="input-filter" />
           </div>
 
           <div class="filter-group">
             <label>&nbsp;</label>
-            <button onclick="clearHistoryFilters()" class="btn-filter-reset">
+            <button id="btn-clear-filter-history" class="btn-filter-reset">
               Limpar Filtros
             </button>
           </div>
@@ -653,11 +658,7 @@
         <div class="table-actions">
           <div style="display: flex; gap: 8px"></div>
 
-          <button
-            id="btn-screen-report"
-            class="btn-sm btn-danger-text"
-            onclick="clearHistory()"
-          >
+          <button id="btn-clean-all-history" class="btn-sm btn-danger-text">
             🗑️ Limpar tudo
           </button>
         </div>
@@ -667,8 +668,8 @@
         <div class="achievements-header" style="margin-bottom: 20px">
           <div class="nav-header">
             <button
+              id="btn-back-to-home-from-achievements"
               class="btn-back"
-              onclick="goHome()"
               title="Voltar para o Início"
             >
               <svg
@@ -699,11 +700,7 @@
             </div>
           </div>
 
-          <select
-            id="ach-filter"
-            onchange="renderAchievementsList()"
-            class="form-select"
-          >
+          <select id="ach-filter" class="form-select">
             <option value="all">Todas as Conquistas</option>
             <option value="unlocked">Apenas Desbloqueadas</option>
             <option value="locked">Apenas Bloqueadas</option>
@@ -717,13 +714,9 @@
     <div id="calendar-modal" class="modal-overlay hidden">
       <div class="modal-content calendar-box">
         <div class="calendar-header">
-          <button class="cal-nav-btn" onclick="changeCalendarMonth(-1)">
-            &#10094;
-          </button>
+          <button id="cal-prev" class="cal-nav-btn">&#10094;</button>
           <h3 id="cal-month-year">Mês Ano</h3>
-          <button class="cal-nav-btn" onclick="changeCalendarMonth(1)">
-            &#10095;
-          </button>
+          <button id="cal-next" class="cal-nav-btn">&#10095;</button>
         </div>
 
         <div class="calendar-weekdays">
@@ -740,8 +733,8 @@
 
         <div style="text-align: center; margin-top: 20px">
           <button
+            id="btn-close-calendar"
             class="btn btn-black"
-            onclick="toggleCalendarModal()"
             style="padding: 8px 30px"
           >
             Fechar
@@ -755,12 +748,9 @@
 
     <div id="modal-manual-entry" class="modal hidden">
       <div class="modal-content card-elevated manual-modal-container">
-        <h3 class="manual-modal-title">Registrar Estudo</h3>
+        <h3 id="manual-modal-title" class="manual-modal-title"></h3>
 
-        <form
-          id="form-manual-entry"
-          onsubmit="event.preventDefault(); saveManualEntry();"
-        >
+        <form id="form-manual-entry" onsubmit="event.preventDefault()">
           <div class="manual-field-group">
             <label class="manual-label">Matéria</label>
             <select id="manual-subject" class="manual-input" required>
@@ -772,28 +762,13 @@
             <label class="manual-label">Data</label>
 
             <div class="date-chips-container">
-              <button
-                type="button"
-                class="date-chip selected"
-                id="chip-today"
-                onclick="setDateOption('today')"
-              >
+              <button type="button" class="date-chip selected" id="chip-today">
                 Hoje
               </button>
-              <button
-                type="button"
-                class="date-chip"
-                id="chip-yesterday"
-                onclick="setDateOption('yesterday')"
-              >
+              <button type="button" class="date-chip" id="chip-yesterday">
                 Ontem
               </button>
-              <button
-                type="button"
-                class="date-chip"
-                id="chip-other"
-                onclick="setDateOption('other')"
-              >
+              <button type="button" class="date-chip" id="chip-other">
                 Outro
               </button>
             </div>
@@ -817,7 +792,6 @@
                 placeholder="00:00:00"
                 maxlength="8"
                 required
-                oninput="maskTime(this)"
               />
             </div>
           </div>
@@ -844,13 +818,17 @@
 
           <div class="manual-actions-row">
             <button
+              id="btn-manual-entry-cancel"
               type="button"
-              onclick="closeManualEntryModal()"
               class="btn btn-outline manual-btn-flex"
             >
               Cancelar
             </button>
-            <button type="submit" class="btn btn-primary manual-btn-flex">
+            <button
+              id="btn-save-manual-entry"
+              type="submit"
+              class="btn btn-primary manual-btn-flex"
+            >
               Salvar
             </button>
           </div>
@@ -858,18 +836,6 @@
       </div>
     </div>
 
-    <script src="src/js/tooltip.js"></script>
-    <script src="src/js/globals.js"></script>
-    <script src="src/js/utils.js"></script>
-    <script src="src/js/reports.js"></script>
-    <script src="src/js/timer.js"></script>
-    <script src="src/js/toast.js"></script>
-    <script src="src/js/streak.js"></script>
-    <script src="src/js/achievements.js"></script>
-    <script src="src/js/settings.js"></script>
-    <script src="src/js/calendar.js"></script>
-    <script src="src/js/manual-entry.js"></script>
-    <script src="src/js/filter-history-table.js"></script>
-    <script src="src/js/app.js"></script>
+    <script type="module" src="src/js/main.js"></script>
   </body>
 </html>

@@ -1,0 +1,31 @@
+/* Tela Timer */
+.timer-display {
+  font-size: 60px;
+  font-weight: 600;
+  margin: 25px 0;
+  color: var(--timer-display);
+  font-variant-numeric: tabular-nums; /* Evita que os números "pulem" */
+}
+.current-subject-title {
+  background: #fff3e0; /* Fundo laranja bem claro */
+  color: #d84315;
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: bold;
+  border: 1px solid #ffe0b2;
+}
+
+.btn.screen-timer {
+  width: 50%;
+}
+
+@media (max-width: 480px) {
+  .timer-display {
+    font-size: 45px; /* Diminui um pouco o timer para não quebrar linha */
+  }
+
+  .btn.screen-timer {
+    width: 80%;
+  }
+}

@@ -97,7 +97,17 @@ export class StreakController {
 
     this.ui.updateStreakDisplay(streak, bestStreak);
 
-    const daysToShow = 31;
+    // Contar dias únicos no histórico para determinar quantos dias renderizar
+    const uniqueDays = new Set();
+    history.forEach((item) => {
+      const dateObj = parseDateStr(item.date);
+      dateObj.setHours(0, 0, 0, 0);
+      const dateKey = dateObj.getTime();
+      uniqueDays.add(dateKey);
+    });
+
+    // Renderizar no mínimo 31 dias, ou todos os dias do histórico se for maior
+    const daysToShow = Math.max(uniqueDays.size, 31);
 
     for (let i = daysToShow - 1; i >= 0; i--) {
       const day = new Date(today);

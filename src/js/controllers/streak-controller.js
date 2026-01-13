@@ -3,6 +3,7 @@ import {
   parseDateStr,
   getMinutesStudiedOnDate,
 } from "../utils/streak-utils.js";
+import { formatMinutesToHm } from "../utils/utils.js";
 
 export class StreakController {
   constructor(toast) {
@@ -108,9 +109,15 @@ export class StreakController {
       const dateStr = day.toLocaleDateString("pt-BR").slice(0, 5);
       const isToday = i === 0;
 
+      let tooltip = "";
       let label = dateStr.split("/")[0];
       let className = "";
-      let tooltip = `${dateStr} - ${Math.round(minutes)} min`;
+
+      if (minutes >= 60) {
+        tooltip = `${dateStr} - ${formatMinutesToHm(minutes)}`;
+      } else {
+        tooltip = `${dateStr} - ${Math.round(minutes)} min`;
+      }
 
       if (day < startDate) {
         className = "";

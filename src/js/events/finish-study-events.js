@@ -1,4 +1,4 @@
-export function initFinishStudyEvents(session, screens) {
+export function initFinishStudyEvents(session, screens, confirm) {
   document
     .getElementById("btn-save-study-screen-finish")
     .addEventListener("click", () => {
@@ -10,7 +10,13 @@ export function initFinishStudyEvents(session, screens) {
   document
     .getElementById("btn-cancel-session")
     .addEventListener("click", () => {
-      session.cancelSession();
-      screens.switch("screen-home");
+      confirm.confirm(
+        "Tem certeza que deseja cancelar este estudo?",
+        () => {
+          session.cancelSession();
+          screens.switch("screen-home");
+        },
+        "Cancelar Estudo"
+      );
     });
 }

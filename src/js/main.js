@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initAchievementsEvents(screens, achievements);
   initCalendarEvents(calendar);
-  initFinishStudyEvents(session, screens);
+  initFinishStudyEvents(session, screens, confirm);
   initConfigScreenEvents(screens, configUI, streak, subjects, settings);
   initTimerScreenEvents(screens, timer);
   initReportsScreenEvents(reports, screens, lifetime, filterController);

@@ -6,6 +6,45 @@ export class ReportsUI {
     this.toast = toast;
     this.confirm = confirm;
     this.charts = charts;
+    this.initTableDragScroll();
+  }
+
+  initTableDragScroll() {
+    const tableContainer = document.querySelector(".table-container");
+    if (!tableContainer) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // Suporte a drag horizontal (funciona em desktop e mobile)
+    tableContainer.addEventListener("mousedown", (e) => {
+      // Não inicia drag se clicou em botões
+      if (e.target.closest("button")) return;
+
+      isDown = true;
+      startX = e.pageX - tableContainer.offsetLeft;
+      scrollLeft = tableContainer.scrollLeft;
+      tableContainer.style.cursor = "grabbing";
+    });
+
+    tableContainer.addEventListener("mouseleave", () => {
+      isDown = false;
+      tableContainer.style.cursor = "grab";
+    });
+
+    tableContainer.addEventListener("mouseup", () => {
+      isDown = false;
+      tableContainer.style.cursor = "grab";
+    });
+
+    tableContainer.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - tableContainer.offsetLeft;
+      const walk = (x - startX) * 1;
+      tableContainer.scrollLeft = scrollLeft - walk;
+    });
   }
 
   updateRotateTip() {
@@ -51,6 +90,7 @@ export class ReportsUI {
       const categoryColor = getCategoryColor(category);
 
       const tr = document.createElement("tr");
+      tr.dataset.id = item.id;
       tr.innerHTML = `
         <td><small>${d}/${m}/${short}</small></td>
         <td style="text-align:left; font-weight:bold; text-transform: capitalize">${
@@ -92,12 +132,26 @@ export class ReportsUI {
         
       `;
 
-      tr.querySelector(".delete-row").addEventListener("click", () => {
+      tr.querySelector(".delete-row").addEventListener("click", (e) => {
+        e.stopPropagation();
         deleteCallback(item.id);
       });
 
-      tr.querySelector(".edit-row").addEventListener("click", () => {
+      tr.querySelector(".edit-row").addEventListener("click", (e) => {
+        e.stopPropagation();
         editCallback(item);
+      });
+
+      // Evento de clique na linha para selecioná-la
+      tr.addEventListener("click", () => {
+        // Remove seleção de outras linhas
+        document
+          .querySelectorAll("#history-list tr.selected")
+          .forEach((row) => {
+            row.classList.remove("selected");
+          });
+        // Seleciona a linha clicada
+        tr.classList.add("selected");
       });
 
       body.appendChild(tr);

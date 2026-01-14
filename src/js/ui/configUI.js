@@ -4,11 +4,24 @@ export class ConfigUI {
     this.sortableInstance = null;
     this.toast = toast;
 
+    this.setupMobileLock();
+
     // Event delegation -> registrado APENAS UMA VEZ
     const list = document.getElementById("config-list");
     list.addEventListener("click", (e) => {
       const btn = e.target.closest(".delete-subject");
       if (!btn) return;
+
+      const checkbox = document.getElementById("mobile-lock-sort");
+      // Se o checkbox existir e estiver marcado (Bloqueado)
+      if (checkbox && checkbox.checked) {
+        // Mostra aviso e cancela a exclusão
+        this.toast.showToast(
+          "warning",
+          "Desbloqueie a lista para excluir matérias."
+        );
+        return;
+      }
 
       const li = btn.closest("li");
       const index = parseInt(li.dataset.index);
@@ -17,6 +30,49 @@ export class ConfigUI {
       this.toast.showToast("success", "Matéria removida!");
 
       this.renderList();
+    });
+  }
+
+  /**
+   * NOVO: Configura o checkbox de bloqueio
+   */
+  setupMobileLock() {
+    const checkbox = document.getElementById("mobile-lock-sort");
+    const list = document.getElementById("config-list");
+
+    const savedState = localStorage.getItem("sortableLocked");
+    const isLocked = savedState === "true";
+
+    if (!checkbox) return;
+
+    // Remove listeners antigos para evitar duplicação (boa prática)
+    const newCheckbox = checkbox.cloneNode(true);
+    checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+
+    newCheckbox.checked = isLocked; // Marca/Desmarca o switch
+
+    if (isLocked) {
+      list.classList.add("locked");
+    } else {
+      list.classList.remove("locked");
+    }
+
+    // Adiciona o listener no novo elemento
+    newCheckbox.addEventListener("change", (e) => {
+      const isLocked = e.target.checked;
+
+      // Salva como string "true" ou "false"
+      localStorage.setItem("sortableLocked", isLocked);
+
+      // 1. Atualiza visual
+      if (isLocked) list.classList.add("locked");
+      else list.classList.remove("locked");
+
+      // 2. Atualiza a instância do SortableJS EM TEMPO REAL
+      if (this.sortableInstance) {
+        // O SortableJS permite mudar opções dinamicamente assim:
+        this.sortableInstance.option("disabled", isLocked);
+      }
     });
   }
 
@@ -49,9 +105,14 @@ export class ConfigUI {
     if (this.sortableInstance) return;
 
     const el = document.getElementById("config-list");
+    const checkbox = document.getElementById("mobile-lock-sort");
+
+    const startDisabled = checkbox ? checkbox.checked : false;
+
     this.sortableInstance = new Sortable(el, {
       handle: ".drag-handle",
       animation: 150,
+      disabled: startDisabled,
       onEnd: () => this.updateOrder(),
     });
   }

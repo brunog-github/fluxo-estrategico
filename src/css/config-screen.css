@@ -16,6 +16,13 @@
   align-items: center;
 }
 
+/* Quando a lista está bloqueada, apaga o botão de deletar */
+.config-list.locked .delete-subject {
+  opacity: 0.3; /* Deixa transparente */
+  filter: grayscale(100%); /* Tira a cor vermelha */
+  cursor: not-allowed; /* Mostra cursor de bloqueio no PC */
+}
+
 /* Icone de arrastar (Handle) */
 .drag-handle {
   cursor: grab;
@@ -59,4 +66,93 @@
   color: white;
   border-color: var(--primary-color);
   transform: translateY(-2px);
+}
+
+/* Container Mobile */
+.mobile-lock-container {
+  display: none; /* Desktop esconde */
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.lock-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lock-label-text {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* --- ESTILO DO SWITCH --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc; /* Cor Desligado */
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+/* Quando ligado (Checked) */
+input:checked + .slider {
+  background-color: var(--primary-color); /* Cor Ligado */
+}
+
+/* Animação da bolinha */
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Arredondado */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Mostra apenas no Mobile */
+@media (max-width: 768px) {
+  .mobile-lock-container {
+    display: block;
+  }
+}
+
+/* Feedback visual na lista */
+.config-list.locked .drag-handle {
+  opacity: 0.1;
+  cursor: default;
 }

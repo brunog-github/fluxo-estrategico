@@ -33,6 +33,22 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
+.btn-calendar-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem; /* Levemente menor para alinhar melhor */
+  cursor: pointer;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.btn-calendar-toggle:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
 /* Cabeçalho (Navegação) */
 .calendar-header {
   display: flex;

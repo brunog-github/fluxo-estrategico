@@ -143,6 +143,21 @@ body {
   box-shadow: 0 4px 6px var(--shadow-color);
 }
 
+.btn-conquers-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem; /* Levemente menor para alinhar melhor */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.btn-conquers-toggle:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
 .cycle-card {
   border: 1px solid;
   border-radius: 12px;

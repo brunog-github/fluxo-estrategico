@@ -405,7 +405,14 @@
           >
             Dias de Descanso (Não quebra a constância)
           </p>
-          <div style="display: flex; flex-wrap: wrap; gap: 5px">
+          <div
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 5px;
+              justify-content: center;
+            "
+          >
             <label class="rest-day-selector"
               ><input type="checkbox" class="rest-day-check" value="0" />
               Dom</label
@@ -440,9 +447,10 @@
             class="btn-sm"
             style="
               margin-top: 15px;
+              margin-left: auto;
+              margin-right: auto;
+              display: block;
               background: var(--card-bg);
-              width: 100%;
-              justify-content: center;
             "
           >
             Salvar Dias

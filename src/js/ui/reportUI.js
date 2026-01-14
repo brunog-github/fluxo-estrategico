@@ -49,7 +49,6 @@ export class ReportsUI {
       // Categoria com fallback para "-"
       const category = item.category || "-";
       const categoryColor = getCategoryColor(category);
-      const categoryOpacity = item.category ? "1" : "0.65";
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -77,7 +76,7 @@ export class ReportsUI {
         performance !== "-" ? "%" : ""
       }</td>
         <td>
-          <span style="background: ${categoryColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: ${categoryOpacity};">${category}</span>
+          <span style="background: ${categoryColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${category}</span>
         </td>
 
         <td style="white-space: nowrap; width:1%; vertical-align: middle;">

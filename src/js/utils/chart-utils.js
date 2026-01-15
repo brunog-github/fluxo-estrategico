@@ -80,7 +80,17 @@ export class ReportsCharts {
           },
           y: { stacked: true, beginAtZero: true },
         },
-        plugins: { legend: { position: "bottom" } },
+        plugins: {
+          legend: {
+            position: "bottom",
+            onHover: (event, legendItem, legend) => {
+              event.native.target.style.cursor = "pointer";
+            },
+            onLeave: (event, legendItem, legend) => {
+              event.native.target.style.cursor = "default";
+            },
+          },
+        },
       },
     });
   }
@@ -118,6 +128,12 @@ export class ReportsCharts {
               font: {
                 size: 13,
               },
+            },
+            onHover: (event, legendItem, legend) => {
+              event.native.target.style.cursor = "pointer";
+            },
+            onLeave: (event, legendItem, legend) => {
+              event.native.target.style.cursor = "default";
             },
           },
           tooltip: {

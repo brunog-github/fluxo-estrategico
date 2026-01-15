@@ -10,6 +10,10 @@ export function initFiltersEvents(filterController) {
     filterController.applyFilters();
   });
 
+  document.getElementById("filter-category").addEventListener("change", () => {
+    filterController.applyFilters();
+  });
+
   document
     .getElementById("btn-clear-filter-history")
     .addEventListener("click", () => {

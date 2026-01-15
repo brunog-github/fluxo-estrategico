@@ -12,6 +12,20 @@
   font-weight: bolder;
 }
 
+.tip-history-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--table-stripe);
+  color: var(--text-color);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bolder;
+}
+
 .tooltip-floating {
   position: fixed;
   background: #222;

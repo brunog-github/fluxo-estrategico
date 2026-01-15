@@ -14,8 +14,18 @@ export class HistoryFilterController {
       ...new Set(history.map((entry) => entry.subject)),
     ];
 
+    const configCategories =
+      JSON.parse(localStorage.getItem("studyCategories")) || [];
+    const historyCategories = history.map((h) => h.category).filter((c) => c);
+
+    // Junta tudo e remove duplicatas usando Set
+    const uniqueCategories = [
+      ...new Set([...configCategories, ...historyCategories]),
+    ].sort();
+
     this.ui.applyMaxDate();
     this.ui.fillSubjects(subjectsFromHistory);
+    this.ui.fillCategories(uniqueCategories);
   }
 
   // Quando mudar qualquer filtro

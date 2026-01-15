@@ -162,15 +162,44 @@ export class ReportsController {
   }
 
   getTitleFromItems(items, filters = null) {
-    if (!items || items.length === 0) return filters.subject || "";
+    if (!items || items.length === 0) {
+      // Se houver filtro ativo mas sem resultados, mostra o que foi filtrado
+      if (filters) {
+        if (filters.subject && filters.category)
+          return `${filters.subject} - ${filters.category}`;
+        if (filters.subject) return filters.subject;
+        if (filters.category) return filters.category;
+      }
+      return "";
+    }
+
+    // Lógica de Prioridade do Título
+    if (filters) {
+      // 1. Matéria + Categoria
+      if (filters.subject && filters.category) {
+        return `${filters.subject} - ${filters.category}`;
+      }
+      // 2. Só Matéria
+      if (filters.subject) {
+        return filters.subject;
+      }
+      // 3. Só Categoria (AQUI ESTÁ A MUDANÇA SOLICITADA)
+      if (filters.category) {
+        return filters.category; // Ex: "Teoria"
+      }
+    }
 
     const subjects = [...new Set(items.map((i) => i.subject))];
 
-    if (subjects.length === 1 && filters.subject !== "") {
-      return subjects[0];
-    }
+    if (subjects.length === 1) return subjects[0];
 
-    if (filters.subject == "" && filters.start == "" && filters.end == "") {
+    if (
+      !filters ||
+      (filters.subject == "" &&
+        filters.start == "" &&
+        filters.end == "" &&
+        filters.category == "")
+    ) {
       return `Todas as Matérias`;
     }
 

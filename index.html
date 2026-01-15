@@ -716,9 +716,16 @@
             margin-top: 30px;
           "
         >
-          <h3 style="margin: 0; display: flex; align-items: center; gap: 8px">
-            📜 Histórico
-          </h3>
+          <div style="margin: 0; display: flex; align-items: center; gap: 8px">
+            <h3>📜 Histórico</h3>
+            <span
+              class="tip-history-icon"
+              data-tooltip="Lista todos os registros, 
+                  os filtros afetam a tabela e o sumário acima."
+              data-tooltip-position="top"
+              >?</span
+            >
+          </div>
           <button id="btn-add-manual-entry" class="btn-modern-small">
             + Novo Registro
           </button>
@@ -726,19 +733,26 @@
 
         <div class="filters-container card-inset">
           <div class="filter-group">
-            <label>Matéria</label>
+            <label for="filter-subject">Matéria</label>
             <select id="filter-subject" class="input-filter">
               <option value="">Todas</option>
             </select>
           </div>
 
           <div class="filter-group">
-            <label>De</label>
+            <label for="filter-category">Categoria</label>
+            <select id="filter-category" class="input-filter">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-start">De</label>
             <input type="date" id="filter-start" class="input-filter" />
           </div>
 
           <div class="filter-group">
-            <label>Até</label>
+            <label for="filter-end">Até</label>
             <input type="date" id="filter-end" class="input-filter" />
           </div>
 

@@ -3,6 +3,7 @@ export class HistoryFilterUI {
     this.subjectSelect = document.getElementById("filter-subject");
     this.startInput = document.getElementById("filter-start");
     this.endInput = document.getElementById("filter-end");
+    this.categorySelect = document.getElementById("filter-category");
   }
 
   applyMaxDate() {
@@ -29,10 +30,28 @@ export class HistoryFilterUI {
     this.subjectSelect.value = current;
   }
 
+  // NOVO: Preenche o dropdown de categorias
+  fillCategories(categories) {
+    if (!this.categorySelect) return;
+
+    const current = this.categorySelect.value;
+    this.categorySelect.innerHTML = `<option value="">Todas</option>`;
+
+    categories.forEach((cat) => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.innerText = cat;
+      this.categorySelect.appendChild(opt);
+    });
+
+    this.categorySelect.value = current;
+  }
+
   clearFields() {
     if (this.subjectSelect) this.subjectSelect.value = "";
     if (this.startInput) this.startInput.value = "";
     if (this.endInput) this.endInput.value = "";
+    if (this.categorySelect) this.categorySelect.value = "";
   }
 
   getFilters() {
@@ -40,6 +59,7 @@ export class HistoryFilterUI {
       subject: this.subjectSelect?.value || "",
       start: this.startInput?.value || "",
       end: this.endInput?.value || "",
+      category: this.categorySelect ? this.categorySelect.value : "",
     };
   }
 }

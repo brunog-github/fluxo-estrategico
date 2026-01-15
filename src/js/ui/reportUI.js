@@ -158,18 +158,24 @@ export class ReportsUI {
     });
   }
 
-  renderSummary(totalQ, totalC, totalE, accPerc) {
+  renderSummary(totalQ, totalC, totalE, accPerc, title = null) {
     const container = document.getElementById("chart-subjects").parentElement;
 
     let box = document.getElementById("report-summary-box");
+
     if (!box) {
       box = document.createElement("div");
       box.id = "report-summary-box";
       box.style.cssText = `
-        display:flex; justify-content:space-around;
-        padding:15px; margin-top:15px;
-        background:var(--card-bg); border-radius:8px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        padding:15px; 
+        margin-top:15px;
+        background:var(--card-bg);
+        border-radius:8px;
         border:1px solid var(--border-color);
+        gap:10px;
       `;
       container.appendChild(box);
     }
@@ -177,7 +183,13 @@ export class ReportsUI {
     let color =
       accPerc < 50 ? "#ff5252" : accPerc >= 70 ? "#28a745" : "#ffc107";
 
-    box.innerHTML = `
+    // título (mostra apenas se houver texto)
+    const titleHTML = title
+      ? `<div style="font-size:16px;font-weight:bold;opacity:.9;">${title}</div>`
+      : "";
+
+    const rowsHTML = `
+    <div style="display:flex; width:100%; justify-content:space-around;">
       <div>
         <div style="opacity:.7;font-size:12px;">Questões</div>
         <div style="font-size:18px;font-weight:bold;">${totalQ}</div>
@@ -194,6 +206,9 @@ export class ReportsUI {
         <div style="opacity:.7;font-size:12px;">Precisão de Acertos</div>
         <div style="font-size:18px;font-weight:bold;color:${color}">${accPerc}%</div>
       </div>
+    </div>
     `;
+
+    box.innerHTML = titleHTML + rowsHTML;
   }
 }

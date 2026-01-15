@@ -34,6 +34,8 @@ export class HistoryFilterController {
         this.reports.onEditHandler(item);
       }
     );
+
+    this.reports.updateSummary(filtered, filters);
   }
 
   clearFilters() {

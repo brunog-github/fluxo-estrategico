@@ -31,6 +31,7 @@ export class ReportsController {
   renderHistory() {
     let raw = JSON.parse(localStorage.getItem("studyHistory")) || [];
     let filtered = getFilteredHistory(raw);
+
     this.ui.renderHistoryTable(
       filtered,
       (id) => this.deleteEntry(id),
@@ -135,8 +136,16 @@ export class ReportsController {
     });
   }
 
-  updateSummary() {
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  updateSummary(filtered = null, filters = null) {
+    let history = [];
+    let title = "Todas as Matérias";
+
+    if (filtered) {
+      history = filtered;
+      title = this.getTitleFromItems(history, filters);
+    } else {
+      history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    }
 
     let totalQ = 0;
     let totalC = 0;
@@ -149,6 +158,42 @@ export class ReportsController {
     const totalE = Math.max(totalQ - totalC, 0);
     const accPerc = totalQ > 0 ? ((totalC / totalQ) * 100).toFixed(1) : 0;
 
-    this.ui.renderSummary(totalQ, totalC, totalE, accPerc);
+    this.ui.renderSummary(totalQ, totalC, totalE, accPerc, title);
+  }
+
+  getTitleFromItems(items, filters = null) {
+    if (!items || items.length === 0) return filters.subject || "";
+
+    const subjects = [...new Set(items.map((i) => i.subject))];
+
+    if (subjects.length === 1 && filters.subject !== "") {
+      return subjects[0];
+    }
+
+    if (filters.subject == "" && filters.start == "" && filters.end == "") {
+      return `Todas as Matérias`;
+    }
+
+    // converter "05/01/2026 às 17:19" → Date real
+    const parseDate = (str) => {
+      const [date] = str.split(" às ");
+      const [d, m, y] = date.split("/");
+      return new Date(`${y}-${m}-${d}T00:00:00`);
+    };
+
+    const sorted = items.map((i) => parseDate(i.date)).sort((a, b) => a - b);
+
+    const first = sorted[0];
+    const last = sorted[sorted.length - 1];
+
+    // formatar para "dd/mm/yy"
+    const fmt = (d) => {
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yy = String(d.getFullYear()).slice(2);
+      return `${dd}/${mm}/${yy}`;
+    };
+
+    return `${fmt(first)} - ${fmt(last)}`;
   }
 }

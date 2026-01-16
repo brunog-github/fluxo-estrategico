@@ -89,6 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   streak.render();
 
+  reports.setNotesAction((linkedId) => {
+    notesController.openLinkedNote(linkedId);
+  });
+
   reports.setEditAction((itemToEdit) => {
     manualEntry.openToEdit(itemToEdit);
   });

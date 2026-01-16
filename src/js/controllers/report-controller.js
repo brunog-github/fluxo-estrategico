@@ -7,6 +7,7 @@ export class ReportsController {
     this.toast = toast;
     this.confirm = confirm;
     this.screens = screenNavigator;
+    this.onViewNotesHandler = null;
 
     this.charts = new ReportsCharts();
     this.ui = new ReportsUI(toast, confirm, this.charts);
@@ -17,6 +18,10 @@ export class ReportsController {
   // 2. Método público para "receber" a função de editar depois
   setEditAction(callback) {
     this.onEditHandler = callback;
+  }
+
+  setNotesAction(callback) {
+    this.onViewNotesHandler = callback;
   }
 
   show() {
@@ -40,6 +45,13 @@ export class ReportsController {
           this.onEditHandler(item);
         } else {
           console.warn("No edit handler defined.");
+        }
+      },
+      (id) => {
+        if (this.onViewNotesHandler) {
+          this.onViewNotesHandler(id);
+        } else {
+          console.warn("No notes handler defined.");
         }
       }
     );

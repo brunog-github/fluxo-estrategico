@@ -1,4 +1,9 @@
-export function initFinishStudyEvents(session, screens, confirm) {
+export function initFinishStudyEvents(
+  session,
+  screens,
+  confirm,
+  notesController
+) {
   document
     .getElementById("btn-save-study-screen-finish")
     .addEventListener("click", () => {

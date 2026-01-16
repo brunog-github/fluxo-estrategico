@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="src/css/life-time-stats.css" />
     <link rel="stylesheet" href="src/css/categories-new.css" />
     <link rel="stylesheet" href="src/css/color-picker.css" />
+    <link rel="stylesheet" href="src/css/notes.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -41,6 +42,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
@@ -233,6 +238,10 @@
         >
           Tempo pausado: 00:00:00
         </small>
+        <!--📝  -->
+        <button id="btn-open-notes" style="margin: 10px auto; display: block">
+          📝 Anotações
+        </button>
 
         <button id="btn-study-pause" class="btn screen-timer">Pausar</button>
         <button
@@ -978,6 +987,28 @@
       </div>
     </div>
 
+    <div id="modal-notes" class="modal hidden">
+      <div class="notes-modal-container" style="max-width: 500px; width: 90%">
+        <h3 class="manual-modal-title">Anotações da Sessão</h3>
+
+        <div
+          id="quill-editor-container"
+          style="
+            height: 200px;
+            background: var(--input-bg);
+            color: var(--text-color);
+          "
+        ></div>
+
+        <div class="manual-actions-row" style="margin-top: 15px">
+          <button id="btn-close-notes" class="btn btn-primary manual-btn-flex">
+            Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="src/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
   </body>
 </html>

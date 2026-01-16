@@ -1,0 +1,112 @@
+#modal-notes {
+  z-index: 2000;
+}
+
+#btn-open-notes {
+  background-color: transparent;
+  color: var(--text-color);
+  box-shadow: none;
+  cursor: pointer;
+  border: none;
+  border-bottom: 3px solid var(--border-color);
+}
+
+#btn-open-notes:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  transition: border-color 0.2s ease-in-out;
+}
+
+/* Container principal do modal */
+.notes-modal-container {
+  background-color: var(--card-bg) !important;
+  width: 90%;
+  max-width: 700px !important; /* Deixei um pouco mais largo também */
+  padding: 25px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- ESTILOS DO EDITOR QUILL --- */
+
+/* Barra de Ferramentas (Topo) */
+.ql-toolbar {
+  background-color: var(--bg-color); /* Fundo sutilmente diferente do card */
+  border-color: var(--border-color) !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Área de Texto (Container) */
+.ql-container {
+  border-color: var(--border-color) !important;
+  background-color: var(--input-bg); /* Respeita o tema (claro/escuro) */
+  font-family: inherit !important;
+  font-size: 16px !important;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  /* --- AQUI ESTÁ O AJUSTE DE TAMANHO --- */
+  height: 400px !important; /* Altura fixa maior */
+  /* Se preferir que cresça conforme digita, use: min-height: 300px; */
+}
+
+/* O Texto digitado em si */
+.ql-editor {
+  color: var(--text-color) !important; /* Texto na cor do tema */
+  line-height: 1.6; /* Melhor leitura */
+}
+
+/* Scrollbar personalizada dentro do editor (opcional, fica mais bonito) */
+.ql-editor::-webkit-scrollbar {
+  width: 8px;
+}
+.ql-editor::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+/* --- CORREÇÃO: PLACEHOLDER (Texto "Digite aqui...") --- */
+/* Força a cor do placeholder para ser legível no Dark Mode */
+.ql-editor.ql-blank::before {
+  color: var(--text-secondary) !important;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* --- ÍCONES DA TOOLBAR (Ajuste para Dark Mode) --- */
+.ql-stroke {
+  stroke: var(--text-color) !important;
+}
+.ql-fill {
+  fill: var(--text-color) !important;
+}
+.ql-picker {
+  color: var(--text-color) !important;
+}
+/* Seta do dropdown de tamanho/fonte */
+.ql-picker-label::before {
+  color: var(--text-color) !important;
+}
+
+/* --- RESPONSIVIDADE (MOBILE) --- */
+@media (max-width: 600px) {
+  .notes-modal-container {
+    width: 85% !important;
+    padding: 15px !important;
+    height: 80vh;
+  }
+
+  /* Ajusta a barra de botões para não ocupar muito espaço */
+  .manual-actions-row {
+    margin-top: 10px;
+    flex-shrink: 0;
+  }
+
+  /* Esconde opções menos úteis do Quill no mobile se quiser economizar espaço (opcional) */
+  .ql-formats {
+    margin-right: 5px !important;
+  }
+}

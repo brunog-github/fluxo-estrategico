@@ -1,4 +1,4 @@
-export function initTimerScreenEvents(screens, timer) {
+export function initTimerScreenEvents(screens, timer, notesController) {
   document.getElementById("btn-back-to-home").addEventListener("click", () => {
     screens.goHomeFromTimer();
   });
@@ -8,7 +8,11 @@ export function initTimerScreenEvents(screens, timer) {
   document
     .getElementById("btn-study-finish")
     .addEventListener("click", () => timer.finishSession());
-  document
-    .getElementById("btn-start-study")
-    .addEventListener("click", () => timer.startStudy());
+  document.getElementById("btn-start-study").addEventListener("click", () => {
+    timer.startStudy();
+
+    if (notesController) {
+      notesController.reset();
+    }
+  });
 }

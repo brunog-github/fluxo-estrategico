@@ -18,6 +18,7 @@ import { ManualEntryController } from "./controllers/manual-entry-controller.js"
 import { HistoryFilterController } from "./controllers/history-filter-controller.js";
 import { LifetimeController } from "./controllers/lifetime-controller.js";
 import { formatTime } from "./utils/utils.js";
+import { NotesController } from "../js/controllers/notes-controller.js";
 
 import { initAchievementsEvents } from "./events/achievements-events.js";
 import { initCalendarEvents } from "./events/calendar-events.js";
@@ -27,6 +28,7 @@ import { initTimerScreenEvents } from "./events/timer-screen-events.js";
 import { initReportsScreenEvents } from "./events/reports-screen-events.js";
 import { initManualEntryEvents } from "./events/manual-entry-events.js";
 import { initFiltersEvents } from "./events/filters-events.js";
+import { initNotesEvents } from "./events/notes-events.js";
 
 // -----------------------------------------
 // INSTÂNCIAS GLOBAIS
@@ -56,7 +58,14 @@ screens.on("screen-home", () => {
   homeUI.render();
   streak.render();
 });
-const session = new StudySessionManager(subjects, achievements, toast);
+
+const notesController = new NotesController();
+const session = new StudySessionManager(
+  subjects,
+  achievements,
+  toast,
+  notesController
+);
 const timer = new TimerController(subjects, screens, toast);
 timer.session = session; // Adiciona referência à session
 const settings = new SettingsController(toast, confirm);
@@ -112,8 +121,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initCalendarEvents(calendar);
   initFinishStudyEvents(session, screens, confirm);
   initConfigScreenEvents(screens, configUI, streak, subjects, settings);
-  initTimerScreenEvents(screens, timer);
+  initTimerScreenEvents(screens, timer, notesController);
   initReportsScreenEvents(reports, screens, lifetime, filterController);
   initManualEntryEvents(manualEntry, lifetime);
   initFiltersEvents(filterController);
+  initNotesEvents(notesController);
 });

@@ -1,10 +1,11 @@
 import { formatTime } from "../utils/utils.js";
 
 export class StudySessionManager {
-  constructor(subjectManager, achievementsController, toast) {
+  constructor(subjectManager, achievementsController, toast, notesController) {
     this.subjectManager = subjectManager;
     this.achievements = achievementsController;
     this.toast = toast;
+    this.notesController = notesController;
   }
 
   getCategories() {
@@ -91,8 +92,10 @@ export class StudySessionManager {
       ? new Date(sessionStartTimestamp)
       : new Date();
 
+    const entryId = Date.now();
+
     const entry = {
-      id: Date.now(),
+      id: entryId,
       date:
         startDate.toLocaleDateString("pt-BR") +
         " às " +
@@ -110,6 +113,8 @@ export class StudySessionManager {
     const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
     history.unshift(entry);
     localStorage.setItem("studyHistory", JSON.stringify(history));
+
+    this.notesController.saveFinalNote(entryId);
 
     localStorage.setItem("appState", "home");
     localStorage.removeItem("currentTimerSeconds");

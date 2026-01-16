@@ -89,6 +89,8 @@ export class ReportsController {
     this.charts.destroy();
     this.charts.allHistory = history; // guardar histórico completo
 
+    this.charts.updateTotalDisplay(history);
+
     const stats = this.charts.buildStats(history);
     const labels = Object.keys(stats);
 

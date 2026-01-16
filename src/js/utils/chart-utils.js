@@ -60,6 +60,23 @@ export class ReportsCharts {
     });
   }
 
+  // --- NOVO MÉTODO: Atualiza o texto de tempo total ---
+  updateTotalDisplay(history) {
+    const totalMinutes = history.reduce(
+      (acc, item) => acc + timeToMinutes(item.duration),
+      0
+    );
+
+    const h = Math.floor(totalMinutes / 60);
+    const m = Math.floor(totalMinutes % 60);
+
+    // Formatação pedida: "221h 36min"
+    const text = h > 0 ? `${h}h ${m}min` : `${m} minutos`;
+
+    const el = document.getElementById("chart-time-total");
+    if (el) el.textContent = text;
+  }
+
   buildPerformanceChart(ctx, labels, correct, wrong) {
     this.performanceChart = new Chart(ctx, {
       type: "bar",
@@ -140,7 +157,12 @@ export class ReportsCharts {
             callbacks: {
               label: (ctx) => {
                 const value = ctx.raw * 60;
-                return formatMinutesToHm(value);
+                const h = Math.floor(value / 60);
+                const m = Math.floor(value % 60);
+
+                // Formatação pedida: "221h 36min"
+                const text = h > 0 ? `${h}h ${m}min` : `${m} minutos`;
+                return text;
               },
             },
           },
@@ -171,6 +193,10 @@ export class ReportsCharts {
 
     this.currentTimeFilter = filter;
     const filtered = this.filterHistoryByPeriod(this.allHistory, filter);
+
+    // ATUALIZA O TEXTO DO TOTAL AQUI
+    this.updateTotalDisplay(filtered);
+
     const stats = this.buildStats(filtered);
     const labels = Object.keys(stats);
     const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));

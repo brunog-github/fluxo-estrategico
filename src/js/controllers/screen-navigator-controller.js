@@ -43,6 +43,8 @@ export class ScreenNavigator {
       localStorage.removeItem("totalPausedSeconds");
       localStorage.removeItem("pauseStartTime");
       localStorage.removeItem("accumulatedTime");
+      localStorage.removeItem("sessionStartTimestamp");
+
       document.title = "Fluxo ESTRATÉGICO";
     }
 

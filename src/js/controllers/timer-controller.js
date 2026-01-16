@@ -20,6 +20,23 @@ export class TimerController {
     this.ui = new TimerUI();
   }
 
+  reset() {
+    // 1. Para o intervalo imediatamente
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+
+    // 2. Limpa variáveis internas para evitar "ticks" fantasmas
+    this.seconds = 0;
+    this.startTime = null;
+    this.accumulatedTime = 0;
+    this.isPaused = false;
+    this.pauseStartTime = null;
+    this.totalPausedSeconds = 0;
+
+    // 3. Reseta o título da página
+    document.title = "Fluxo ESTRATÉGICO";
+  }
+
   // -------------------------------------------------------
   //  UI Helpers
   // -------------------------------------------------------
@@ -195,8 +212,6 @@ export class TimerController {
   //  Finalizar Sessão
   // -------------------------------------------------------
   finishSession() {
-    clearInterval(this.timerInterval);
-
     localStorage.setItem("appState", "save-session");
 
     const subject = this.subjects.getCurrent();
@@ -206,17 +221,11 @@ export class TimerController {
     );
     this.ui.showFinishScreen(subject, formatted);
 
-    this.startTime = null;
-    this.accumulatedTime = 0;
-    this.pauseStartTime = null;
-    this.totalPausedSeconds = 0;
-    this.isPaused = false;
+    this.reset();
 
     localStorage.removeItem("isPaused");
     localStorage.removeItem("pauseStartTime");
     localStorage.removeItem("totalPausedSeconds");
-
-    document.title = "Fluxo ESTRATÉGICO";
 
     // Carrega as categorias no select do screen-finish
     if (this.session && this.session.loadCategorySelect) {

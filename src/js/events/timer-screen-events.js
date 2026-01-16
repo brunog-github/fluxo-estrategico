@@ -1,5 +1,6 @@
 export function initTimerScreenEvents(screens, timer, notesController) {
   document.getElementById("btn-back-to-home").addEventListener("click", () => {
+    timer.reset();
     screens.goHomeFromTimer();
   });
   document

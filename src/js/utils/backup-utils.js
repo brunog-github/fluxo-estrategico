@@ -8,10 +8,14 @@ export function buildBackupData() {
       restDays: JSON.parse(localStorage.getItem("restDays")) || [],
       studyCategories:
         JSON.parse(localStorage.getItem("studyCategories")) || [],
+      customCategoryColors:
+        JSON.parse(localStorage.getItem("customCategoryColors")) || {},
       theme: localStorage.getItem("theme") || "light",
       currentIndex: localStorage.getItem("currentIndex") || 0,
       unlockedAchievements:
         JSON.parse(localStorage.getItem("unlockedAchievements")) || [],
+      studyNotes: JSON.parse(localStorage.getItem("studyNotes")) || [],
+      lastBackupDate: localStorage.getItem("lastBackupDate") || "",
     },
   };
 }
@@ -62,18 +66,18 @@ export function restoreBackup(backup) {
   localStorage.setItem("restDays", JSON.stringify(backup.data.restDays));
   localStorage.setItem("theme", backup.data.theme);
   localStorage.setItem("currentIndex", backup.data.currentIndex);
-
-  if (backup.data.studyCategories) {
-    localStorage.setItem(
-      "studyCategories",
-      JSON.stringify(backup.data.studyCategories)
-    );
-  }
-
-  if (backup.data.unlockedAchievements) {
-    localStorage.setItem(
-      "unlockedAchievements",
-      JSON.stringify(backup.data.unlockedAchievements)
-    );
-  }
+  localStorage.setItem(
+    "studyCategories",
+    JSON.stringify(backup.data.studyCategories)
+  );
+  localStorage.setItem(
+    "unlockedAchievements",
+    JSON.stringify(backup.data.unlockedAchievements)
+  );
+  localStorage.setItem(
+    "customCategoryColors",
+    JSON.stringify(backup.data.customCategoryColors)
+  );
+  localStorage.setItem("studyNotes", JSON.stringify(backup.data.studyNotes));
+  localStorage.setItem("lastBackupDate", backup.data.lastBackupDate);
 }

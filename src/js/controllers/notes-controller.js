@@ -168,7 +168,5 @@ export class NotesController {
 
     allNotes.push(newNote);
     localStorage.setItem("studyNotes", JSON.stringify(allNotes));
-
-    console.log(`Nota salva para ID: ${linkedId}`);
   }
 }

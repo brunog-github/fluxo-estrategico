@@ -186,7 +186,7 @@
             class="btn btn-outline"
             style="margin-top: 10px"
           >
-            Estatísticas
+            Relatórios
           </button>
         </div>
       </div>
@@ -988,8 +988,32 @@
     </div>
 
     <div id="modal-notes" class="modal hidden">
-      <div class="notes-modal-container" style="max-width: 500px; width: 90%">
-        <h3 class="manual-modal-title">Anotações da Sessão</h3>
+      <div class="notes-modal-container">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 class="manual-modal-title" style="margin: 0 !important">
+            Anotações
+          </h3>
+
+          <i
+            class="fa fa-info-circle"
+            style="
+              font-size: 1rem;
+              color: var(--text-secondary);
+              cursor: help;
+              opacity: 0.7;
+            "
+            data-tooltip="As anotações podem ser acessadas na aba de relatórios"
+            data-tooltip-position="right"
+          >
+          </i>
+        </div>
 
         <div
           id="quill-editor-container"

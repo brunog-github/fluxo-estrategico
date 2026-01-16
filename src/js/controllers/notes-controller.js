@@ -7,7 +7,7 @@ export class NotesController {
 
     this.currentLinkedId = null;
     this.quill = null;
-    this.tempContent = ""; // Guarda o texto enquanto o timer roda
+    this.tempContent = localStorage.getItem("currentSessionNoteDraft") || ""; // Guarda o texto enquanto o timer roda
 
     this.initQuill();
     this.attachEvents();
@@ -43,6 +43,17 @@ export class NotesController {
         modules: {
           toolbar: toolbarOptions,
         },
+      });
+
+      // 2. AUTO-SAVE: Salva no localStorage a cada alteração de texto
+      // Isso garante que se der F5 com o modal aberto, não perde nada.
+      this.quill.on("text-change", () => {
+        // Só salva como rascunho se NÃO estiver editando um item do histórico
+        if (!this.currentLinkedId) {
+          const content = this.quill.root.innerHTML;
+          this.tempContent = content;
+          localStorage.setItem("currentSessionNoteDraft", content);
+        }
       });
     }
   }
@@ -80,6 +91,8 @@ export class NotesController {
       if (this.currentLinkedId) {
         this.saveFinalNote(this.currentLinkedId);
         this.currentLinkedId = null; // Limpa o ID após salvar
+      } else {
+        localStorage.setItem("currentSessionNoteDraft", this.tempContent);
       }
 
       // 3. Fecha o modal
@@ -128,6 +141,11 @@ export class NotesController {
   // Método chamado quando o Timer inicia (Limpa notas anteriores)
   reset() {
     this.tempContent = "";
+    this.currentLinkedId = null;
+
+    // 3. Limpa o rascunho do localStorage
+    localStorage.removeItem("currentSessionNoteDraft");
+
     if (this.quill) this.quill.setText("");
   }
 
@@ -143,10 +161,11 @@ export class NotesController {
       contentToSave = this.quill.root.innerHTML;
       textPreview = this.quill.getText().trim();
     } else {
-      // Gambiarra para pegar texto puro sem Quill instance visível (opcional)
-      // Ou simplesmente salvamos o HTML. Para preview, seria bom ter o texto.
-      // Se só tiver HTML na variavel, o preview pode ficar impreciso, mas ok.
-      textPreview = "Anotação salva.";
+      // Se o modal está fechado, usamos o tempContent.
+      // Criamos uma div temporária para extrair o texto puro (preview) sem renderizar
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = contentToSave;
+      textPreview = tempDiv.textContent || tempDiv.innerText || "";
     }
 
     // Se o editor estiver vazio (ou só tags vazias), deletamos a nota?
@@ -168,5 +187,11 @@ export class NotesController {
 
     allNotes.push(newNote);
     localStorage.setItem("studyNotes", JSON.stringify(allNotes));
+
+    if (!this.currentLinkedId) {
+      localStorage.removeItem("currentSessionNoteDraft");
+      this.tempContent = ""; // Reseta memória
+      if (this.quill) this.quill.setText("");
+    }
   }
 }

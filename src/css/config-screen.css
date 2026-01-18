@@ -212,3 +212,17 @@ input:checked + .slider:before {
 .btn-add:active {
   transform: scale(0.95);
 }
+
+.tip-rest-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--table-stripe);
+  color: var(--text-color);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bolder;
+}

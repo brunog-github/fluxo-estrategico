@@ -156,3 +156,59 @@ input:checked + .slider:before {
   opacity: 0.1;
   cursor: default;
 }
+
+/* --- NOVA ÁREA DE ADICIONAR MATÉRIA --- */
+.add-subject-row {
+  display: flex;
+  gap: 10px; /* Espaço entre input e botão */
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-subject-row input {
+  flex: 1; /* Ocupa todo o espaço sobrando */
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 15px;
+  transition: border-color 0.2s;
+  height: 45px; /* Altura fixa para alinhar com o botão */
+  box-sizing: border-box;
+}
+
+.add-subject-row input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Botão Quadrado com + */
+.btn-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px; /* Largura fixa */
+  height: 45px; /* Altura fixa (igual ao input) */
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 24px; /* Tamanho do símbolo + */
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
+  box-shadow: 0 2px 5px var(--shadow-color);
+  padding: 0;
+  line-height: 0; /* Centraliza verticalmente o texto */
+}
+
+.btn-add:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.btn-add:active {
+  transform: scale(0.95);
+}

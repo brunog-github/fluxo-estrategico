@@ -1,0 +1,55 @@
+<button id="btn-back-to-home" class="btn-back" title="Voltar para o Início">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+</button>
+<div
+  class="subject-badge"
+  id="timer-next-subject-display"
+  style="text-transform: capitalize"
+>
+  Próxima: ...
+</div>
+<br />
+<div
+  class="current-subject-title"
+  id="timer-subject-name"
+  style="text-transform: capitalize"
+>
+  Matéria Atual
+</div>
+
+<div class="timer-display" id="timer-count">00:00:00</div>
+
+<small
+  id="timer-paused-display"
+  style="
+    display: none;
+    color: var(--text-secondary);
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  "
+>
+  Tempo pausado: 00:00:00
+</small>
+<!--📝  -->
+<button id="btn-open-notes" style="margin: 10px auto; display: block">
+  📝 Anotações
+</button>
+
+<button id="btn-study-pause" class="btn screen-timer">Pausar</button>
+<button
+  id="btn-study-finish"
+  class="btn btn-black screen-timer"
+  style="margin-bottom: 15px"
+>
+  Finalizar
+</button>

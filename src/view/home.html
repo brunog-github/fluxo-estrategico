@@ -1,0 +1,130 @@
+<div
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  "
+>
+  <div
+    class="logo"
+    style="
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      margin: 0;
+    "
+  >
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        style="display: none"
+      ></path>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+      <path d="M21 3v5h-5"></path>
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+      <path d="M3 21v-5h5"></path>
+    </svg>
+    <div>Fluxo <span>ESTRATÉGICO</span></div>
+  </div>
+
+  <button
+    id="theme-toggle"
+    style="
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: var(--text-color);
+    "
+  >
+    🌙
+  </button>
+</div>
+
+<div class="cycle-card" style="padding: 15px; margin-bottom: 20px">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    "
+  >
+    <div style="display: flex; align-items: center; gap: 8px">
+      <strong
+        style="
+          font-size: 14px;
+          color: var(--text-secondary);
+          text-transform: uppercase;
+        "
+      >
+        CONSTÂNCIA
+      </strong>
+
+      <div>
+        <span
+          class="tip-strike-icon"
+          data-tooltip="Para contabilizar um dia de estudo, 
+                  você deve estudar no mínimo 20 minutos."
+          data-tooltip-position="top"
+          >?</span
+        >
+      </div>
+
+      <button
+        id="btn-calendar-toggle"
+        class="btn-calendar-toggle"
+        title="Ver calendário mensal"
+      >
+        📅
+      </button>
+      <button
+        id="btn-achievements-screen"
+        class="btn-conquers-toggle"
+        title="Conquistas"
+      >
+        🏆
+      </button>
+    </div>
+
+    <small id="streak-count"> </small>
+  </div>
+
+  <div id="streak-visual"></div>
+</div>
+
+<div class="cycle-card">
+  <h2>Fluxo Atual</h2>
+  <p style="color: var(--text-color); font-size: 14px">Próxima matéria:</p>
+  <h2 id="home-subject-name" style="text-transform: capitalize">
+    Carregando...
+  </h2>
+  <div
+    class="subject-badge"
+    id="home-next-subject"
+    style="text-transform: capitalize"
+  >
+    Depois: ...
+  </div>
+
+  <button id="btn-start-study" class="btn">Estudar</button>
+  <button id="btn-to-screen-config" class="btn btn-black">Configurar</button>
+  <button
+    id="btn-report-screen"
+    class="btn btn-outline"
+    style="margin-top: 10px"
+  >
+    Relatórios
+  </button>
+</div>

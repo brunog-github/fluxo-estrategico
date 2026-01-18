@@ -60,7 +60,7 @@ export function saveBackupToFile(backupData) {
 export function restoreBackup(backup) {
   localStorage.setItem(
     "studyHistory",
-    JSON.stringify(backup.data.studyHistory)
+    JSON.stringify(backup.data.studyHistory),
   );
   localStorage.setItem("studyCycle", JSON.stringify(backup.data.studyCycle));
   localStorage.setItem("restDays", JSON.stringify(backup.data.restDays));
@@ -68,16 +68,19 @@ export function restoreBackup(backup) {
   localStorage.setItem("currentIndex", backup.data.currentIndex);
   localStorage.setItem(
     "studyCategories",
-    JSON.stringify(backup.data.studyCategories)
+    JSON.stringify(backup.data.studyCategories),
   );
   localStorage.setItem(
     "unlockedAchievements",
-    JSON.stringify(backup.data.unlockedAchievements)
+    JSON.stringify(backup.data.unlockedAchievements),
   );
   localStorage.setItem(
     "customCategoryColors",
-    JSON.stringify(backup.data.customCategoryColors)
+    JSON.stringify(backup.data.customCategoryColors),
   );
   localStorage.setItem("studyNotes", JSON.stringify(backup.data.studyNotes));
-  localStorage.setItem("lastBackupDate", backup.data.lastBackupDate);
+
+  if (backup.data.lastBackupDate !== "") {
+    localStorage.setItem("lastBackupDate", backup.data.lastBackupDate);
+  }
 }

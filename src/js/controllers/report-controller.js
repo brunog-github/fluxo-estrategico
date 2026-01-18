@@ -53,7 +53,7 @@ export class ReportsController {
         } else {
           console.warn("No notes handler defined.");
         }
-      }
+      },
     );
   }
 
@@ -77,8 +77,9 @@ export class ReportsController {
       () => {
         localStorage.removeItem("studyHistory");
         localStorage.removeItem("unlockedAchievements");
+        localStorage.removeItem("studyNotes");
         location.reload();
-      }
+      },
     );
   }
 

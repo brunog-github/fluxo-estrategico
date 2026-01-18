@@ -1,0 +1,277 @@
+<div class="nav-header">
+  <button
+    id="btn-back-to-home-from-reports"
+    class="btn-back"
+    title="Voltar para o Início"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+  </button>
+  <h2>Relatórios</h2>
+</div>
+
+<div class="lifetime-stats-card">
+  <div class="stats-details">
+    <h4
+      style="
+        margin: 0 0 15px 0;
+        color: var(--text-color);
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+      "
+    >
+      TEMPO DE ESTUDO
+    </h4>
+
+    <div class="stat-row">
+      <strong id="life-avg-time">0h00min</strong>
+      <span class="stat-label"> por dia estudado (média)</span>
+    </div>
+
+    <div class="stat-row">
+      <strong id="life-days-studied">0 dias</strong>
+      <span class="stat-label"> estudados</span>
+    </div>
+
+    <div class="stat-row">
+      <strong id="life-days-total">0 dias</strong>
+      <span class="stat-label"> totais (desde o início)</span>
+    </div>
+  </div>
+
+  <div class="stats-total-big">
+    <span id="life-total-time">0h00min</span>
+  </div>
+</div>
+
+<div
+  style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px"
+>
+  <div id="chart-subjects" class="cycle-card chart-scroll-container">
+    <h4>Desempenho por Matéria</h4>
+    <canvas id="chart-performance"></canvas>
+  </div>
+
+  <div
+    id="rotate-tip"
+    style="
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #888;
+      display: none;
+    "
+  >
+    <span style="font-size: 1.5em; vertical-align: middle; margin-right: 5px"
+      >📱⟳</span
+    >
+    Gire o celular para melhor visualização do gráfico.
+  </div>
+
+  <div class="cycle-card">
+    <h4>Tempo Total por Matéria (Horas)</h4>
+
+    <!-- Filtros de período -->
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      "
+    >
+      <button
+        class="btn-time-filter"
+        data-filter="today"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Hoje
+      </button>
+      <button
+        class="btn-time-filter"
+        data-filter="week"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Semana
+      </button>
+      <button
+        class="btn-time-filter"
+        data-filter="month"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Mês
+      </button>
+      <button
+        class="btn-time-filter active"
+        data-filter="all"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: var(--primary-color);
+          color: white;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Total
+      </button>
+    </div>
+
+    <h2
+      id="chart-time-total"
+      style="
+        text-align: center;
+        margin: 10px 0;
+        font-size: 1.5rem;
+        color: var(--text-color);
+      "
+    >
+      0h 00min
+    </h2>
+
+    <div
+      style="
+        position: relative;
+        height: 40vh;
+        max-height: 500px;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <canvas id="chart-time"></canvas>
+    </div>
+  </div>
+</div>
+
+<div
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-top: 30px;
+  "
+>
+  <div style="margin: 0; display: flex; align-items: center; gap: 8px">
+    <h3>📜 Histórico</h3>
+    <span
+      class="tip-history-icon"
+      data-tooltip="Lista todos os registros, 
+                  os filtros afetam a tabela e o sumário acima."
+      data-tooltip-position="top"
+      >?</span
+    >
+  </div>
+  <button id="btn-add-manual-entry" class="btn-modern-small">
+    + Novo Registro
+  </button>
+</div>
+
+<div class="filters-container card-inset">
+  <div class="filter-group">
+    <label for="filter-subject">Matéria</label>
+    <select id="filter-subject" class="input-filter">
+      <option value="">Todas</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-category">Categoria</label>
+    <select id="filter-category" class="input-filter">
+      <option value="">Todas</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-start">De</label>
+    <input type="date" id="filter-start" class="input-filter" />
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-end">Até</label>
+    <input type="date" id="filter-end" class="input-filter" />
+  </div>
+
+  <div class="filter-group">
+    <label>&nbsp;</label>
+    <button id="btn-clear-filter-history" class="btn-filter-reset">
+      Limpar Filtros
+    </button>
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="history-table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Matéria</th>
+        <th>Tempo</th>
+        <th>Questões</th>
+        <th>Acertos</th>
+        <th>Erros</th>
+        <th>Desempenho</th>
+        <th>Categoria</th>
+        <th>Edição</th>
+      </tr>
+    </thead>
+    <tbody id="history-list"></tbody>
+  </table>
+  <p
+    id="empty-history-msg"
+    style="display: none; color: var(--text-color); font-size: 14px"
+  >
+    Nenhum registro ainda.
+  </p>
+</div>
+
+<div class="table-actions">
+  <div style="display: flex; gap: 8px"></div>
+
+  <button id="btn-clean-all-history" class="btn-sm btn-danger-text">
+    🗑️ Limpar tudo
+  </button>
+</div>

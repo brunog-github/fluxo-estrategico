@@ -73,3 +73,28 @@
     min-width: 45%; /* Fica 2 por linha */
   }
 }
+
+/* --- CORREÇÕES DO CALENDÁRIO (DATE INPUT) --- */
+
+/* 1. Melhora a área de clique e espaçamento geral */
+input[type="date"] {
+  cursor: pointer; /* Mãozinha ao passar o mouse */
+  padding-right: 15px; /* Espaço extra na direita */
+}
+
+/* 2. Estiliza o ícone do calendário nativo */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  margin-left: 12px; /* Descola o ícone da data (texto) */
+  opacity: 0.6; /* Deixa ele um pouco mais suave no modo claro */
+  transition: 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1; /* Destaque ao passar o mouse */
+}
+
+/* 3. FIX CRÍTICO: Inverte a cor do ícone no Dark Mode */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Transforma o ícone preto em branco */
+}

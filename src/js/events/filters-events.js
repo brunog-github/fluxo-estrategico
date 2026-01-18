@@ -2,6 +2,13 @@ export function initFiltersEvents(filterController) {
   const startInput = document.getElementById("filter-start");
   const endInput = document.getElementById("filter-end");
 
+  if (startInput) {
+    startInput.addEventListener("click", () => startInput.showPicker());
+  }
+  if (endInput) {
+    endInput.addEventListener("click", () => endInput.showPicker());
+  }
+
   // eventos
   document.getElementById("filter-subject").addEventListener("change", () => {
     filterController.applyFilters();

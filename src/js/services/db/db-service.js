@@ -12,7 +12,7 @@ db.version(1).stores({
   categories: "++id", // categorias de estudo
   subjects: "++id", // ciclo de estudo (matérias ativas)
   history: "++id", // histórico de estudos
-  notes: "++id", // notas de estudo
+  notes: "++id, linkedId", // notas de estudo
   achievements: "++id, achievementId", // conquistas desbloqueadas
   timer: "++id, key", // variáveis do timer
 });
@@ -213,6 +213,9 @@ class DBService {
    * @param {number} id - ID do registro
    */
   async deleteHistoryEntry(id) {
+    // Delete related note if exists (linkedId === history id)
+    await db.notes.where("linkedId").equals(id).delete();
+    // Delete history entry
     await db.history.delete(id);
   }
   /**
@@ -220,6 +223,8 @@ class DBService {
    */
   async clearHistory() {
     await db.history.clear();
+    // Also clear all notes when clearing history
+    await db.notes.clear();
   }
   // ========== NOTES (Notas de Estudo) ==========
 

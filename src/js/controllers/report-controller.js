@@ -76,7 +76,6 @@ export class ReportsController {
       async () => {
         await dbService.clearHistory();
         await dbService.clearAchievements();
-        await dbService.clearNotes();
         location.reload();
       },
     );
@@ -243,4 +242,3 @@ export class ReportsController {
     return `${fmt(first)} - ${fmt(last)}`;
   }
 }
-

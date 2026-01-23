@@ -55,8 +55,6 @@ export const ACHIEVEMENTS = [
     icon: `<embed src="./src/assets/icons/coruja.svg" type="image/svg+xml" />`,
     check: (history) => {
       return history.some((h) => {
-        // h.date formato "31/12/2025 às 23:00"
-        console.log(history);
         const timeStr = h.date.split(" às ")[1];
 
         if (!timeStr) return false;

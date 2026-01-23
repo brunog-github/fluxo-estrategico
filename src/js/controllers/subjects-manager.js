@@ -1,17 +1,36 @@
 export class SubjectsManager {
   constructor(toast) {
-    this.subjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
-    this.currentIndex = parseInt(localStorage.getItem("currentIndex") || 0);
+    this.subjects = [];
+    this.currentIndex = 0;
     this.toast = toast;
   }
 
-  save() {
-    localStorage.setItem("studyCycle", JSON.stringify(this.subjects));
+  async init() {
+    // Carregar dados do IndexedDB
+    this.subjects = await DBService.getSubjects();
+    const currentIndexSubjects = this.subjects.map((s) => s.name || s);
+
+    const savedIndex = await DBService.getCurrentIndex();
+    this.currentIndex = parseInt(savedIndex || 0);
+
+    // Se não há subjects no DB, manter arrays vazios
+    if (!Array.isArray(this.subjects)) {
+      this.subjects = [];
+    }
   }
 
-  next() {
+  async save() {
+    // Limpar subjects antigos e adicionar novamente
+    await DBService.clearSubjects();
+    for (const subject of this.subjects) {
+      const subjectName = subject.name || subject; // compatibilidade com string ou objeto
+      await DBService.addSubject(subjectName);
+    }
+  }
+
+  async next() {
     this.currentIndex = (this.currentIndex + 1) % this.subjects.length;
-    localStorage.setItem("currentIndex", this.currentIndex);
+    await DBService.setCurrentIndex(this.currentIndex);
   }
 
   add(subject) {
@@ -22,9 +41,10 @@ export class SubjectsManager {
       return false;
     }
 
-    const subjectExists = this.subjects.some(
-      (s) => s.toLowerCase() === trimmedSubject.toLowerCase()
-    );
+    const subjectExists = this.subjects.some((s) => {
+      const subjectName = s.name || s;
+      return subjectName.toLowerCase() === trimmedSubject.toLowerCase();
+    });
 
     if (subjectExists) {
       this.toast.showToast("error", "Essa matéria já existe.");
@@ -54,10 +74,10 @@ export class SubjectsManager {
     return this.subjects[(this.currentIndex + 1) % this.subjects.length];
   }
 
-  resetIndexIfOverflow() {
+  async resetIndexIfOverflow() {
     if (this.currentIndex >= this.subjects.length) {
       this.currentIndex = 0;
-      localStorage.setItem("currentIndex", 0);
+      await DBService.setCurrentIndex(0);
     }
   }
 }

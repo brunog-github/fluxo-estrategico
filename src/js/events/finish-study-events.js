@@ -2,12 +2,12 @@ export function initFinishStudyEvents(
   session,
   screens,
   confirm,
-  notesController
+  notesController,
 ) {
   document
     .getElementById("btn-save-study-screen-finish")
-    .addEventListener("click", () => {
-      if (session.saveSession()) {
+    .addEventListener("click", async () => {
+      if (await session.saveSession()) {
         screens.switch("screen-home");
       }
     });
@@ -21,7 +21,7 @@ export function initFinishStudyEvents(
           session.cancelSession();
           screens.switch("screen-home");
         },
-        "Cancelar Estudo"
+        "Cancelar Estudo",
       );
     });
 }

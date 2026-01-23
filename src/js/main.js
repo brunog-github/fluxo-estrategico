@@ -58,7 +58,7 @@ class App {
       await ViewLoader.load(VIEWS_CONFIG);
 
       // Passo 2: Criar Controladores
-      this._initServices();
+      await this._initServices();
 
       // Passo 3: Ligar Eventos e UI
       await this._setupBindings();
@@ -73,7 +73,7 @@ class App {
     }
   }
 
-  _initServices() {
+  async _initServices() {
     // Utilitários Globais
     const toast = new ToastController();
     const confirm = new ConfirmController();
@@ -83,6 +83,7 @@ class App {
 
     // Gerenciadores de Dados
     const subjects = new SubjectsManager(toast);
+    await subjects.init();
     const achievements = new AchievementsController(ACHIEVEMENTS);
     const notes = new NotesController(); // Instancia o NotesController
 

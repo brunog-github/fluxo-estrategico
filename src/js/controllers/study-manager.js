@@ -58,21 +58,21 @@ export class StudySessionManager {
     });
   }
 
-  saveSession() {
+  async saveSession() {
     const questions =
       parseInt(document.getElementById("input-questions").value) || 0;
     const correct =
       parseInt(document.getElementById("input-correct").value) || 0;
     const category = document.getElementById("input-category").value;
     const seconds = parseInt(
-      localStorage.getItem("currentTimerSeconds") || "0"
+      localStorage.getItem("currentTimerSeconds") || "0",
     );
 
     // Validar categoria obrigatória
     if (!category) {
       this.toast.showToast(
         "info",
-        "Selecione uma categoria antes de concluir."
+        "Selecione uma categoria antes de concluir.",
       );
       return false;
     }
@@ -80,13 +80,13 @@ export class StudySessionManager {
     if (correct > questions) {
       this.toast.showToast(
         "error",
-        "Os acertos não podem ser maiores que o total."
+        "Os acertos não podem ser maiores que o total.",
       );
       return false;
     }
 
     const sessionStartTimestamp = parseInt(
-      localStorage.getItem("sessionStartTimestamp")
+      localStorage.getItem("sessionStartTimestamp"),
     );
     const startDate = sessionStartTimestamp
       ? new Date(sessionStartTimestamp)
@@ -124,7 +124,7 @@ export class StudySessionManager {
 
     this.achievements.checkAndUnlockAchievements();
 
-    this.subjectManager.next();
+    await this.subjectManager.next();
 
     this.toast.showToast("success", "Dados salvos!");
     return true;

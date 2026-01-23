@@ -1,4 +1,5 @@
 import { StreakUI } from "../ui/streakUI.js";
+import { dbService } from "../services/db/db-service.js";
 import {
   parseDateStr,
   getMinutesStudiedOnDate,
@@ -10,11 +11,15 @@ export class StreakController {
     this.ui = new StreakUI();
     this.toast = toast;
 
-    this.restDays = JSON.parse(localStorage.getItem("restDays")) || [];
+    this.restDays = [];
+  }
+
+  async init() {
+    this.restDays = (await dbService.getRestDays()) || [];
   }
 
   // Salvar dias de descanso
-  saveRestDays() {
+  async saveRestDays() {
     const checkboxes = document.querySelectorAll(".rest-day-check");
 
     const selected = [];
@@ -23,21 +28,22 @@ export class StreakController {
     });
 
     this.restDays = selected;
-    localStorage.setItem("restDays", JSON.stringify(selected));
+    await dbService.setRestDays(selected);
 
     this.toast.showToast("success", "Dias de descanso salvos!");
-    this.render();
+    await this.render();
   }
 
   // Preencher UI ao abrir as configurações
-  loadRestDaysUI() {
-    this.ui.setRestCheckboxes(this.restDays);
+  async loadRestDaysUI() {
+    const restDays = (await dbService.getRestDays()) || [];
+    this.ui.setRestCheckboxes(restDays);
   }
 
   // ----------------------------------------------------
   //   LÓGICA PRINCIPAL DO STREAK
   // ----------------------------------------------------
-  calculateCurrentStreak(history) {
+  async calculateCurrentStreak(history) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -76,10 +82,10 @@ export class StreakController {
   // ----------------------------------------------------
   //  RENDERIZAÇÃO COMPLETA
   // ----------------------------------------------------
-  render() {
+  async render() {
     this.ui.clear();
 
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const history = await dbService.getHistory();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -92,8 +98,8 @@ export class StreakController {
     }
     startDate.setHours(0, 0, 0, 0);
 
-    const streak = this.calculateCurrentStreak(history);
-    const bestStreak = this.calculateBestStreak(history);
+    const streak = await this.calculateCurrentStreak(history);
+    const bestStreak = await this.calculateBestStreak(history);
 
     this.ui.updateStreakDisplay(streak, bestStreak);
 
@@ -159,7 +165,7 @@ export class StreakController {
   // ----------------------------------------------------
   //  MAIOR STREAK DA VIDA (recorde)
   // ----------------------------------------------------
-  calculateBestStreak(history) {
+  async calculateBestStreak(history) {
     if (!history.length) return 0;
 
     // Transformar o histórico em mapa de minutos/dia
@@ -205,4 +211,3 @@ export class StreakController {
     return best;
   }
 }
-

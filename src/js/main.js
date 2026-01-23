@@ -61,7 +61,7 @@ class App {
       this._initServices();
 
       // Passo 3: Ligar Eventos e UI
-      this._setupBindings();
+      await this._setupBindings();
       this._initGlobalEvents();
 
       // Passo 4: Restaurar Estado (Timer ou Home)
@@ -135,12 +135,12 @@ class App {
   }
 
   // Faz as ligações específicas entre controladores (Wiring)
-  _setupBindings() {
+  async _setupBindings() {
     const s = this.services;
 
     // Inicializa Tooltips e Tema
     initGlobalTooltip();
-    s.theme.initTheme();
+    await s.theme.initTheme();
 
     // Renderizações iniciais
     s.streak.render();
@@ -165,9 +165,11 @@ class App {
     const s = this.services;
 
     // Eventos de Navegação e Tema
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-      s.theme.toggleTheme();
-    });
+    document
+      .getElementById("theme-toggle")
+      .addEventListener("click", async () => {
+        await s.theme.toggleTheme();
+      });
 
     // Chamadas dos inicializadores de eventos
     initAchievementsEvents(s.screens, s.achievements);

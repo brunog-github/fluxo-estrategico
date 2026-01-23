@@ -7,8 +7,8 @@ export class ThemeManager {
     this.onThemeChange = onThemeChange;
   }
 
-  initTheme() {
-    const savedTheme = localStorage.getItem("theme");
+  async initTheme() {
+    const savedTheme = await DBService.getTheme();
 
     if (savedTheme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -16,17 +16,17 @@ export class ThemeManager {
     }
   }
 
-  toggleTheme() {
+  async toggleTheme() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute("data-theme");
 
     if (currentTheme === "dark") {
       html.removeAttribute("data-theme");
-      localStorage.setItem("theme", "light");
+      await DBService.setTheme("light");
       if (this.toggleButton) this.toggleButton.innerText = "🌙";
     } else {
       html.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
+      await DBService.setTheme("dark");
       if (this.toggleButton) this.toggleButton.innerText = "☀️";
     }
 

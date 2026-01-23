@@ -36,7 +36,7 @@ export class HistoryFilterController {
 
     const filtered = filterHistory(history, filters);
 
-    this.reports.ui.renderHistoryTable(
+    await this.reports.ui.renderHistoryTable(
       filtered,
       (id) => {
         this.reports.deleteEntry(id);
@@ -54,4 +54,3 @@ export class HistoryFilterController {
     return this.applyFilters(); // Retorna a Promise
   }
 }
-

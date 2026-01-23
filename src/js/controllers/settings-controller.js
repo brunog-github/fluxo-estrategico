@@ -71,27 +71,27 @@ export class SettingsController {
     // Renderizar categorias fixas
     if (fixedContainer) {
       fixedContainer.innerHTML = "";
-      fixed.forEach((cat) => {
-        const item = this.createCategoryItem(cat, true);
-        fixedContainer.appendChild(item);
-      });
+      const fixedItems = await Promise.all(
+        fixed.map((cat) => this.createCategoryItem(cat, true)),
+      );
+      fixedItems.forEach((item) => fixedContainer.appendChild(item));
     }
 
     // Renderizar categorias personalizadas
     if (customContainer) {
       customContainer.innerHTML = "";
-      custom.forEach((cat, idx) => {
-        const item = this.createCategoryItem(cat, false, idx);
-        customContainer.appendChild(item);
-      });
+      const customItems = await Promise.all(
+        custom.map((cat, idx) => this.createCategoryItem(cat, false, idx)),
+      );
+      customItems.forEach((item) => customContainer.appendChild(item));
     }
   }
 
-  createCategoryItem(category, isFixed, index = 0) {
+  async createCategoryItem(category, isFixed, index = 0) {
     const item = document.createElement("div");
     item.className = "category-item";
 
-    const color = getCategoryColor(category);
+    const color = await getCategoryColor(category);
     item.style.borderLeftColor = color;
 
     // Nome da categoria
@@ -106,9 +106,9 @@ export class SettingsController {
 
     // Evento de clique para abrir seletor de cores
     if (!isFixed) {
-      colorDot.addEventListener("click", (e) => {
+      colorDot.addEventListener("click", async (e) => {
         e.stopPropagation();
-        this.openColorPicker(category, colorDot);
+        await this.openColorPicker(category, colorDot);
       });
     }
 
@@ -140,10 +140,13 @@ export class SettingsController {
     return item;
   }
 
-  openColorPicker(category, colorDot) {
+  async openColorPicker(category, colorDot) {
     // Remove picker anterior se existir
     const existingPicker = document.getElementById("color-picker-modal");
     if (existingPicker) existingPicker.remove();
+
+    // Obter cor atual da categoria
+    const currentColor = await getCategoryColor(category);
 
     const modal = document.createElement("div");
     modal.id = "color-picker-modal";
@@ -206,13 +209,13 @@ export class SettingsController {
       `;
 
       // Destaca a cor atual
-      if (getCategoryColor(category) === hexColor) {
+      if (currentColor === hexColor) {
         colorBtn.style.borderColor = "var(--text-color)";
         colorBtn.style.transform = "scale(1.15)";
       }
 
-      colorBtn.addEventListener("click", () => {
-        setCustomCategoryColor(category, hexColor);
+      colorBtn.addEventListener("click", async () => {
+        await setCustomCategoryColor(category, hexColor);
         colorDot.style.backgroundColor = hexColor;
         modal.remove();
         this.toast.showToast("success", `Cor atualizada para "${category}"`);
@@ -223,7 +226,7 @@ export class SettingsController {
       });
 
       colorBtn.addEventListener("mouseout", () => {
-        if (getCategoryColor(category) !== hexColor) {
+        if (currentColor !== hexColor) {
           colorBtn.style.transform = "scale(1)";
         }
       });
@@ -307,7 +310,7 @@ export class SettingsController {
     }
 
     // Remove a cor personalizada se existir
-    removeCustomCategoryColor(categoryToRemove);
+    await removeCustomCategoryColor(categoryToRemove);
 
     await this.renderCategories();
     this.toast.showToast(

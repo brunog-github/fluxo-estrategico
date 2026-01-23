@@ -53,7 +53,12 @@ export class ReportsUI {
     tip.style.display = window.innerWidth < 600 ? "block" : "none";
   }
 
-  renderHistoryTable(history, deleteCallback, editCallback, viewNotesCallback) {
+  async renderHistoryTable(
+    history,
+    deleteCallback,
+    editCallback,
+    viewNotesCallback,
+  ) {
     const body = document.getElementById("history-list");
     const empty = document.getElementById("empty-history-msg");
 
@@ -68,73 +73,81 @@ export class ReportsUI {
 
     // ordenar mais recente para mais antigo
     history.sort(
-      (a, b) => parseHistoryDatetime(b.date) - parseHistoryDatetime(a.date)
+      (a, b) => parseHistoryDatetime(b.date) - parseHistoryDatetime(a.date),
     );
 
-    history.forEach((item) => {
-      let [date] = item.date.split(" às ");
-      const [d, m, y] = date.split("/");
-      const short = y.slice(-2);
+    // Criar todos os elementos de linha de forma async
+    const rows = await Promise.all(
+      history.map(async (item) => {
+        let [date] = item.date.split(" às ");
+        const [d, m, y] = date.split("/");
+        const short = y.slice(-2);
 
-      // Calcular desempenho (%)
-      const performance =
-        item.questions > 0
-          ? Math.round((item.correct / item.questions) * 100)
-          : "-";
+        // Calcular desempenho (%)
+        const performance =
+          item.questions > 0
+            ? Math.round((item.correct / item.questions) * 100)
+            : "-";
 
-      // Calcular erros
-      const errors = item.questions > 0 ? item.questions - item.correct : "0";
+        // Calcular erros
+        const errors = item.questions > 0 ? item.questions - item.correct : "0";
 
-      // Categoria com fallback para "-"
-      const category = item.category || "-";
-      const categoryColor = getCategoryColor(category);
+        // Categoria com fallback para "-"
+        const category = item.category || "-";
+        const categoryColor = await getCategoryColor(category);
 
-      const tr = document.createElement("tr");
-      tr.dataset.id = item.id;
-      tr.innerHTML = `
-        <td><small>${d}/${m}/${short}</small></td>
-        <td style="text-align:left; font-weight:bold; text-transform: capitalize">${
-          item.subject
-        }</td>
-        <td>${item.duration}</td>
-        <td>${item.questions}</td>
-        <td style="color:${
-          item.correct > 0 ? "#2ecc71" : "var(--text-color)"
-        }">${item.correct}</td>
-        <td style="color:${
-          errors !== "0" && errors > 0 ? "red" : "var(--text-color)"
-        }">${errors}</td>
-        <td style="color:${
-          performance !== "-"
-            ? performance >= 70
-              ? "#2ecc71"
-              : performance >= 50
-              ? "orange"
-              : "red"
-            : "var(--text-color)"
-        }; font-weight:bold">${performance}${
-        performance !== "-" ? "%" : ""
-      }</td>
-        <td>
-          <span style="background: ${categoryColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${category}</span>
-        </td>
+        const tr = document.createElement("tr");
+        tr.dataset.id = item.id;
+        tr.innerHTML = `
+          <td><small>${d}/${m}/${short}</small></td>
+          <td style="text-align:left; font-weight:bold; text-transform: capitalize">${
+            item.subject
+          }</td>
+          <td>${item.duration}</td>
+          <td>${item.questions}</td>
+          <td style="color:${
+            item.correct > 0 ? "#2ecc71" : "var(--text-color)"
+          }">${item.correct}</td>
+          <td style="color:${
+            errors !== "0" && errors > 0 ? "red" : "var(--text-color)"
+          }">${errors}</td>
+          <td style="color:${
+            performance !== "-"
+              ? performance >= 70
+                ? "#2ecc71"
+                : performance >= 50
+                  ? "orange"
+                  : "red"
+              : "var(--text-color)"
+          }; font-weight:bold">${performance}${
+            performance !== "-" ? "%" : ""
+          }</td>
+          <td>
+            <span style="background: ${categoryColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${category}</span>
+          </td>
 
-        <td style="white-space: nowrap; width:1%; vertical-align: middle;">
-          <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-              <button class="notes-row" style="background:transparent; border:none; font-size:16px; color:var(--text-color); cursor:pointer;" title="Anotações">
-                  <i class="fa fa-sticky-note-o"></i>
-              </button>
-              <button class="edit-row" style="background:transparent; border:none; font-size:16px; cursor:pointer;" title="Editar">
-                  <i class="fa fa-pencil"></i>
-              </button>
-              <button class="delete-row" style="background:transparent; border:none; font-size:16px; color:red; cursor:pointer;" title="Excluir">
-                  <i class="fa fa-trash-o"></i>
-              </button>
-          </div>
-        </td>
-        
-      `;
+          <td style="white-space: nowrap; width:1%; vertical-align: middle;">
+            <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                <button class="notes-row" style="background:transparent; border:none; font-size:16px; color:var(--text-color); cursor:pointer;" title="Anotações">
+                    <i class="fa fa-sticky-note-o"></i>
+                </button>
+                <button class="edit-row" style="background:transparent; border:none; font-size:16px; cursor:pointer;" title="Editar">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="delete-row" style="background:transparent; border:none; font-size:16px; color:red; cursor:pointer;" title="Excluir">
+                    <i class="fa fa-trash-o"></i>
+                </button>
+            </div>
+          </td>
+          
+        `;
 
+        return { tr, item };
+      }),
+    );
+
+    // Adicionar todos as linhas ao DOM e attach events
+    rows.forEach(({ tr, item }) => {
       tr.querySelector(".delete-row").addEventListener("click", (e) => {
         e.stopPropagation();
         deleteCallback(item.id);

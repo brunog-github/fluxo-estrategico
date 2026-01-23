@@ -38,7 +38,7 @@ export class ReportsController {
     let raw = await dbService.getHistory();
     let filtered = getFilteredHistory(raw);
 
-    this.ui.renderHistoryTable(
+    await this.ui.renderHistoryTable(
       filtered,
       (id) => this.deleteEntry(id),
       (item) => {

@@ -1,3 +1,5 @@
+import { dbService } from "../services/db/db-service.js";
+
 // Mapeamento de cores para categorias
 export const CATEGORY_COLORS = {
   // Categorias fixas (padrão) - cores vibrantes e visualmente distintas
@@ -44,14 +46,14 @@ export const COLOR_PALETTE = [
 
 let colorIndex = 0;
 
-export function getCategoryColor(category) {
+export async function getCategoryColor(category) {
   // Primeiro verifica cores fixas
   if (CATEGORY_COLORS[category]) {
     return CATEGORY_COLORS[category];
   }
 
   // Depois verifica cores personalizadas salvas
-  const customColors = getCustomCategoryColors();
+  const customColors = await getCustomCategoryColors();
   if (customColors[category]) {
     return customColors[category];
   }
@@ -75,19 +77,18 @@ export function resetColorIndex() {
 }
 
 // --- GERENCIAR CORES PERSONALIZADAS ---
-export function getCustomCategoryColors() {
-  const stored = localStorage.getItem("customCategoryColors");
-  return stored ? JSON.parse(stored) : {};
+export async function getCustomCategoryColors() {
+  return await dbService.getCustomCategoryColors();
 }
 
-export function setCustomCategoryColor(category, color) {
-  const colors = getCustomCategoryColors();
+export async function setCustomCategoryColor(category, color) {
+  const colors = await getCustomCategoryColors();
   colors[category] = color;
-  localStorage.setItem("customCategoryColors", JSON.stringify(colors));
+  await dbService.setCustomCategoryColors(colors);
 }
 
-export function removeCustomCategoryColor(category) {
-  const colors = getCustomCategoryColors();
+export async function removeCustomCategoryColor(category) {
+  const colors = await getCustomCategoryColors();
   delete colors[category];
-  localStorage.setItem("customCategoryColors", JSON.stringify(colors));
+  await dbService.setCustomCategoryColors(colors);
 }

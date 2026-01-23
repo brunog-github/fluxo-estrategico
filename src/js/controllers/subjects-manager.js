@@ -7,13 +7,15 @@ export class SubjectsManager {
 
   async init() {
     // Carregar dados do IndexedDB
-    this.subjects = await DBService.getSubjects();
-    const currentIndexSubjects = this.subjects.map((s) => s.name || s);
+    const subjectsData = await DBService.getSubjects();
+    
+    // Extrair apenas os nomes dos subjects (converter de objetos para strings)
+    this.subjects = subjectsData.map(s => s.name || s);
 
     const savedIndex = await DBService.getCurrentIndex();
     this.currentIndex = parseInt(savedIndex || 0);
 
-    // Se não há subjects no DB, manter arrays vazios
+    // Se não há subjects no DB, manter array vazio
     if (!Array.isArray(this.subjects)) {
       this.subjects = [];
     }
@@ -23,8 +25,8 @@ export class SubjectsManager {
     // Limpar subjects antigos e adicionar novamente
     await DBService.clearSubjects();
     for (const subject of this.subjects) {
-      const subjectName = subject.name || subject; // compatibilidade com string ou objeto
-      await DBService.addSubject(subjectName);
+      // this.subjects contém apenas strings
+      await DBService.addSubject(subject);
     }
   }
 
@@ -41,10 +43,9 @@ export class SubjectsManager {
       return false;
     }
 
-    const subjectExists = this.subjects.some((s) => {
-      const subjectName = s.name || s;
-      return subjectName.toLowerCase() === trimmedSubject.toLowerCase();
-    });
+    const subjectExists = this.subjects.some(
+      (s) => s.toLowerCase() === trimmedSubject.toLowerCase()
+    );
 
     if (subjectExists) {
       this.toast.showToast("error", "Essa matéria já existe.");

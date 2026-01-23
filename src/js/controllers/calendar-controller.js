@@ -1,4 +1,5 @@
 import { CalendarUI } from "../ui/calendarUI.js";
+import { dbService } from "../services/db/db-service.js";
 import {
   dateStrToInt,
   formatDate,
@@ -14,11 +15,11 @@ export class CalendarController {
     this.ui.enableClickToClose();
   }
 
-  toggleModal() {
+  async toggleModal() {
     const opened = this.ui.toggleModal();
     if (opened) {
       this.cursorDate = new Date();
-      this.render();
+      await this.render();
     }
   }
 
@@ -27,7 +28,7 @@ export class CalendarController {
     this.render();
   }
 
-  render() {
+  async render() {
     const grid = this.ui.grid;
     if (!grid) return;
 
@@ -39,8 +40,8 @@ export class CalendarController {
     this.ui.renderTitle(CAL_MONTHS[month], year);
 
     // Storage
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
-    const restDays = JSON.parse(localStorage.getItem("restDays")) || [];
+    const history = await dbService.getHistory();
+    const restDays = (await dbService.getRestDays()) || [];
 
     // Somas de minutos por dia
     const dailyTotals = {};
@@ -117,4 +118,3 @@ export class CalendarController {
     }
   }
 }
-

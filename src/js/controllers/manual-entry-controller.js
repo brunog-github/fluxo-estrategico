@@ -63,7 +63,7 @@ export class ManualEntryController {
     this.editingId = null;
     this.ui.setTitle("Registrar Estudo");
 
-    const subjects = this.getCombinedSubjects();
+    const subjects = await this.getCombinedSubjects();
     const todayISO = toLocalISO(new Date());
 
     this.ui.resetFields(todayISO);
@@ -79,7 +79,7 @@ export class ManualEntryController {
     this.editingId = item.id; // Guarda referência do item original
     this.ui.setTitle("Editar Estudo");
 
-    const subjects = this.getCombinedSubjects();
+    const subjects = await this.getCombinedSubjects();
     this.ui.setSubjectsList(subjects);
     await this.loadCategorySelect();
 
@@ -125,12 +125,13 @@ export class ManualEntryController {
   }
 
   // Obtém matérias do Ciclo + Matérias que já existem no Histórico
-  getCombinedSubjects() {
+  async getCombinedSubjects() {
     // 1. Matérias ativas (Configurações)
-    const activeSubjects = JSON.parse(localStorage.getItem("studyCycle")) || [];
+    const subjectsData = await dbService.getSubjects();
+    const activeSubjects = subjectsData.map((s) => s.name || s);
 
     // 2. Matérias do histórico (Legado)
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const history = await dbService.getHistory();
     const historySubjects = history.map((item) => item.subject);
 
     // 3. Junta tudo e remove duplicados usando Set
@@ -145,7 +146,7 @@ export class ManualEntryController {
   // ------------------------
   // SALVAR REGISTRO
   // ------------------------
-  save() {
+  async save() {
     const data = this.ui.getEntryData();
 
     if (
@@ -187,38 +188,12 @@ export class ManualEntryController {
     }
 
     const formattedDate = formatDateToBR(data.date);
-    let history = JSON.parse(localStorage.getItem("studyHistory")) || [];
 
     // --- LÓGICA DE SALVAR (NOVO OU EDITAR) ---
 
     if (this.editingId) {
-      // MODO EDIÇÃO: Procura pelo ID e atualiza
-      const index = history.findIndex((h) => h.id === this.editingId);
-
-      if (index !== -1) {
-        // Atualiza mantendo o ID original
-        history[index] = {
-          id: this.editingId, // MANTÉM O MESMO ID
-          date: `${formattedDate} às ${data.entryTime}`,
-          subject: data.subject,
-          duration: data.time,
-          questions: data.questions || 0,
-          correct: data.correct || 0,
-          category: category,
-        };
-        this.toast.showToast("success", "Registro atualizado com sucesso!");
-      } else {
-        this.toast.showToast(
-          "error",
-          "Erro: Registro original não encontrado.",
-        );
-      }
-
-      this.editingId = null; // Limpa o estado
-    } else {
-      // MODO CRIAÇÃO (Novo ID)
-      const entry = {
-        id: Date.now(), // GERA NOVO ID
+      // MODO EDIÇÃO: Atualiza no banco
+      const entryData = {
         date: `${formattedDate} às ${data.entryTime}`,
         subject: data.subject,
         duration: data.time,
@@ -226,16 +201,29 @@ export class ManualEntryController {
         correct: data.correct || 0,
         category: category,
       };
-      history.push(entry);
+
+      await dbService.updateHistoryEntry(this.editingId, entryData);
+      this.toast.showToast("success", "Registro atualizado com sucesso!");
+      this.editingId = null;
+    } else {
+      // MODO CRIAÇÃO: Novo registro
+      const entry = {
+        date: `${formattedDate} às ${data.entryTime}`,
+        subject: data.subject,
+        duration: data.time,
+        questions: data.questions || 0,
+        correct: data.correct || 0,
+        category: category,
+      };
+
+      await dbService.addHistoryEntry(entry);
       this.toast.showToast("success", "Estudo registrado!");
     }
 
-    localStorage.setItem("studyHistory", JSON.stringify(history));
-
     if (this.reports) {
-      this.reports.renderHistory();
-      this.reports.updateCharts();
-      this.reports.updateSummary();
+      await this.reports.renderHistory();
+      await this.reports.updateCharts();
+      await this.reports.updateSummary();
     }
 
     this.close();
@@ -275,4 +263,3 @@ export class ManualEntryController {
     }
   }
 }
-

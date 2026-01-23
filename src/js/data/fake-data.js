@@ -1,5 +1,7 @@
 // Gera dados falsos para testes e demonstrações
-export function generateFakeData() {
+import { dbService } from "../services/db/db-service.js";
+
+export async function generateFakeData() {
   const subjects = [
     "Português",
     "Matemática",
@@ -12,6 +14,8 @@ export function generateFakeData() {
     "Redação",
     "Direito Penal",
   ];
+
+  const categories = ["Teoria", "Exercícios", "Simulado", "Revisão"];
 
   const history = [];
   const count = Math.floor(Math.random() * (200 - 150 + 1)) + 150; // Entre 150 e 200
@@ -27,9 +31,9 @@ export function generateFakeData() {
     dateObj.setMinutes(Math.floor(Math.random() * 60));
 
     const formattedDate = `${pad(dateObj.getDate())}/${pad(
-      dateObj.getMonth() + 1
+      dateObj.getMonth() + 1,
     )}/${dateObj.getFullYear()} às ${pad(dateObj.getHours())}:${pad(
-      dateObj.getMinutes()
+      dateObj.getMinutes(),
     )}`;
 
     // 2. Duração Aleatória (10 min a 4 horas)
@@ -61,24 +65,41 @@ export function generateFakeData() {
 
     // 4. Cria o Objeto
     history.push({
-      id: dateObj.getTime() + i, // Timestamp único
       date: formattedDate,
       subject: subjects[Math.floor(Math.random() * subjects.length)],
       duration: duration,
       questions: questions.toString(),
       correct: correct.toString(),
+      category: categories[Math.floor(Math.random() * categories.length)],
     });
   }
 
-  // Ordenar por data (opcional, mas bom para consistência)
-  history.sort((a, b) => b.id - a.id);
+  // Ordenar por data (mais recente primeiro)
+  history.sort((a, b) => {
+    const dateA = new Date(a.date.replace(" às ", " "));
+    const dateB = new Date(b.date.replace(" às ", " "));
+    return dateB - dateA;
+  });
 
-  // Salvar no LocalStorage
-  localStorage.setItem("studyHistory", JSON.stringify(history));
+  // Salvar no IndexedDB
+  try {
+    // Limpar histórico anterior para recomeçar
+    await dbService.clearHistory();
 
-  // Também salva as matérias para que os filtros funcionem
-  localStorage.setItem("studyCycle", JSON.stringify(subjects));
+    // Adicionar todos os registros
+    for (const item of history) {
+      await dbService.addHistoryEntry(item);
+    }
 
-  console.log(`✅ Sucesso! ${history.length} registos gerados.`);
-  console.log("Recarrega a página para ver os gráficos e tabelas.");
+    // Salvar matérias configuradas
+    const existingSubjects = await dbService.getSubjects();
+    if (existingSubjects.length === 0) {
+      await dbService.addSubjects(subjects);
+    }
+
+    console.log(`✅ Sucesso! ${history.length} registos gerados no IndexedDB.`);
+    console.log("Recarrega a página para ver os gráficos e tabelas.");
+  } catch (error) {
+    console.error("❌ Erro ao gerar dados fakes:", error);
+  }
 }

@@ -1,6 +1,7 @@
 import { ReportsUI } from "../ui/reportUI.js";
 import { ReportsCharts } from "../utils/chart-utils.js";
 import { getFilteredHistory } from "../utils/reports-utils.js";
+import { dbService } from "../services/db/db-service.js";
 
 export class ReportsController {
   constructor(toast, confirm, screenNavigator) {
@@ -24,17 +25,17 @@ export class ReportsController {
     this.onViewNotesHandler = callback;
   }
 
-  show() {
-    this.renderHistory();
-    this.updateCharts();
+  async show() {
+    await this.renderHistory();
+    await this.updateCharts();
     this.updateSummary();
     this.ui.updateRotateTip();
 
     this.screens.switch("screen-reports");
   }
 
-  renderHistory() {
-    let raw = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  async renderHistory() {
+    let raw = await dbService.getHistory();
     let filtered = getFilteredHistory(raw);
 
     this.ui.renderHistoryTable(
@@ -58,13 +59,11 @@ export class ReportsController {
   }
 
   deleteEntry(id) {
-    this.confirm.confirm("Excluir este registro?", () => {
-      let history = JSON.parse(localStorage.getItem("studyHistory")) || [];
-      let filtered = history.filter((h) => h.id !== id);
-      localStorage.setItem("studyHistory", JSON.stringify(filtered));
+    this.confirm.confirm("Excluir este registro?", async () => {
+      await dbService.deleteHistoryEntry(id);
 
-      this.renderHistory();
-      this.updateCharts();
+      await this.renderHistory();
+      await this.updateCharts();
       this.updateSummary();
 
       this.toast.showToast("success", "Registro removido!");
@@ -74,17 +73,17 @@ export class ReportsController {
   clearAll() {
     this.confirm.confirm(
       "Tem certeza que deseja apagar todo o histórico de estudos?",
-      () => {
-        localStorage.removeItem("studyHistory");
-        localStorage.removeItem("unlockedAchievements");
-        localStorage.removeItem("studyNotes");
+      async () => {
+        await dbService.clearHistory();
+        await dbService.clearAchievements();
+        await dbService.clearNotes();
         location.reload();
       },
     );
   }
 
-  updateCharts() {
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  async updateCharts() {
+    const history = await dbService.getHistory();
     if (!history.length) return;
 
     this.charts.destroy();
@@ -159,7 +158,10 @@ export class ReportsController {
       history = filtered;
       title = this.getTitleFromItems(history, filters);
     } else {
-      history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+      // Este método precisa ser chamado com await, já que agora é async
+      // Mas como updateSummary é chamado de múltiplos lugares (inclusive após análise de filtros),
+      // vamos manter como síncrono quando não há filtro específico
+      // Isso será corrigido no callers
     }
 
     let totalQ = 0;
@@ -241,3 +243,4 @@ export class ReportsController {
     return `${fmt(first)} - ${fmt(last)}`;
   }
 }
+

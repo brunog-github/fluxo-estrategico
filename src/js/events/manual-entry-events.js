@@ -2,14 +2,14 @@ export function initManualEntryEvents(manualEntry, lifetime) {
   // Abrir modal
   document
     .getElementById("btn-add-manual-entry")
-    .addEventListener("click", () => manualEntry.open());
+    .addEventListener("click", async () => await manualEntry.open());
 
   // Salvar
   document
     .getElementById("btn-save-manual-entry")
-    .addEventListener("click", () => {
+    .addEventListener("click", async () => {
       manualEntry.save();
-      lifetime.update();
+      await lifetime.update();
     });
 
   // Fechar

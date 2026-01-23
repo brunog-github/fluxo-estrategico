@@ -1,5 +1,6 @@
 import { AchievementsUI } from "../ui/achievementsUI.js";
 import { AchievementToastUI } from "../ui/achievement-toastUI.js";
+import { dbService } from "../services/db/db-service.js";
 
 export class AchievementsController {
   constructor(achievementsData) {
@@ -8,17 +9,21 @@ export class AchievementsController {
     this.toastUI = new AchievementToastUI();
   }
 
-  loadUnlocked() {
-    return JSON.parse(localStorage.getItem("unlockedAchievements")) || [];
+  async loadUnlocked() {
+    return await dbService.getUnlockedAchievements();
   }
 
-  saveUnlocked(unlocked) {
-    localStorage.setItem("unlockedAchievements", JSON.stringify(unlocked));
+  async saveUnlocked(unlocked) {
+    // Limpar achievements antigos e adicionar novos
+    await dbService.clearAchievements();
+    if (unlocked.length > 0) {
+      await dbService.unlockAchievements(unlocked);
+    }
   }
 
-  checkAndUnlockAchievements() {
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
-    let unlocked = this.loadUnlocked();
+  async checkAndUnlockAchievements() {
+    const history = await dbService.getHistory();
+    let unlocked = await this.loadUnlocked();
 
     let newUnlock = false;
 
@@ -33,13 +38,13 @@ export class AchievementsController {
     });
 
     if (newUnlock) {
-      this.saveUnlocked(unlocked);
-      this.renderAchievementsList();
+      await this.saveUnlocked(unlocked);
+      await this.renderAchievementsList();
     }
   }
 
-  renderAchievementsList() {
-    const unlockedIds = this.loadUnlocked();
+  async renderAchievementsList() {
+    const unlockedIds = await this.loadUnlocked();
     const filter = this.ui.getFilter();
 
     let list = this.ACHIEVEMENTS.map((ach) => ({
@@ -59,10 +64,11 @@ export class AchievementsController {
     // ordenação (modo "all")
     if (filter === "all") {
       list.sort((a, b) =>
-        a.isUnlocked === b.isUnlocked ? 0 : a.isUnlocked ? -1 : 1
+        a.isUnlocked === b.isUnlocked ? 0 : a.isUnlocked ? -1 : 1,
       );
     }
 
     this.ui.renderList(list);
   }
 }
+

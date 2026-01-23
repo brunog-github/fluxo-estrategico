@@ -1,3 +1,5 @@
+import { dbService } from "../services/db/db-service.js";
+
 export class SubjectsManager {
   constructor(toast) {
     this.subjects = [];
@@ -7,12 +9,12 @@ export class SubjectsManager {
 
   async init() {
     // Carregar dados do IndexedDB
-    const subjectsData = await DBService.getSubjects();
-    
-    // Extrair apenas os nomes dos subjects (converter de objetos para strings)
-    this.subjects = subjectsData.map(s => s.name || s);
+    const subjectsData = await dbService.getSubjects();
 
-    const savedIndex = await DBService.getCurrentIndex();
+    // Extrair apenas os nomes dos subjects (converter de objetos para strings)
+    this.subjects = subjectsData.map((s) => s.name || s);
+
+    const savedIndex = await dbService.getCurrentIndex();
     this.currentIndex = parseInt(savedIndex || 0);
 
     // Se não há subjects no DB, manter array vazio
@@ -23,16 +25,16 @@ export class SubjectsManager {
 
   async save() {
     // Limpar subjects antigos e adicionar novamente
-    await DBService.clearSubjects();
+    await dbService.clearSubjects();
     for (const subject of this.subjects) {
       // this.subjects contém apenas strings
-      await DBService.addSubject(subject);
+      await dbService.addSubject(subject);
     }
   }
 
   async next() {
     this.currentIndex = (this.currentIndex + 1) % this.subjects.length;
-    await DBService.setCurrentIndex(this.currentIndex);
+    await dbService.setCurrentIndex(this.currentIndex);
   }
 
   add(subject) {
@@ -44,7 +46,7 @@ export class SubjectsManager {
     }
 
     const subjectExists = this.subjects.some(
-      (s) => s.toLowerCase() === trimmedSubject.toLowerCase()
+      (s) => s.toLowerCase() === trimmedSubject.toLowerCase(),
     );
 
     if (subjectExists) {
@@ -78,7 +80,8 @@ export class SubjectsManager {
   async resetIndexIfOverflow() {
     if (this.currentIndex >= this.subjects.length) {
       this.currentIndex = 0;
-      await DBService.setCurrentIndex(0);
+      await dbService.setCurrentIndex(0);
     }
   }
 }
+

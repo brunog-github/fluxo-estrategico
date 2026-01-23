@@ -20,48 +20,53 @@ import {
   removeCustomCategoryColor,
 } from "../utils/category-colors.js";
 
+import { dbService } from "../services/db/db-service.js";
+
 export class SettingsController {
   constructor(toast, confirmToast) {
     this.toast = toast;
     this.confirm = confirmToast;
-    this.updateLastBackupUI();
-    this.loadDefaultCategories();
   }
 
-  // Default categories
-  loadDefaultCategories() {
-    const stored = localStorage.getItem("studyCategories");
-    if (!stored) {
-      localStorage.setItem(
-        "studyCategories",
-        JSON.stringify(getDefaultCategories())
-      );
+  async init() {
+    await this.updateLastBackupUI();
+    await this.loadDefaultCategories();
+  }
+
+  // Default categories - categorias fixas
+  async loadDefaultCategories() {
+    const categories = await dbService.getCategories();
+    const defaultCats = getDefaultCategories();
+
+    // Se não há categorias no DB, adicionar as padrões
+    if (categories.length === 0) {
+      await dbService.addCategories(defaultCats);
     }
   }
 
-  getCategories() {
-    const stored = localStorage.getItem("studyCategories");
-    return stored ? JSON.parse(stored) : getDefaultCategories();
+  async getCategories() {
+    const categoriesData = await dbService.getCategories();
+    return categoriesData.map((c) => c.name || c);
   }
 
   getFixedCategories() {
     return getDefaultCategories();
   }
 
-  getCustomCategories() {
-    const all = this.getCategories();
+  async getCustomCategories() {
+    const all = await this.getCategories();
     const fixed = this.getFixedCategories();
     return all.filter((cat) => !fixed.includes(cat));
   }
 
-  renderCategories() {
+  async renderCategories() {
     const fixedContainer = document.getElementById("fixed-categories-list");
     const customContainer = document.getElementById("custom-categories-list");
 
     if (!fixedContainer && !customContainer) return;
 
     const fixed = this.getFixedCategories();
-    const custom = this.getCustomCategories();
+    const custom = await this.getCustomCategories();
 
     // Renderizar categorias fixas
     if (fixedContainer) {
@@ -261,7 +266,7 @@ export class SettingsController {
     });
   }
 
-  addCategory() {
+  async addCategory() {
     const input = document.getElementById("new-category-input");
     if (!input) return;
 
@@ -271,36 +276,43 @@ export class SettingsController {
       return;
     }
 
-    const categories = this.getCategories();
+    const categories = await this.getCategories();
     if (categories.some((c) => c.toLowerCase() === name.toLowerCase())) {
       this.toast.showToast("warning", "Esta categoria já existe");
       return;
     }
 
-    categories.push(name);
-    localStorage.setItem("studyCategories", JSON.stringify(categories));
+    await dbService.addCategory(name);
     input.value = "";
-    this.renderCategories();
+    await this.renderCategories();
     this.toast.showToast("success", "Categoria adicionada!");
   }
 
-  removeCategory(idx) {
-    const custom = this.getCustomCategories();
+  async removeCategory(idx) {
+    const custom = await this.getCustomCategories();
     if (idx < 0 || idx >= custom.length) return;
 
     const categoryToRemove = custom[idx];
-    const all = this.getCategories();
+    const all = await this.getCategories();
     const filtered = all.filter((cat) => cat !== categoryToRemove);
 
-    localStorage.setItem("studyCategories", JSON.stringify(filtered));
+    // Encontrar o ID da categoria para deletar
+    const categoriesData = await dbService.getCategories();
+    const categoryObj = categoriesData.find(
+      (c) => (c.name || c) === categoryToRemove,
+    );
+
+    if (categoryObj && categoryObj.id) {
+      await dbService.deleteCategory(categoryObj.id);
+    }
 
     // Remove a cor personalizada se existir
     removeCustomCategoryColor(categoryToRemove);
 
-    this.renderCategories();
+    await this.renderCategories();
     this.toast.showToast(
       "success",
-      `Categoria "${categoryToRemove}" removida!`
+      `Categoria "${categoryToRemove}" removida!`,
     );
   }
 
@@ -317,27 +329,29 @@ export class SettingsController {
   clearConfig() {
     this.confirm.confirm(
       "Isso irá remover todas as suas configurações, tem certeza disso?",
-      () => {
-        localStorage.removeItem("studyCycle");
-        localStorage.removeItem("restDays");
-        localStorage.removeItem("theme");
-        localStorage.removeItem("currentIndex");
-        localStorage.removeItem("studyCategories");
+      async () => {
+        await dbService.clearSubjects();
+        await dbService.setRestDays([]);
+        await dbService.setTheme("light");
+        await dbService.setCurrentIndex(0);
+        await dbService.clearCategories();
+        // Recarregar categorias padrões
+        await this.loadDefaultCategories();
 
         this.toast.showToast("success", "Configurações resetadas com sucesso!");
         location.reload();
-      }
+      },
     );
   }
 
   // -----------------------------
   // NOVO MÉTODO: Atualiza a interface
   // -----------------------------
-  updateLastBackupUI() {
+  async updateLastBackupUI() {
     const displayEl = document.getElementById("last-backup-display");
     if (!displayEl) return;
 
-    const lastDateISO = localStorage.getItem("lastBackupDate");
+    const lastDateISO = await dbService.getLastBackupDate();
 
     if (lastDateISO) {
       const date = new Date(lastDateISO);
@@ -358,15 +372,15 @@ export class SettingsController {
   // -----------------------------
   // Exportação
   // -----------------------------
-  exportBackupFile() {
+  async exportBackupFile() {
     // Valida se há dados para fazer backup
-    const studyHistory = JSON.parse(localStorage.getItem("studyHistory")) || [];
-    const studyCycle = JSON.parse(localStorage.getItem("studyCycle")) || [];
+    const studyHistory = await dbService.getHistory();
+    const studyCycle = await dbService.getSubjects();
 
     if (studyHistory.length === 0 && studyCycle.length === 0) {
       this.toast.showToast(
         "warning",
-        "Nada para fazer backup! Adicione matérias ou histórico."
+        "Nada para fazer backup! Adicione matérias ou histórico.",
       );
       return;
     }
@@ -374,12 +388,12 @@ export class SettingsController {
     const data = buildBackupData();
     saveBackupToFile(data);
 
-    // 2. Salva a data e hora atual no LocalStorage
+    // 2. Salva a data e hora atual no IndexedDB
     const now = new Date();
-    localStorage.setItem("lastBackupDate", now.toISOString());
+    await dbService.setLastBackupDate(now.toISOString());
 
     // 3. Atualiza o texto na tela imediatamente
-    this.updateLastBackupUI();
+    await this.updateLastBackupUI();
 
     this.toast.showToast("success", "Download do backup iniciado!");
   }
@@ -409,16 +423,16 @@ export class SettingsController {
 
             this.toast.showToast(
               "success",
-              "Backup restaurado com sucesso! O app será recarregado."
+              "Backup restaurado com sucesso! O app será recarregado.",
             );
             window.location.reload();
-          }
+          },
         );
       } catch (err) {
         console.error(err);
         this.toast.showToast(
           "error",
-          "Arquivo inválido ou corrompido. Não foi possível importar."
+          "Arquivo inválido ou corrompido. Não foi possível importar.",
         );
       } finally {
         input.value = "";
@@ -428,3 +442,4 @@ export class SettingsController {
     reader.readAsText(file);
   }
 }
+

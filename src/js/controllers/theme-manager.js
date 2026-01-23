@@ -1,3 +1,5 @@
+import { dbService } from "../services/db/db-service.js";
+
 export class ThemeManager {
   constructor({
     toggleButtonId = "theme-toggle",
@@ -8,7 +10,7 @@ export class ThemeManager {
   }
 
   async initTheme() {
-    const savedTheme = await DBService.getTheme();
+    const savedTheme = await dbService.getTheme();
 
     if (savedTheme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -22,11 +24,11 @@ export class ThemeManager {
 
     if (currentTheme === "dark") {
       html.removeAttribute("data-theme");
-      await DBService.setTheme("light");
+      await dbService.setTheme("light");
       if (this.toggleButton) this.toggleButton.innerText = "🌙";
     } else {
       html.setAttribute("data-theme", "dark");
-      await DBService.setTheme("dark");
+      await dbService.setTheme("dark");
       if (this.toggleButton) this.toggleButton.innerText = "☀️";
     }
 
@@ -34,3 +36,4 @@ export class ThemeManager {
     this.onThemeChange();
   }
 }
+

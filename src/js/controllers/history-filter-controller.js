@@ -1,5 +1,6 @@
 import { HistoryFilterUI } from "../ui/history-filterUI.js";
 import { filterHistory } from "../utils/history-filter-utils.js";
+import { dbService } from "../services/db/db-service.js";
 
 export class HistoryFilterController {
   constructor(reportsController) {
@@ -8,14 +9,14 @@ export class HistoryFilterController {
   }
 
   // Preencher dropdown + datas
-  init() {
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  async init() {
+    const history = await dbService.getHistory();
     const subjectsFromHistory = [
       ...new Set(history.map((entry) => entry.subject)),
     ];
 
-    const configCategories =
-      JSON.parse(localStorage.getItem("studyCategories")) || [];
+    const categoriesData = await dbService.getCategories();
+    const configCategories = categoriesData.map((c) => c.name || c);
     const historyCategories = history.map((h) => h.category).filter((c) => c);
 
     // Junta tudo e remove duplicatas usando Set
@@ -29,8 +30,8 @@ export class HistoryFilterController {
   }
 
   // Quando mudar qualquer filtro
-  applyFilters() {
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+  async applyFilters() {
+    const history = await dbService.getHistory();
     const filters = this.ui.getFilters();
 
     const filtered = filterHistory(history, filters);
@@ -42,7 +43,7 @@ export class HistoryFilterController {
       },
       (item) => {
         this.reports.onEditHandler(item);
-      }
+      },
     );
 
     this.reports.updateSummary(filtered, filters);
@@ -50,6 +51,7 @@ export class HistoryFilterController {
 
   clearFilters() {
     this.ui.clearFields();
-    this.applyFilters();
+    return this.applyFilters(); // Retorna a Promise
   }
 }
+

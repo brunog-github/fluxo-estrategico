@@ -65,3 +65,4 @@ class TooltipController {
 export function initGlobalTooltip() {
   return new TooltipController();
 }
+

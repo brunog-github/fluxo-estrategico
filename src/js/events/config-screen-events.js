@@ -3,14 +3,14 @@ export function initConfigScreenEvents(
   configUI,
   streak,
   subjects,
-  settings
+  settings,
 ) {
   document
     .getElementById("btn-to-screen-config")
-    .addEventListener("click", () => {
+    .addEventListener("click", async () => {
       configUI.renderList();
       streak.loadRestDaysUI();
-      settings.renderCategories();
+      await settings.renderCategories();
       screens.switch("screen-config");
     });
 
@@ -37,17 +37,17 @@ export function initConfigScreenEvents(
   // Categorias
   document
     .getElementById("btn-add-category")
-    .addEventListener("click", () => settings.addCategory());
+    .addEventListener("click", async () => await settings.addCategory());
 
   document
     .getElementById("new-category-input")
-    .addEventListener("keypress", (e) => {
-      if (e.key === "Enter") settings.addCategory();
+    .addEventListener("keypress", async (e) => {
+      if (e.key === "Enter") await settings.addCategory();
     });
 
   document
     .getElementById("btn-make-backup")
-    .addEventListener("click", () => settings.exportBackupFile());
+    .addEventListener("click", async () => await settings.exportBackupFile());
 
   document
     .getElementById("btn-restore-backup")
@@ -55,7 +55,10 @@ export function initConfigScreenEvents(
 
   document
     .getElementById("backup-upload")
-    .addEventListener("change", (e) => settings.importBackupFile(e.target));
+    .addEventListener(
+      "change",
+      async (e) => await settings.importBackupFile(e.target),
+    );
 
   document
     .getElementById("btn-clear-config")

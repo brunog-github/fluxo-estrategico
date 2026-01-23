@@ -1,4 +1,5 @@
 import { timeToMinutes } from "../utils/utils.js";
+import { dbService } from "../services/db/db-service.js";
 
 export const ACHIEVEMENTS = [
   {
@@ -16,7 +17,7 @@ export const ACHIEVEMENTS = [
     check: (history) => {
       const totalMin = history.reduce(
         (acc, item) => acc + timeToMinutes(item.duration),
-        0
+        0,
       );
       return totalMin >= 600; // 600 min = 10 horas
     },
@@ -55,6 +56,7 @@ export const ACHIEVEMENTS = [
     check: (history) => {
       return history.some((h) => {
         // h.date formato "31/12/2025 às 23:00"
+        console.log(history);
         const timeStr = h.date.split(" às ")[1];
 
         if (!timeStr) return false;
@@ -107,7 +109,7 @@ export const ACHIEVEMENTS = [
     check: (history) => {
       const totalQuestions = history.reduce(
         (acc, item) => acc + (parseInt(item.questions) || 0),
-        0
+        0,
       );
       return totalQuestions >= 500;
     },
@@ -175,8 +177,9 @@ export const ACHIEVEMENTS = [
     desc: "Troque para o Tema Escuro.",
     // Ícone: Sol e Lua
     icon: `<embed src="./src/assets/icons/dark-mode.svg" type="image/svg+xml" />`,
-    check: () => {
-      return localStorage.getItem("theme") === "dark";
+    check: async () => {
+      const theme = await dbService.getTheme();
+      return theme === "dark";
     },
   },
   {

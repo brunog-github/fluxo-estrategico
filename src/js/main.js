@@ -65,7 +65,7 @@ class App {
       this._initGlobalEvents();
 
       // Passo 4: Restaurar Estado (Timer ou Home)
-      this._handleInitialState();
+      await this._handleInitialState();
 
       console.log("Fluxo Estratégico iniciado com sucesso!");
     } catch (error) {
@@ -100,6 +100,7 @@ class App {
 
     // Controladores de Telas
     const settings = new SettingsController(toast, confirm);
+    await settings.init();
     const reports = new ReportsController(toast, confirm, screens);
     const manualEntry = new ManualEntryController(toast, reports);
     const filters = new HistoryFilterController(reports);
@@ -109,7 +110,8 @@ class App {
     const homeUI = new HomeUI(subjects, screens);
     const theme = new ThemeManager({
       toggleButtonId: "theme-toggle",
-      onThemeChange: () => achievements.checkAndUnlockAchievements(),
+      onThemeChange: async () =>
+        await achievements.checkAndUnlockAchievements(),
     });
 
     // Salva tudo no objeto services para acesso fácil
@@ -156,8 +158,8 @@ class App {
       s.notes.openLinkedNote(linkedId);
     });
 
-    s.reports.setEditAction((itemToEdit) => {
-      s.manualEntry.openToEdit(itemToEdit);
+    s.reports.setEditAction(async (itemToEdit) => {
+      await s.manualEntry.openToEdit(itemToEdit);
     });
   }
 
@@ -192,7 +194,7 @@ class App {
   }
 
   // Lógica de recuperação de sessão (F5 ou reabertura)
-  _handleInitialState() {
+  async _handleInitialState() {
     const s = this.services;
     const savedState = localStorage.getItem("appState");
 
@@ -213,7 +215,7 @@ class App {
 
       if (subject) {
         s.timer.ui.showFinishScreen(subject, formatTime(seconds));
-        s.session.loadCategorySelect();
+        await s.session.loadCategorySelect();
       }
       s.screens.switch("screen-finish");
     } else {
@@ -221,7 +223,7 @@ class App {
       // Se você implementou o roteador da resposta anterior, use s.screens.handleInitialLoad()
       // Senão, mantenha o padrão:
       s.homeUI.render();
-      s.achievements.checkAndUnlockAchievements();
+      await s.achievements.checkAndUnlockAchievements();
     }
   }
 }

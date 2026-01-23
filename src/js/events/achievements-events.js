@@ -1,8 +1,8 @@
 export function initAchievementsEvents(screens, achievements) {
   document
     .getElementById("btn-achievements-screen")
-    .addEventListener("click", () => {
-      achievements.renderAchievementsList();
+    .addEventListener("click", async () => {
+      await achievements.renderAchievementsList();
       screens.switch("screen-achievements");
     });
 
@@ -12,7 +12,7 @@ export function initAchievementsEvents(screens, achievements) {
       screens.goHome();
     });
 
-  document.getElementById("ach-filter").addEventListener("change", () => {
-    achievements.renderAchievementsList();
+  document.getElementById("ach-filter").addEventListener("change", async () => {
+    await achievements.renderAchievementsList();
   });
 }

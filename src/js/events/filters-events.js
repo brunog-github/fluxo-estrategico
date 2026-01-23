@@ -10,21 +10,23 @@ export function initFiltersEvents(filterController) {
   }
 
   // eventos
-  document.getElementById("filter-subject").addEventListener("change", () => {
-    filterController.applyFilters();
-  });
+  document
+    .getElementById("filter-subject")
+    .addEventListener("change", async () => {
+      await filterController.applyFilters();
+    });
 
-  startInput.addEventListener("change", () => {
+  startInput.addEventListener("change", async () => {
     endInput.min = startInput.value;
 
     if (endInput.value && endInput.value < startInput.value) {
       endInput.value = startInput.value;
     }
 
-    filterController.applyFilters();
+    await filterController.applyFilters();
   });
 
-  endInput.addEventListener("change", () => {
+  endInput.addEventListener("change", async () => {
     if (endInput.value) {
       startInput.max = endInput.value;
     } else {
@@ -33,20 +35,22 @@ export function initFiltersEvents(filterController) {
       startInput.max = today;
     }
 
-    filterController.applyFilters();
-  });
-
-  document.getElementById("filter-category").addEventListener("change", () => {
-    filterController.applyFilters();
+    await filterController.applyFilters();
   });
 
   document
+    .getElementById("filter-category")
+    .addEventListener("change", async () => {
+      await filterController.applyFilters();
+    });
+
+  document
     .getElementById("btn-clear-filter-history")
-    .addEventListener("click", () => {
+    .addEventListener("click", async () => {
       const today = new Date().toISOString().split("T")[0];
       endInput.min = "";
       startInput.max = today;
 
-      filterController.clearFilters();
+      await filterController.clearFilters();
     });
 }

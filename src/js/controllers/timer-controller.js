@@ -89,7 +89,7 @@ export class TimerController {
     if (this.subjects.subjects.length === 0) {
       this.toast.showToast(
         "error",
-        "Adicione matérias na configuração primeiro!"
+        "Adicione matérias na configuração primeiro!",
       );
       return;
     }
@@ -123,20 +123,20 @@ export class TimerController {
     } else {
       // Restaurar estado antigo
       this.seconds = parseInt(
-        localStorage.getItem("currentTimerSeconds") || "0"
+        localStorage.getItem("currentTimerSeconds") || "0",
       );
       this.totalPausedSeconds = parseInt(
-        localStorage.getItem("totalPausedSeconds") || "0"
+        localStorage.getItem("totalPausedSeconds") || "0",
       );
 
       if (savedWasPaused) {
         this.isPaused = true;
         this.startTime = null;
         this.pauseStartTime = parseInt(
-          localStorage.getItem("pauseStartTime") || Date.now()
+          localStorage.getItem("pauseStartTime") || Date.now(),
         );
         this.accumulatedTime = parseInt(
-          localStorage.getItem("accumulatedTime") || "0"
+          localStorage.getItem("accumulatedTime") || "0",
         );
       } else {
         this.isPaused = false;
@@ -211,13 +211,13 @@ export class TimerController {
   // -------------------------------------------------------
   //  Finalizar Sessão
   // -------------------------------------------------------
-  finishSession() {
+  async finishSession() {
     localStorage.setItem("appState", "save-session");
 
     const subject = this.subjects.getCurrent();
     localStorage.setItem("finishScreenSubject", subject);
     const formatted = formatTime(
-      parseInt(localStorage.getItem("currentTimerSeconds") || "0")
+      parseInt(localStorage.getItem("currentTimerSeconds") || "0"),
     );
     this.ui.showFinishScreen(subject, formatted);
 
@@ -229,9 +229,10 @@ export class TimerController {
 
     // Carrega as categorias no select do screen-finish
     if (this.session && this.session.loadCategorySelect) {
-      this.session.loadCategorySelect();
+      await this.session.loadCategorySelect();
     }
 
     this.screens.switch("screen-finish");
   }
 }
+

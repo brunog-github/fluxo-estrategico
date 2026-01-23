@@ -8,7 +8,7 @@ export function initTimerScreenEvents(screens, timer, notesController) {
     .addEventListener("click", () => timer.togglePause());
   document
     .getElementById("btn-study-finish")
-    .addEventListener("click", () => timer.finishSession());
+    .addEventListener("click", async () => await timer.finishSession());
   document.getElementById("btn-start-study").addEventListener("click", () => {
     timer.startStudy();
 

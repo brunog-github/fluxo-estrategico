@@ -51,3 +51,4 @@ export class ScreenNavigator {
     this.goHome();
   }
 }
+

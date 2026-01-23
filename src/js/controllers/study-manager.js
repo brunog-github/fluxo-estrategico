@@ -1,4 +1,5 @@
 import { formatTime } from "../utils/utils.js";
+import { dbService } from "../services/db/db-service.js";
 
 export class StudySessionManager {
   constructor(subjectManager, achievementsController, toast, notesController) {
@@ -8,12 +9,12 @@ export class StudySessionManager {
     this.notesController = notesController;
   }
 
-  getCategories() {
-    const stored = localStorage.getItem("studyCategories");
-    const configuredCategories = stored ? JSON.parse(stored) : [];
+  async getCategories() {
+    const categoriesData = await dbService.getCategories();
+    const configuredCategories = categoriesData.map((c) => c.name || c);
 
     // Pega categorias do histórico
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const history = await dbService.getHistory();
     const historicalCategories = history
       .map((item) => item.category)
       .filter((cat) => cat && cat !== "-"); // Remove undefined, null e "-"
@@ -24,13 +25,13 @@ export class StudySessionManager {
     ].sort();
   }
 
-  loadCategorySelect() {
+  async loadCategorySelect() {
     const select = document.getElementById("input-category");
     const formGroup = select ? select.closest(".form-group") : null;
 
     if (!select) return;
 
-    const categories = this.getCategories();
+    const categories = await this.getCategories();
 
     // Esconder a categoria se não houver nenhuma
     if (formGroup) {
@@ -110,9 +111,8 @@ export class StudySessionManager {
       category,
     };
 
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
-    history.unshift(entry);
-    localStorage.setItem("studyHistory", JSON.stringify(history));
+    // Adicionar novo entry ao histórico
+    await dbService.addHistoryEntry(entry);
 
     this.notesController.saveFinalNote(entryId);
 
@@ -122,7 +122,7 @@ export class StudySessionManager {
     localStorage.removeItem("finishScreenSubject");
     localStorage.removeItem("sessionStartTimestamp");
 
-    this.achievements.checkAndUnlockAchievements();
+    await this.achievements.checkAndUnlockAchievements();
 
     await this.subjectManager.next();
 
@@ -137,3 +137,4 @@ export class StudySessionManager {
     localStorage.setItem("appState", "home");
   }
 }
+

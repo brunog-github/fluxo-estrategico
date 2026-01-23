@@ -35,3 +35,4 @@ export class ConfirmController {
     this.ui.show(overlay, toast);
   }
 }
+

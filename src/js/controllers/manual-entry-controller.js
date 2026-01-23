@@ -5,6 +5,7 @@ import {
   maskTimeValue,
 } from "../utils/manual-entry-utils.js";
 import { formatDateToISO } from "../utils/utils.js";
+import { dbService } from "../services/db/db-service.js";
 
 export class ManualEntryController {
   constructor(toast, reportsController) {
@@ -16,13 +17,13 @@ export class ManualEntryController {
     this.attachInputMask();
   }
 
-  getAllCategories() {
+  async getAllCategories() {
     // Pega categorias configuradas
-    const stored = localStorage.getItem("studyCategories");
-    const configuredCategories = stored ? JSON.parse(stored) : [];
+    const categoriesData = await dbService.getCategories();
+    const configuredCategories = categoriesData.map((c) => c.name || c);
 
     // Pega categorias do histórico
-    const history = JSON.parse(localStorage.getItem("studyHistory")) || [];
+    const history = await dbService.getHistory();
     const historicalCategories = history
       .map((item) => item.category)
       .filter((cat) => cat && cat !== "-"); // Remove undefined, null e "-"
@@ -33,11 +34,11 @@ export class ManualEntryController {
     ].sort();
   }
 
-  loadCategorySelect() {
+  async loadCategorySelect() {
     const select = document.getElementById("manual-category");
     if (!select) return;
 
-    const allCategories = this.getAllCategories();
+    const allCategories = await this.getAllCategories();
 
     // Limpa opções anteriores mas mantém o placeholder
     const placeholderOption = select.querySelector("option[value='']");
@@ -58,7 +59,7 @@ export class ManualEntryController {
   // ------------------------
   // ABRIR MODAL
   // ------------------------
-  open() {
+  async open() {
     this.editingId = null;
     this.ui.setTitle("Registrar Estudo");
 
@@ -67,20 +68,20 @@ export class ManualEntryController {
 
     this.ui.resetFields(todayISO);
     this.ui.setSubjectsList(subjects);
-    this.loadCategorySelect();
+    await this.loadCategorySelect();
     this.setDateOption("today");
 
     this.ui.open();
   }
 
   // NOVO: Método para abrir em modo de EDIÇÃO
-  openToEdit(item) {
+  async openToEdit(item) {
     this.editingId = item.id; // Guarda referência do item original
     this.ui.setTitle("Editar Estudo");
 
     const subjects = this.getCombinedSubjects();
     this.ui.setSubjectsList(subjects);
-    this.loadCategorySelect();
+    await this.loadCategorySelect();
 
     // 1. Converter data "DD/MM/YYYY às HH:mm" para ISO "YYYY-MM-DD" e "HH:mm"
     const [datePart, timePart] = item.date.split(" às ");
@@ -155,7 +156,7 @@ export class ManualEntryController {
     ) {
       this.toast.showToast(
         "error",
-        "Preencha matéria, data e o tempo completo (00:00:00)."
+        "Preencha matéria, data e o tempo completo (00:00:00).",
       );
       return;
     }
@@ -180,7 +181,7 @@ export class ManualEntryController {
     ) {
       this.toast.showToast(
         "error",
-        "Acertos não podem ser maiores que questões."
+        "Acertos não podem ser maiores que questões.",
       );
       return;
     }
@@ -209,7 +210,7 @@ export class ManualEntryController {
       } else {
         this.toast.showToast(
           "error",
-          "Erro: Registro original não encontrado."
+          "Erro: Registro original não encontrado.",
         );
       }
 
@@ -274,3 +275,4 @@ export class ManualEntryController {
     }
   }
 }
+

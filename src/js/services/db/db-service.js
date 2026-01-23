@@ -11,16 +11,16 @@ db.version(1).stores({
   settings: "++id, key", // tema, dias de descanso, categoria cores, etc
   categories: "++id", // categorias de estudo
   subjects: "++id", // ciclo de estudo (matérias ativas)
-  history: "++id, date", // histórico de estudos (com índice por data)
-  notes: "++id, date", // notas de estudo
+  history: "++id", // histórico de estudos
+  notes: "++id", // notas de estudo
   achievements: "++id, achievementId", // conquistas desbloqueadas
   timer: "++id, key", // variáveis do timer
 });
 
 /**
- * Objeto com todos os métodos para gerenciar o banco de dados
+ * Classe para gerenciar todas as operações do banco de dados
  */
-const DBService = {
+class DBService {
   // ========== SETTINGS (Tema, cores customizadas) ==========
 
   /**
@@ -31,8 +31,7 @@ const DBService = {
   async getSetting(key) {
     const setting = await db.settings.where("key").equals(key).first();
     return setting ? setting.value : undefined;
-  },
-
+  }
   /**
    * Salvar configuração
    * @param {string} key - Chave da configuração
@@ -50,8 +49,7 @@ const DBService = {
         updatedAt: new Date(),
       });
     }
-  },
-
+  }
   /**
    * Obter todas as configurações
    * @returns {Promise<Object>} Objeto com todas as configurações
@@ -63,16 +61,14 @@ const DBService = {
       result[setting.key] = setting.value;
     });
     return result;
-  },
-
+  }
   /**
    * Deletar configuração
    * @param {string} key - Chave da configuração
    */
   async deleteSetting(key) {
     await db.settings.where("key").equals(key).delete();
-  },
-
+  }
   // ========== CATEGORIES (Categorias de Estudo) ==========
 
   /**
@@ -81,8 +77,7 @@ const DBService = {
    */
   async getCategories() {
     return await db.categories.toArray();
-  },
-
+  }
   /**
    * Adicionar categoria
    * @param {string} categoryName - Nome da categoria
@@ -92,23 +87,20 @@ const DBService = {
       name: categoryName,
       createdAt: new Date(),
     });
-  },
-
+  }
   /**
    * Deletar categoria
    * @param {number} id - ID da categoria
    */
   async deleteCategory(id) {
     await db.categories.delete(id);
-  },
-
+  }
   /**
    * Limpar todas as categorias
    */
   async clearCategories() {
     await db.categories.clear();
-  },
-
+  }
   /**
    * Adicionar múltiplas categorias
    * @param {Array<string>} categoryNames - Array com nomes das categorias
@@ -119,8 +111,7 @@ const DBService = {
       createdAt: new Date(),
     }));
     await db.categories.bulkAdd(categories);
-  },
-
+  }
   // ========== SUBJECTS (Ciclo de Estudo) ==========
 
   /**
@@ -129,8 +120,7 @@ const DBService = {
    */
   async getSubjects() {
     return await db.subjects.toArray();
-  },
-
+  }
   /**
    * Adicionar sujeito
    * @param {string} subjectName - Nome do sujeito
@@ -140,23 +130,20 @@ const DBService = {
       name: subjectName,
       createdAt: new Date(),
     });
-  },
-
+  }
   /**
    * Deletar sujeito
    * @param {number} id - ID do sujeito
    */
   async deleteSubject(id) {
     await db.subjects.delete(id);
-  },
-
+  }
   /**
    * Limpar todos os sujeitos
    */
   async clearSubjects() {
     await db.subjects.clear();
-  },
-
+  }
   /**
    * Adicionar múltiplos sujeitos
    * @param {Array<string>} subjectNames - Array com nomes dos sujeitos
@@ -167,8 +154,7 @@ const DBService = {
       createdAt: new Date(),
     }));
     await db.subjects.bulkAdd(subjects);
-  },
-
+  }
   // ========== HISTORY (Histórico de Estudos) ==========
 
   /**
@@ -177,21 +163,21 @@ const DBService = {
    */
   async getHistory() {
     return await db.history.toArray();
-  },
-
+  }
   /**
-   * Obter histórico por intervalo de datas
-   * @param {Date} startDate - Data inicial
-   * @param {Date} endDate - Data final
+   * Obter histórico por intervalo de datas (filtrado em memória)
+   * @param {string} startDate - Data inicial (formato DD/MM/YYYY)
+   * @param {string} endDate - Data final (formato DD/MM/YYYY)
    * @returns {Promise<Array>} Array de registros no intervalo
    */
   async getHistoryByDateRange(startDate, endDate) {
-    return await db.history
-      .where("date")
-      .between(startDate, endDate, true, true)
-      .toArray();
-  },
-
+    const all = await db.history.toArray();
+    // Filtrar em memória já que date é string
+    return all.filter((entry) => {
+      const entryDate = entry.date ? entry.date.split(" às ")[0] : "";
+      return entryDate >= startDate && entryDate <= endDate;
+    });
+  }
   /**
    * Adicionar registro ao histórico
    * @param {Object} historyEntry - Objeto com dados do estudo
@@ -199,11 +185,9 @@ const DBService = {
   async addHistoryEntry(historyEntry) {
     return await db.history.add({
       ...historyEntry,
-      date: new Date(historyEntry.date || Date.now()),
       createdAt: new Date(),
     });
-  },
-
+  }
   /**
    * Adicionar múltiplos registros de histórico
    * @param {Array<Object>} entries - Array de registros
@@ -211,12 +195,11 @@ const DBService = {
   async addHistoryEntries(entries) {
     const processedEntries = entries.map((entry) => ({
       ...entry,
-      date: new Date(entry.date || Date.now()),
+
       createdAt: new Date(),
     }));
     await db.history.bulkAdd(processedEntries);
-  },
-
+  }
   /**
    * Atualizar registro de histórico
    * @param {number} id - ID do registro
@@ -224,23 +207,20 @@ const DBService = {
    */
   async updateHistoryEntry(id, updates) {
     await db.history.update(id, { ...updates, updatedAt: new Date() });
-  },
-
+  }
   /**
    * Deletar registro de histórico
    * @param {number} id - ID do registro
    */
   async deleteHistoryEntry(id) {
     await db.history.delete(id);
-  },
-
+  }
   /**
    * Limpar todo o histórico
    */
   async clearHistory() {
     await db.history.clear();
-  },
-
+  }
   // ========== NOTES (Notas de Estudo) ==========
 
   /**
@@ -249,21 +229,21 @@ const DBService = {
    */
   async getNotes() {
     return await db.notes.toArray();
-  },
-
+  }
   /**
-   * Obter notas por intervalo de datas
-   * @param {Date} startDate - Data inicial
-   * @param {Date} endDate - Data final
+   * Obter notas por intervalo de datas (filtrado em memória)
+   * @param {string} startDate - Data inicial (formato DD/MM/YYYY)
+   * @param {string} endDate - Data final (formato DD/MM/YYYY)
    * @returns {Promise<Array>} Array de notas no intervalo
    */
   async getNotesByDateRange(startDate, endDate) {
-    return await db.notes
-      .where("date")
-      .between(startDate, endDate, true, true)
-      .toArray();
-  },
-
+    const all = await db.notes.toArray();
+    // Filtrar em memória já que date é string
+    return all.filter((note) => {
+      const noteDate = note.date ? note.date.split(" às ")[0] : "";
+      return noteDate >= startDate && noteDate <= endDate;
+    });
+  }
   /**
    * Adicionar nota
    * @param {Object} noteData - Dados da nota
@@ -271,11 +251,10 @@ const DBService = {
   async addNote(noteData) {
     return await db.notes.add({
       ...noteData,
-      date: new Date(noteData.date || Date.now()),
+
       createdAt: new Date(),
     });
-  },
-
+  }
   /**
    * Adicionar múltiplas notas
    * @param {Array<Object>} notes - Array de notas
@@ -283,12 +262,11 @@ const DBService = {
   async addNotes(notes) {
     const processedNotes = notes.map((note) => ({
       ...note,
-      date: new Date(note.date || Date.now()),
+
       createdAt: new Date(),
     }));
     await db.notes.bulkAdd(processedNotes);
-  },
-
+  }
   /**
    * Atualizar nota
    * @param {number} id - ID da nota
@@ -296,23 +274,20 @@ const DBService = {
    */
   async updateNote(id, updates) {
     await db.notes.update(id, { ...updates, updatedAt: new Date() });
-  },
-
+  }
   /**
    * Deletar nota
    * @param {number} id - ID da nota
    */
   async deleteNote(id) {
     await db.notes.delete(id);
-  },
-
+  }
   /**
    * Limpar todas as notas
    */
   async clearNotes() {
     await db.notes.clear();
-  },
-
+  }
   // ========== ACHIEVEMENTS (Conquistas Desbloqueadas) ==========
 
   /**
@@ -322,8 +297,7 @@ const DBService = {
   async getUnlockedAchievements() {
     const achievements = await db.achievements.toArray();
     return achievements.map((a) => a.achievementId);
-  },
-
+  }
   /**
    * Verificar se conquista está desbloqueada
    * @param {string} achievementId - ID da conquista
@@ -335,8 +309,7 @@ const DBService = {
       .equals(achievementId)
       .first();
     return !!achievement;
-  },
-
+  }
   /**
    * Desbloquear conquista
    * @param {string} achievementId - ID da conquista
@@ -349,8 +322,7 @@ const DBService = {
         unlockedAt: new Date(),
       });
     }
-  },
-
+  }
   /**
    * Desbloquear múltiplas conquistas
    * @param {Array<string>} achievementIds - Array de IDs de conquistas
@@ -361,23 +333,20 @@ const DBService = {
       unlockedAt: new Date(),
     }));
     await db.achievements.bulkAdd(achievements, { allKeys: true });
-  },
-
+  }
   /**
    * Bloquear conquista
    * @param {string} achievementId - ID da conquista
    */
   async lockAchievement(achievementId) {
     await db.achievements.where("achievementId").equals(achievementId).delete();
-  },
-
+  }
   /**
    * Limpar todas as conquistas
    */
   async clearAchievements() {
     await db.achievements.clear();
-  },
-
+  }
   // ========== TIMER (Variáveis do Timer) ==========
 
   /**
@@ -388,8 +357,7 @@ const DBService = {
   async getTimerValue(key) {
     const timer = await db.timer.where("key").equals(key).first();
     return timer ? timer.value : undefined;
-  },
-
+  }
   /**
    * Salvar valor do timer
    * @param {string} key - Chave do timer
@@ -407,8 +375,7 @@ const DBService = {
         updatedAt: new Date(),
       });
     }
-  },
-
+  }
   /**
    * Obter todos os valores do timer
    * @returns {Promise<Object>} Objeto com todos os valores do timer
@@ -420,16 +387,14 @@ const DBService = {
       result[timer.key] = timer.value;
     });
     return result;
-  },
-
+  }
   /**
    * Deletar valor do timer
    * @param {string} key - Chave do timer
    */
   async deleteTimerValue(key) {
     await db.timer.where("key").equals(key).delete();
-  },
-
+  }
   // ========== SPECIAL: Dias de Descanso (REST DAYS) ==========
 
   /**
@@ -439,16 +404,14 @@ const DBService = {
   async getRestDays() {
     const restDays = await this.getSetting("restDays");
     return restDays || [];
-  },
-
+  }
   /**
    * Salvar dias de descanso
    * @param {Array<number>} days - Array com números dos dias (0-6)
    */
   async setRestDays(days) {
     await this.setSetting("restDays", days);
-  },
-
+  }
   /**
    * Obter tema
    * @returns {Promise<string>} Tema atual (light/dark)
@@ -456,16 +419,14 @@ const DBService = {
   async getTheme() {
     const theme = await this.getSetting("theme");
     return theme || "light";
-  },
-
+  }
   /**
    * Salvar tema
    * @param {string} theme - Tema a salvar (light/dark)
    */
   async setTheme(theme) {
     await this.setSetting("theme", theme);
-  },
-
+  }
   /**
    * Obter cores customizadas das categorias
    * @returns {Promise<Object>} Objeto com cores das categorias
@@ -473,16 +434,14 @@ const DBService = {
   async getCustomCategoryColors() {
     const colors = await this.getSetting("customCategoryColors");
     return colors || {};
-  },
-
+  }
   /**
    * Salvar cores customizadas das categorias
    * @param {Object} colors - Objeto com cores das categorias
    */
   async setCustomCategoryColors(colors) {
     await this.setSetting("customCategoryColors", colors);
-  },
-
+  }
   /**
    * Obter índice atual
    * @returns {Promise<number>} Índice atual
@@ -490,16 +449,14 @@ const DBService = {
   async getCurrentIndex() {
     const index = await this.getSetting("currentIndex");
     return index || 0;
-  },
-
+  }
   /**
    * Salvar índice atual
    * @param {number} index - Índice a salvar
    */
   async setCurrentIndex(index) {
     await this.setSetting("currentIndex", index);
-  },
-
+  }
   /**
    * Obter data do último backup
    * @returns {Promise<string>} Data do último backup
@@ -507,16 +464,14 @@ const DBService = {
   async getLastBackupDate() {
     const date = await this.getSetting("lastBackupDate");
     return date || "";
-  },
-
+  }
   /**
    * Salvar data do último backup
    * @param {string} date - Data do backup
    */
   async setLastBackupDate(date) {
     await this.setSetting("lastBackupDate", date);
-  },
-
+  }
   /**
    * Obter estado de lock do sortable
    * @returns {Promise<boolean>} Se está bloqueado
@@ -524,16 +479,14 @@ const DBService = {
   async getSortableLocked() {
     const locked = await this.getSetting("sortableLocked");
     return locked === "true" || locked === true;
-  },
-
+  }
   /**
    * Salvar estado de lock do sortable
    * @param {boolean} isLocked - Se está bloqueado
    */
   async setSortableLocked(isLocked) {
     await this.setSetting("sortableLocked", isLocked);
-  },
-
+  }
   // ========== EXPORT/IMPORT ==========
 
   /**
@@ -550,8 +503,7 @@ const DBService = {
       achievements: await db.achievements.toArray(),
       timer: await db.timer.toArray(),
     };
-  },
-
+  }
   /**
    * Importar dados de backup
    * @param {Object} data - Dados para importar
@@ -583,13 +535,16 @@ const DBService = {
         if (data.timer) await db.timer.bulkAdd(data.timer, { allKeys: true });
       },
     );
-  },
-
+  }
   /**
    * Limpar todo o banco de dados
    */
   async clearAll() {
     await db.delete();
     await db.open();
-  },
-};
+  }
+}
+
+// Exportar como classe e como instância singleton
+export default DBService;
+export const dbService = new DBService();

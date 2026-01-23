@@ -1,3 +1,5 @@
+import { dbService } from "../services/db/db-service.js";
+
 export class NotesController {
   constructor() {
     this.modal = document.getElementById("modal-notes");
@@ -66,19 +68,22 @@ export class NotesController {
 
     // Botão Salvar/Fechar (Manual)
     if (this.btnClose) {
-      this.btnClose.addEventListener("click", () => this.handleClose());
+      this.btnClose.addEventListener(
+        "click",
+        async () => await this.handleClose(),
+      );
     }
 
     // Clicar fora para fechar (Auto-save temporário)
-    window.addEventListener("click", (e) => {
+    window.addEventListener("click", async (e) => {
       if (e.target === this.modal) {
-        this.handleClose();
+        await this.handleClose();
       }
     });
   }
 
   // --- LÓGICA CENTRAL DE FECHAMENTO ---
-  handleClose() {
+  async handleClose() {
     if (!this.modal.classList.contains("hidden")) {
       // 1. Atualiza a memória temporária com o que está no editor
       if (this.quill) {
@@ -87,9 +92,9 @@ export class NotesController {
 
       // 2. VERIFICAÇÃO CRUCIAL:
       // Se existe um currentLinkedId, significa que estamos editando pelo Histórico.
-      // Então TEMOS que salvar no localStorage agora mesmo.
+      // Então TEMOS que salvar no IndexedDB agora mesmo.
       if (this.currentLinkedId) {
-        this.saveFinalNote(this.currentLinkedId);
+        await this.saveFinalNote(this.currentLinkedId);
         this.currentLinkedId = null; // Limpa o ID após salvar
       } else {
         localStorage.setItem("currentSessionNoteDraft", this.tempContent);
@@ -110,12 +115,12 @@ export class NotesController {
     }
   }
 
-  openLinkedNote(linkedId) {
+  async openLinkedNote(linkedId) {
     this.currentLinkedId = linkedId; // Marca este ID como o atual
 
-    // 1. Busca se já existe nota para este ID
-    const allNotes = JSON.parse(localStorage.getItem("studyNotes")) || [];
-    const foundNote = allNotes.find((n) => n.linkedId == linkedId); // '==' para garantir caso seja string/number
+    // 1. Busca se já existe nota para este ID no IndexedDB
+    const allNotes = await dbService.getNotes();
+    const foundNote = allNotes.find((n) => n.linkedId == linkedId);
 
     // 2. Preenche o editor ou limpa
     if (this.quill) {
@@ -149,7 +154,7 @@ export class NotesController {
     if (this.quill) this.quill.setText("");
   }
 
-  saveFinalNote(linkedId) {
+  async saveFinalNote(linkedId) {
     if (!linkedId) return;
 
     // Pega o conteúdo mais recente (seja do editor ou da memória)
@@ -168,25 +173,22 @@ export class NotesController {
       textPreview = tempDiv.textContent || tempDiv.innerText || "";
     }
 
-    // Se o editor estiver vazio (ou só tags vazias), deletamos a nota?
-    // Vamos assumir que se textPreview for vazio, deleta.
-    // Mas o Quill as vezes deixa um "\n". Vamos simplificar: salvar sempre.
+    // Busca nota existente no IndexedDB
+    const allNotes = await dbService.getNotes();
+    const existingNote = allNotes.find((n) => n.linkedId == linkedId);
 
-    let allNotes = JSON.parse(localStorage.getItem("studyNotes")) || [];
-
-    // Remove versão anterior dessa nota
-    allNotes = allNotes.filter((n) => n.linkedId != linkedId);
-
-    // Adiciona nova versão (apenas se tiver conteúdo real, opcional)
-    // Aqui estou salvando mesmo que vazio para permitir "apagar" o texto.
     const newNote = {
       linkedId: linkedId,
       content: contentToSave,
       preview: textPreview.substring(0, 50),
     };
 
-    allNotes.push(newNote);
-    localStorage.setItem("studyNotes", JSON.stringify(allNotes));
+    // Atualiza ou adiciona a nota
+    if (existingNote && existingNote.id) {
+      await dbService.updateNote(existingNote.id, newNote);
+    } else {
+      await dbService.addNote(newNote);
+    }
 
     if (!this.currentLinkedId) {
       localStorage.removeItem("currentSessionNoteDraft");
@@ -195,4 +197,3 @@ export class NotesController {
     }
   }
 }
-

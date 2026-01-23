@@ -1,21 +1,20 @@
-export function buildBackupData() {
+import { dbService } from "../services/db/db-service.js";
+
+export async function buildBackupData() {
   return {
     version: 1.0,
     date: new Date().toISOString(),
     data: {
-      studyHistory: JSON.parse(localStorage.getItem("studyHistory")) || [],
-      studyCycle: JSON.parse(localStorage.getItem("studyCycle")) || [],
-      restDays: JSON.parse(localStorage.getItem("restDays")) || [],
-      studyCategories:
-        JSON.parse(localStorage.getItem("studyCategories")) || [],
-      customCategoryColors:
-        JSON.parse(localStorage.getItem("customCategoryColors")) || {},
-      theme: localStorage.getItem("theme") || "light",
-      currentIndex: localStorage.getItem("currentIndex") || 0,
-      unlockedAchievements:
-        JSON.parse(localStorage.getItem("unlockedAchievements")) || [],
-      studyNotes: JSON.parse(localStorage.getItem("studyNotes")) || [],
-      lastBackupDate: localStorage.getItem("lastBackupDate") || "",
+      studyHistory: await dbService.getHistory(),
+      studyCycle: await dbService.getSubjects(),
+      restDays: await dbService.getRestDays(),
+      studyCategories: await dbService.getCategories(),
+      customCategoryColors: await dbService.getCustomCategoryColors(),
+      theme: await dbService.getTheme(),
+      currentIndex: await dbService.getCurrentIndex(),
+      unlockedAchievements: await dbService.getUnlockedAchievements(),
+      studyNotes: await dbService.getNotes(),
+      lastBackupDate: await dbService.getLastBackupDate(),
     },
   };
 }
@@ -57,30 +56,60 @@ export function saveBackupToFile(backupData) {
   return fileName;
 }
 
-export function restoreBackup(backup) {
-  localStorage.setItem(
-    "studyHistory",
-    JSON.stringify(backup.data.studyHistory),
-  );
-  localStorage.setItem("studyCycle", JSON.stringify(backup.data.studyCycle));
-  localStorage.setItem("restDays", JSON.stringify(backup.data.restDays));
-  localStorage.setItem("theme", backup.data.theme);
-  localStorage.setItem("currentIndex", backup.data.currentIndex);
-  localStorage.setItem(
-    "studyCategories",
-    JSON.stringify(backup.data.studyCategories),
-  );
-  localStorage.setItem(
-    "unlockedAchievements",
-    JSON.stringify(backup.data.unlockedAchievements),
-  );
-  localStorage.setItem(
-    "customCategoryColors",
-    JSON.stringify(backup.data.customCategoryColors),
-  );
-  localStorage.setItem("studyNotes", JSON.stringify(backup.data.studyNotes));
+export async function restoreBackup(backup) {
+  // Importa histórico
+  if (backup.data.studyHistory && backup.data.studyHistory.length > 0) {
+    await dbService.addHistoryEntries(backup.data.studyHistory);
+  }
 
+  // Importa ciclo de estudo
+  if (backup.data.studyCycle && backup.data.studyCycle.length > 0) {
+    await dbService.addSubjects(backup.data.studyCycle.map((s) => s.name || s));
+  }
+
+  // Importa configurações
+  if (backup.data.restDays && backup.data.restDays.length > 0) {
+    await dbService.setRestDays(backup.data.restDays);
+  }
+
+  if (backup.data.theme) {
+    await dbService.setTheme(backup.data.theme);
+  }
+
+  if (backup.data.currentIndex !== undefined) {
+    await dbService.setCurrentIndex(backup.data.currentIndex);
+  }
+
+  // Importa categorias
+  if (backup.data.studyCategories && backup.data.studyCategories.length > 0) {
+    await dbService.addCategories(
+      backup.data.studyCategories.map((c) => c.name || c),
+    );
+  }
+
+  // Importa conquistas
+  if (
+    backup.data.unlockedAchievements &&
+    backup.data.unlockedAchievements.length > 0
+  ) {
+    await dbService.unlockAchievements(backup.data.unlockedAchievements);
+  }
+
+  // Importa cores customizadas
+  if (
+    backup.data.customCategoryColors &&
+    Object.keys(backup.data.customCategoryColors).length > 0
+  ) {
+    await dbService.setCustomCategoryColors(backup.data.customCategoryColors);
+  }
+
+  // Importa notas
+  if (backup.data.studyNotes && backup.data.studyNotes.length > 0) {
+    await dbService.addNotes(backup.data.studyNotes);
+  }
+
+  // Importa data do último backup
   if (backup.data.lastBackupDate !== "") {
-    localStorage.setItem("lastBackupDate", backup.data.lastBackupDate);
+    await dbService.setLastBackupDate(backup.data.lastBackupDate);
   }
 }

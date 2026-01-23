@@ -385,7 +385,7 @@ export class SettingsController {
       return;
     }
 
-    const data = buildBackupData();
+    const data = await buildBackupData();
     saveBackupToFile(data);
 
     // 2. Salva a data e hora atual no IndexedDB
@@ -418,8 +418,8 @@ export class SettingsController {
 
         this.confirm.confirm(
           `Backup de ${date} encontrado. Isso irá substituir todo o seu histórico e configurações. Continuar?`,
-          () => {
-            restoreBackup(backup);
+          async () => {
+            await restoreBackup(backup);
 
             this.toast.showToast(
               "success",
@@ -442,4 +442,3 @@ export class SettingsController {
     reader.readAsText(file);
   }
 }
-

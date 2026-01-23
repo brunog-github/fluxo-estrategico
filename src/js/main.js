@@ -154,8 +154,8 @@ class App {
       s.streak.render();
     });
 
-    s.reports.setNotesAction((linkedId) => {
-      s.notes.openLinkedNote(linkedId);
+    s.reports.setNotesAction(async (linkedId) => {
+      await s.notes.openLinkedNote(linkedId);
     });
 
     s.reports.setEditAction(async (itemToEdit) => {

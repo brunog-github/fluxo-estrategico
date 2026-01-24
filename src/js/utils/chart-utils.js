@@ -121,6 +121,44 @@ export class ReportsCharts {
         ? "#e0e0e0"
         : "#333333";
 
+    // Paleta de cores bem distintas e sem repetição
+    const colors = [
+      "#FF4444",
+      "#0066FF",
+      "#00AA00",
+      "#FF9900",
+      "#9933FF",
+      "#FF6666",
+      "#33CC33",
+      "#FFAA00",
+      "#CC66FF",
+      "#003399",
+      "#CC6600",
+      "#6600CC",
+      "#00CCFF",
+      "#66FF33",
+      "#FFCC00",
+      "#FF00FF",
+      "#CC0000",
+      "#0033FF",
+      "#FF3300",
+    ];
+
+    // Atribuir cores com base no índice dos labels
+    const backgroundColor = labels.map(
+      (_, index) => colors[index % colors.length],
+    );
+
+    // Detectar se é mobile
+    const isMobile = window.innerWidth < 768;
+
+    // Ajustar container do gráfico para mobile
+    const container = document.getElementById("chart-time-container");
+    if (container && isMobile) {
+      container.style.height = "600px";
+      container.style.maxHeight = "100%";
+    }
+
     this.timeChart = new Chart(ctx, {
       type: "pie",
       data: {
@@ -130,11 +168,13 @@ export class ReportsCharts {
             label: "Tempo (hr)",
             data: hours,
             borderWidth: 1,
+            backgroundColor: backgroundColor,
           },
         ],
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         animation: {
           duration: 0,
         },
@@ -143,10 +183,10 @@ export class ReportsCharts {
             position: "bottom",
             labels: {
               usePointStyle: true,
-              padding: 12,
+              padding: isMobile ? 8 : 12,
               color: textColor,
               font: {
-                size: 13,
+                size: isMobile ? 11 : 13,
               },
             },
             onHover: (event, legendItem, legend) => {

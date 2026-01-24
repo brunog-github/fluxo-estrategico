@@ -53,13 +53,6 @@ export function computeLifetimeStats(history) {
 
   const avgMinutes = daysStudiedCount > 0 ? totalMinutes / daysStudiedCount : 0;
 
-  console.log("Lifetime Stats:", {
-    totalMinutes,
-    avgMinutes,
-    daysStudiedCount,
-    totalDaysRange,
-  });
-
   return {
     totalMinutes,
     avgMinutes,

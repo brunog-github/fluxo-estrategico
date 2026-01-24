@@ -258,7 +258,8 @@ export class ReportsUI {
     paginationWrapper.appendChild(prevBtn);
 
     // Calcular range de páginas a mostrar (estilo Google)
-    const maxVisible = 5;
+    // Em mobile, mostrar menos números de página
+    const maxVisible = window.innerWidth < 480 ? 2 : 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
     let endPage = Math.min(this.totalPages, startPage + maxVisible - 1);
 

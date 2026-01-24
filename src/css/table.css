@@ -173,6 +173,33 @@ tr:not(thead tr):hover {
   background: var(--card-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Mobile responsivo */
+@media (max-width: 480px) {
+  .pagination-wrapper {
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .pagination-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .pagination-dots {
+    padding: 0 2px;
+    font-size: 12px;
+  }
+
+  .pagination-prev,
+  .pagination-next {
+    font-size: 16px;
+  }
 }
 
 .pagination-btn {

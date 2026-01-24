@@ -42,46 +42,51 @@ async function calculateBestStreakForAchievements(history) {
   history.forEach((item) => {
     const dateObj = parseDateStr(item.date);
     dateObj.setHours(0, 0, 0, 0);
-    const dayKey = dateObj.getTime();
+    const dayKey = dateObj.toISOString().split("T")[0]; // Usar string "YYYY-MM-DD" em vez de timestamp
 
     const minutes = timeToMinutes(item.duration);
     dailyMinutes[dayKey] = (dailyMinutes[dayKey] || 0) + minutes;
   });
 
   // Obter range de datas
-  const dayKeys = Object.keys(dailyMinutes)
-    .map(Number)
-    .sort((a, b) => a - b);
+  const dayKeys = Object.keys(dailyMinutes).sort();
 
   if (dayKeys.length === 0) return 0;
 
-  const firstDay = new Date(dayKeys[0]);
-  const lastDay = new Date(dayKeys[dayKeys.length - 1]);
-  firstDay.setHours(0, 0, 0, 0);
-  lastDay.setHours(0, 0, 0, 0);
+  const firstDayStr = dayKeys[0];
+  const lastDayStr = dayKeys[dayKeys.length - 1];
+
+  const firstDay = new Date(firstDayStr + "T00:00:00");
+  const lastDay = new Date(lastDayStr + "T00:00:00");
 
   // Calcular melhor streak
   let bestStreak = 0;
   let currentStreak = 0;
   let currentDay = new Date(firstDay);
+  let studiedDaysCount = 0;
 
   while (currentDay <= lastDay) {
-    const dayKey = currentDay.getTime();
-    const studyMinutes = dailyMinutes[dayKey] || 0;
+    const dayKeyStr = currentDay.toISOString().split("T")[0];
+    const studyMinutes = dailyMinutes[dayKeyStr] || 0;
     const dayOfWeek = currentDay.getDay();
     const isRestDay = restDays.includes(dayOfWeek);
 
     if (studyMinutes >= 20) {
+      // Estudou o mínimo necessário
+      studiedDaysCount++;
       currentStreak++;
       if (currentStreak > bestStreak) {
         bestStreak = currentStreak;
       }
     } else if (isRestDay) {
-      // Dia de descanso não quebra
+      // Dia de descanso sem estudo: não quebra o streak, mas continua
+      // (não incrementa, apenas mantém)
     } else {
+      // Não estudou e não é dia de descanso: quebra o streak
       currentStreak = 0;
     }
 
+    // Próximo dia
     currentDay.setDate(currentDay.getDate() + 1);
   }
 

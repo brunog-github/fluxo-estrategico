@@ -44,36 +44,48 @@ export class StreakController {
   //   LÓGICA PRINCIPAL DO STREAK
   // ----------------------------------------------------
   async calculateCurrentStreak(history) {
+    if (!history.length) return 0;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Data inicial real no histórico
-    let startDate = today;
-    if (history.length > 0) {
-      const timestamps = history.map((h) => parseDateStr(h.date).getTime());
-      startDate = new Date(Math.min(...timestamps));
-      startDate.setHours(0, 0, 0, 0);
-    }
+    // Criar mapa de dias estudados para acesso rápido
+    const dailyMinutes = {};
+    history.forEach((item) => {
+      const dateObj = parseDateStr(item.date);
+      dateObj.setHours(0, 0, 0, 0);
+      const dayKeyStr = dateObj.toISOString().split("T")[0]; // "YYYY-MM-DD"
+
+      const minutes = timeToMinutes(item.duration);
+      dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
+    });
+
+    // Obter data mais antiga
+    const dayKeys = Object.keys(dailyMinutes).sort();
+    const firstDay = new Date(dayKeys[0] + "T00:00:00");
 
     let streak = 0;
+    let currentDay = new Date(today);
 
-    for (let i = 0; i < 365; i++) {
-      const day = new Date(today);
-      day.setDate(today.getDate() - i);
-      day.setHours(0, 0, 0, 0);
+    // Iterar do hoje para trás até encontrar dia sem estudo (que não seja descanso)
+    while (currentDay >= firstDay) {
+      const dayKeyStr = currentDay.toISOString().split("T")[0];
+      const studyMinutes = dailyMinutes[dayKeyStr] || 0;
+      const isRest = this.restDays.includes(currentDay.getDay());
 
-      if (day < startDate && i > 0) break;
-
-      const minutes = getMinutesStudiedOnDate(day, history);
-      const isRest = this.restDays.includes(day.getDay());
-
-      if (minutes >= 20) {
+      if (studyMinutes >= 20) {
+        // Estudou o mínimo necessário
         streak++;
-      } else if (isRest || i === 0) {
-        continue;
+      } else if (isRest) {
+        // Dia de descanso sem estudo não quebra o streak
+        // Continua verificando dias anteriores
       } else {
+        // Não estudou e não é dia de descanso: quebra o streak
         break;
       }
+
+      // Dia anterior
+      currentDay.setDate(currentDay.getDate() - 1);
     }
 
     return streak;
@@ -173,44 +185,42 @@ export class StreakController {
   async calculateBestStreak(history) {
     if (!history.length) return 0;
 
-    // 1. Criar mapa: data (timestamp) => minutos totais do dia
+    // 1. Criar mapa: data (string "YYYY-MM-DD") => minutos totais do dia
     const dailyMinutes = {};
 
     history.forEach((item) => {
       const dateObj = parseDateStr(item.date);
       dateObj.setHours(0, 0, 0, 0);
-      const dayKey = dateObj.getTime();
+      const dayKeyStr = dateObj.toISOString().split("T")[0]; // "YYYY-MM-DD"
 
       // Converter "HH:MM:SS" para minutos
       const minutes = timeToMinutes(item.duration);
-      dailyMinutes[dayKey] = (dailyMinutes[dayKey] || 0) + minutes;
+      dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
     });
 
     // 2. Obter range de datas (primeiro e último dia com histórico)
-    const dayKeys = Object.keys(dailyMinutes)
-      .map(Number)
-      .sort((a, b) => a - b);
+    const dayKeys = Object.keys(dailyMinutes).sort();
 
     if (dayKeys.length === 0) return 0;
 
-    const firstDay = new Date(dayKeys[0]);
-    const lastDay = new Date(dayKeys[dayKeys.length - 1]);
-    firstDay.setHours(0, 0, 0, 0);
-    lastDay.setHours(0, 0, 0, 0);
+    const firstDay = new Date(dayKeys[0] + "T00:00:00");
+    const lastDay = new Date(dayKeys[dayKeys.length - 1] + "T00:00:00");
 
     // 3. Percorrer cada dia do range e calcular streaks
     let bestStreak = 0;
     let currentStreak = 0;
     let currentDay = new Date(firstDay);
+    let studiedDaysCount = 0;
 
     while (currentDay <= lastDay) {
-      const dayKey = currentDay.getTime();
-      const studyMinutes = dailyMinutes[dayKey] || 0;
+      const dayKeyStr = currentDay.toISOString().split("T")[0];
+      const studyMinutes = dailyMinutes[dayKeyStr] || 0;
       const dayOfWeek = currentDay.getDay(); // 0=domingo, 1=segunda, ..., 6=sábado
       const isRestDay = this.restDays.includes(dayOfWeek);
 
       if (studyMinutes >= 20) {
         // Estudou o mínimo necessário
+        studiedDaysCount++;
         currentStreak++;
         if (currentStreak > bestStreak) {
           bestStreak = currentStreak;

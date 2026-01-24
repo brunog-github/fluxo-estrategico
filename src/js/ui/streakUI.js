@@ -59,7 +59,7 @@ export class StreakUI {
     const el = document.getElementById("streak-count");
     if (!el) return;
 
-    if (streak === 0) {
+    if (streak === 0 && best === 0) {
       el.innerHTML = "";
       return;
     }
@@ -70,7 +70,7 @@ export class StreakUI {
     const isRecord = best > streak;
 
     el.innerHTML = `
-    <span class="streak-count-text"">${streakText} 🔥</span>
+    ${streak > 0 ? `<span class="streak-count-text">${streakText} 🔥</span>` : ``} 
     ${
       isRecord
         ? `<span class="record">Seu recorde é de ${recordText}</span>`

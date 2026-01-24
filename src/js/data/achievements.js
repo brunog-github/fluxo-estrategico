@@ -1,5 +1,6 @@
 import { timeToMinutes } from "../utils/utils.js";
 import { dbService } from "../services/db/db-service.js";
+import { calculateBestStreakForAchievements } from "../utils/utils.js";
 
 export const ACHIEVEMENTS = [
   {
@@ -40,12 +41,9 @@ export const ACHIEVEMENTS = [
     title: "Imparável",
     desc: "Mantenha uma constância de 7 dias seguidos.",
     icon: `<embed src="./src/assets/icons/fogo.svg" type="image/svg+xml" />`,
-    check: (history) => {
-      // Essa lógica depende do cálculo do streak da Home.
-      // Vamos simplificar: se o texto na Home for >= 7
-      const text = document.getElementById("streak-count")?.innerText || "";
-      const num = parseInt(text) || 0;
-      return num >= 7;
+    check: async (history) => {
+      const streak = await calculateBestStreakForAchievements(history);
+      return streak >= 7;
     },
   },
   {
@@ -162,11 +160,9 @@ export const ACHIEVEMENTS = [
     desc: "Mantenha uma constância (streak) de 30 dias seguidos.",
     // Ícone: Chama de fogo tripla
     icon: `<embed src="./src/assets/icons/habito-dominado.svg" type="image/svg+xml" />`,
-    check: () => {
-      // Reutiliza o cálculo do streak da Home
-      const text = document.getElementById("streak-count")?.innerText || "";
-      const num = parseInt(text) || 0;
-      return num >= 30;
+    check: async (history) => {
+      const streak = await calculateBestStreakForAchievements(history);
+      return streak >= 30;
     },
   },
   {
@@ -224,17 +220,16 @@ export const ACHIEVEMENTS = [
     title: "100 Dias de Fogo",
     desc: "Mantenha uma constância (streak) de 100 dias seguidos.",
     icon: `<embed src="./src/assets/icons/100-streaks.svg" type="image/svg+xml" />`,
-    check: () => {
-      const text = document.getElementById("streak-count")?.innerText || "";
-      const num = parseInt(text) || 0;
-      return num >= 100;
+    check: async (history) => {
+      const streak = await calculateBestStreakForAchievements(history);
+      return streak >= 100;
     },
   },
   // (Novo - Simplificado) Atingiu um alto acerto depois de um dia de baixo acerto
   {
     id: "error_corrector",
     title: "Fênix",
-    desc: "Complete uma sessão com 90%+ de acerto após um dia em que sua taxa de acerto diária foi inferior a 50%. (ex: terça: 45%, quarta: 91%) *Mínimo de 20 questões dia.",
+    desc: "Complete uma sessão com 80%+ de acerto após um dia em que sua taxa de acerto diária foi inferior a 50%. (ex: terça: 45%, quarta: 80%) *Mínimo de 20 questões dia.",
     icon: `<embed src="./src/assets/icons/fenix.svg" type="image/svg+xml" />`,
     check: (history) => {
       const dailyData = {};
@@ -266,8 +261,8 @@ export const ACHIEVEMENTS = [
             const nextAcc =
               nextDay.totalQ > 0 ? nextDay.totalC / nextDay.totalQ : 0;
 
-            // Encontrou um dia bom (Taxa >= 90% e min 20 questões)
-            if (nextDay.totalQ >= MIN_QUESTIONS && nextAcc >= 0.9) {
+            // Encontrou um dia bom (Taxa >= 80% e min 20 questões)
+            if (nextDay.totalQ >= MIN_QUESTIONS && nextAcc >= 0.8) {
               return true; // Conquista liberada
             }
           }

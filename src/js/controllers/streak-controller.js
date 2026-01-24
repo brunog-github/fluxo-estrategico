@@ -4,7 +4,7 @@ import {
   parseDateStr,
   getMinutesStudiedOnDate,
 } from "../utils/streak-utils.js";
-import { formatMinutesToHm } from "../utils/utils.js";
+import { formatMinutesToHm, timeToMinutes } from "../utils/utils.js";
 
 export class StreakController {
   constructor(toast) {
@@ -164,50 +164,69 @@ export class StreakController {
   }
   // ----------------------------------------------------
   //  MAIOR STREAK DA VIDA (recorde)
+  // Lógica:
+  // 1. Agrupa estudo por dia (soma múltiplos estudos do mesmo dia)
+  // 2. Se dia >= 20 min: +1 streak
+  // 3. Se dia de descanso: não quebra (continua)
+  // 4. Se não estudou (< 20 min e não é rest day): reseta para 0
   // ----------------------------------------------------
   async calculateBestStreak(history) {
     if (!history.length) return 0;
 
-    // Transformar o histórico em mapa de minutos/dia
-    const map = {};
+    // 1. Criar mapa: data (timestamp) => minutos totais do dia
+    const dailyMinutes = {};
+
     history.forEach((item) => {
       const dateObj = parseDateStr(item.date);
       dateObj.setHours(0, 0, 0, 0);
-      const key = dateObj.getTime();
+      const dayKey = dateObj.getTime();
 
-      map[key] = (map[key] || 0) + getMinutesStudiedOnDate(dateObj, history);
+      // Converter "HH:MM:SS" para minutos
+      const minutes = timeToMinutes(item.duration);
+      dailyMinutes[dayKey] = (dailyMinutes[dayKey] || 0) + minutes;
     });
 
-    // Descobrir range total
-    const timestamps = Object.keys(map).map(Number);
-    const start = new Date(Math.min(...timestamps));
-    const end = new Date(Math.max(...timestamps));
+    // 2. Obter range de datas (primeiro e último dia com histórico)
+    const dayKeys = Object.keys(dailyMinutes)
+      .map(Number)
+      .sort((a, b) => a - b);
 
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+    if (dayKeys.length === 0) return 0;
 
-    let best = 0;
-    let current = 0;
+    const firstDay = new Date(dayKeys[0]);
+    const lastDay = new Date(dayKeys[dayKeys.length - 1]);
+    firstDay.setHours(0, 0, 0, 0);
+    lastDay.setHours(0, 0, 0, 0);
 
-    let d = new Date(start);
+    // 3. Percorrer cada dia do range e calcular streaks
+    let bestStreak = 0;
+    let currentStreak = 0;
+    let currentDay = new Date(firstDay);
 
-    while (d <= end) {
-      const key = d.getTime();
-      const minutes = map[key] || 0;
-      const isRest = this.restDays.includes(d.getDay());
+    while (currentDay <= lastDay) {
+      const dayKey = currentDay.getTime();
+      const studyMinutes = dailyMinutes[dayKey] || 0;
+      const dayOfWeek = currentDay.getDay(); // 0=domingo, 1=segunda, ..., 6=sábado
+      const isRestDay = this.restDays.includes(dayOfWeek);
 
-      if (minutes >= 20) {
-        current++;
-        if (current > best) best = current;
-      } else if (isRest) {
-        // rest day não quebra streak
+      if (studyMinutes >= 20) {
+        // Estudou o mínimo necessário
+        currentStreak++;
+        if (currentStreak > bestStreak) {
+          bestStreak = currentStreak;
+        }
+      } else if (isRestDay) {
+        // Dia de descanso: não quebra o streak
+        // Continua sem incrementar
       } else {
-        current = 0;
+        // Não estudou e não é dia de descanso: quebra o streak
+        currentStreak = 0;
       }
 
-      d.setDate(d.getDate() + 1);
+      // Próximo dia
+      currentDay.setDate(currentDay.getDate() + 1);
     }
 
-    return best;
+    return bestStreak;
   }
 }

@@ -103,6 +103,15 @@ tr:not(thead tr):hover {
   gap: 10px;
 }
 
+.table-actions > div:first-child {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
 /* Botão Pequeno e Discreto */
 .btn-sm {
   background-color: transparent;
@@ -138,4 +147,76 @@ tr:not(thead tr):hover {
 
 .fa.fa-pencil {
   color: var(--text-color);
+}
+
+/* --- ESTILOS DE PAGINAÇÃO MODERNOS (ESTILO GOOGLE) --- */
+
+.pagination-result-info {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-right: auto;
+  padding: 8px 0;
+}
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.pagination-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  background: var(--badge-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--badge-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--badge-bg);
+}
+
+.pagination-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  font-weight: 700;
+}
+
+.pagination-btn.active:hover {
+  background: rgb(from var(--primary-color) r g b / 0.9);
+}
+
+.pagination-prev,
+.pagination-next {
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.pagination-dots {
+  padding: 0 4px;
+  color: var(--text-secondary);
+  font-weight: 600;
 }

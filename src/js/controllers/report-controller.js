@@ -28,7 +28,7 @@ export class ReportsController {
   async show() {
     await this.renderHistory();
     await this.updateCharts();
-    this.updateSummary();
+    await this.updateSummary();
     this.ui.updateRotateTip();
 
     this.screens.switch("screen-reports");
@@ -64,7 +64,7 @@ export class ReportsController {
 
       await this.renderHistory();
       await this.updateCharts();
-      this.updateSummary();
+      await this.updateSummary();
 
       this.toast.showToast("success", "Registro removido!");
     });
@@ -88,40 +88,49 @@ export class ReportsController {
     this.charts.destroy();
     this.charts.allHistory = history; // guardar histórico completo
 
-    this.charts.updateTotalDisplay(history);
+    // Usar requestAnimationFrame para não bloquear a UI
+    await new Promise((resolve) => {
+      requestAnimationFrame(async () => {
+        this.charts.updateTotalDisplay(history);
 
-    const stats = this.charts.buildStats(history);
-    const labels = Object.keys(stats);
+        const stats = this.charts.buildStats(history);
+        const labels = Object.keys(stats);
 
-    // performance chart
-    let perfLabels = [];
-    let perfC = [];
-    let perfW = [];
+        // performance chart
+        let perfLabels = [];
+        let perfC = [];
+        let perfW = [];
 
-    labels.forEach((l) => {
-      const s = stats[l];
-      if (s.correct + s.wrong > 0) {
-        perfLabels.push(l);
-        perfC.push(s.correct);
-        perfW.push(s.wrong);
-      }
+        labels.forEach((l) => {
+          const s = stats[l];
+          if (s.correct + s.wrong > 0) {
+            perfLabels.push(l);
+            perfC.push(s.correct);
+            perfW.push(s.wrong);
+          }
+        });
+
+        const ctx1 = document
+          .getElementById("chart-performance")
+          .getContext("2d");
+        this.charts.buildPerformanceChart(ctx1, perfLabels, perfC, perfW);
+
+        // time chart
+        const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));
+        const ctx2 = document.getElementById("chart-time").getContext("2d");
+        this.charts.buildTimeChart(ctx2, labels, timeHours);
+
+        // Setup filtros
+        this.setupTimeFilterButtons();
+
+        // theme
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+        this.charts.updateTheme(isDark);
+
+        resolve();
+      });
     });
-
-    const ctx1 = document.getElementById("chart-performance").getContext("2d");
-    this.charts.buildPerformanceChart(ctx1, perfLabels, perfC, perfW);
-
-    // time chart
-    const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));
-    const ctx2 = document.getElementById("chart-time").getContext("2d");
-    this.charts.buildTimeChart(ctx2, labels, timeHours);
-
-    // Setup filtros
-    this.setupTimeFilterButtons();
-
-    // theme
-    const isDark =
-      document.documentElement.getAttribute("data-theme") === "dark";
-    this.charts.updateTheme(isDark);
   }
 
   setupTimeFilterButtons() {
@@ -149,7 +158,7 @@ export class ReportsController {
     });
   }
 
-  updateSummary(filtered = null, filters = null) {
+  async updateSummary(filtered = null, filters = null) {
     let history = [];
     let title = "Todas as Matérias";
 
@@ -157,10 +166,10 @@ export class ReportsController {
       history = filtered;
       title = this.getTitleFromItems(history, filters);
     } else {
-      // Este método precisa ser chamado com await, já que agora é async
-      // Mas como updateSummary é chamado de múltiplos lugares (inclusive após análise de filtros),
-      // vamos manter como síncrono quando não há filtro específico
-      // Isso será corrigido no callers
+      // Se não há filtro específico, busca todo o histórico do banco
+      let raw = await dbService.getHistory();
+      history = getFilteredHistory(raw);
+      title = "Todas as Matérias";
     }
 
     let totalQ = 0;

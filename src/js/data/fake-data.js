@@ -15,10 +15,16 @@ export async function generateFakeData() {
     "Direito Penal",
   ];
 
-  const categories = ["Teoria", "Exercícios", "Simulado", "Revisão"];
+  const categories = [
+    "Teoria",
+    "Questões",
+    "Simulados",
+    "Revisão",
+    "Leitura de lei",
+  ];
 
   const history = [];
-  const count = Math.floor(Math.random() * (200 - 150 + 1)) + 150; // Entre 150 e 200
+  const count = Math.floor(Math.random() * (2000 - 1500 + 1)) + 1500; // Entre 1500 e 2000
 
   // Função auxiliar para adicionar zero à esquerda
   const pad = (num) => num.toString().padStart(2, "0");

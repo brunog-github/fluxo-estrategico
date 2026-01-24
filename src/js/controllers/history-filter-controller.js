@@ -46,7 +46,7 @@ export class HistoryFilterController {
       },
     );
 
-    this.reports.updateSummary(filtered, filters);
+    await this.reports.updateSummary(filtered, filters);
   }
 
   clearFilters() {

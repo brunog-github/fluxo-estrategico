@@ -42,7 +42,7 @@ export class ReportsCharts {
 
     return history.filter((item) => {
       const itemDate = new Date(
-        item.date.split(" às ")[0].split("/").reverse().join("-")
+        item.date.split(" às ")[0].split("/").reverse().join("-"),
       );
       const daysAgo = Math.floor((now - itemDate) / (1000 * 60 * 60 * 24));
 
@@ -64,7 +64,7 @@ export class ReportsCharts {
   updateTotalDisplay(history) {
     const totalMinutes = history.reduce(
       (acc, item) => acc + timeToMinutes(item.duration),
-      0
+      0,
     );
 
     const h = Math.floor(totalMinutes / 60);
@@ -90,6 +90,9 @@ export class ReportsCharts {
       options: {
         indexAxis: "x",
         responsive: true,
+        animation: {
+          duration: 0,
+        },
         scales: {
           x: {
             stacked: true,

@@ -145,13 +145,16 @@ class App {
     initGlobalTooltip();
     await s.theme.initTheme();
 
+    // Inicializar streak com dados do DB
+    await s.streak.init();
+
     // Renderizações iniciais
-    s.streak.render();
+    await s.streak.render();
 
     // Ligações de callbacks
-    s.screens.on("screen-home", () => {
+    s.screens.on("screen-home", async () => {
       s.homeUI.render();
-      s.streak.render();
+      await s.streak.render();
     });
 
     s.reports.setNotesAction(async (linkedId) => {

@@ -7,6 +7,12 @@ export class ReportsUI {
     this.confirm = confirm;
     this.charts = charts;
     this.initTableDragScroll();
+
+    // Paginação
+    this.allHistory = []; // Armazenar todos os dados
+    this.currentPage = 1;
+    this.itemsPerPage = 40; // Mostrar 40 itens por página
+    this.totalPages = 1;
   }
 
   initTableDragScroll() {
@@ -62,43 +68,69 @@ export class ReportsUI {
     const body = document.getElementById("history-list");
     const empty = document.getElementById("empty-history-msg");
 
-    body.innerHTML = "";
-
     if (!history.length) {
+      body.innerHTML = "";
       empty.style.display = "block";
       return;
     }
 
     empty.style.display = "none";
 
-    // ordenar mais recente para mais antigo
-    history.sort(
+    // Armazenar todos os dados e ordenar
+    this.allHistory = [...history];
+    this.allHistory.sort(
       (a, b) => parseHistoryDatetime(b.date) - parseHistoryDatetime(a.date),
     );
 
-    // Criar todos os elementos de linha de forma async
+    // Calcular paginação
+    this.totalPages = Math.ceil(this.allHistory.length / this.itemsPerPage);
+    this.currentPage = 1;
+
+    // Renderizar primeira página
+    await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+
+    // Adicionar controles de paginação
+    this._addPaginationControls(
+      deleteCallback,
+      editCallback,
+      viewNotesCallback,
+    );
+  }
+
+  async _renderPage(deleteCallback, editCallback, viewNotesCallback) {
+    const body = document.getElementById("history-list");
+
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = Math.min(start + this.itemsPerPage, this.allHistory.length);
+    const pageData = this.allHistory.slice(start, end);
+
+    // Renderizar linhas da página em um DocumentFragment para evitar flicker
+    const fragment = document.createDocumentFragment();
+
     const rows = await Promise.all(
-      history.map(async (item) => {
+      pageData.map(async (item, index) => {
+        // Calcular número global do registro
+        const recordNumber =
+          (this.currentPage - 1) * this.itemsPerPage + index + 1;
+
         let [date] = item.date.split(" às ");
         const [d, m, y] = date.split("/");
         const short = y.slice(-2);
 
-        // Calcular desempenho (%)
         const performance =
           item.questions > 0
             ? Math.round((item.correct / item.questions) * 100)
             : "-";
 
-        // Calcular erros
         const errors = item.questions > 0 ? item.questions - item.correct : "0";
 
-        // Categoria com fallback para "-"
         const category = item.category || "-";
         const categoryColor = await getCategoryColor(category);
 
         const tr = document.createElement("tr");
         tr.dataset.id = item.id;
         tr.innerHTML = `
+          <td style="text-align:center; font-weight:bold; color: var(--text-secondary); width: 50px;"><small>#${recordNumber}</small></td>
           <td><small>${d}/${m}/${short}</small></td>
           <td style="text-align:left; font-weight:bold; text-transform: capitalize">${
             item.subject
@@ -146,7 +178,7 @@ export class ReportsUI {
       }),
     );
 
-    // Adicionar todos as linhas ao DOM e attach events
+    // Adicionar linhas ao fragment antes de atualizar o DOM
     rows.forEach(({ tr, item }) => {
       tr.querySelector(".delete-row").addEventListener("click", (e) => {
         e.stopPropagation();
@@ -160,23 +192,175 @@ export class ReportsUI {
 
       tr.querySelector(".notes-row").addEventListener("click", (e) => {
         e.stopPropagation();
-        viewNotesCallback(item.id); // Passa o ID para o controller
+        viewNotesCallback(item.id);
       });
 
-      // Evento de clique na linha para selecioná-la
       tr.addEventListener("click", () => {
-        // Remove seleção de outras linhas
         document
           .querySelectorAll("#history-list tr.selected")
           .forEach((row) => {
             row.classList.remove("selected");
           });
-        // Seleciona a linha clicada
         tr.classList.add("selected");
       });
 
-      body.appendChild(tr);
+      fragment.appendChild(tr);
     });
+
+    // Limpar e adicionar todo o fragment de uma vez (sem flicker)
+    body.innerHTML = "";
+    body.appendChild(fragment);
+  }
+
+  _addPaginationControls(deleteCallback, editCallback, viewNotesCallback) {
+    let paginationContainer = document.querySelector(
+      ".table-actions div:first-child",
+    );
+
+    if (!paginationContainer) return;
+
+    paginationContainer.innerHTML = "";
+
+    // Informação de resultados
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.allHistory.length,
+    );
+
+    const resultInfo = document.createElement("span");
+    resultInfo.className = "pagination-result-info";
+    resultInfo.textContent = `Exibindo ${start} a ${end} de ${this.allHistory.length} resultados.`;
+    paginationContainer.appendChild(resultInfo);
+
+    // Criar wrapper para os botões
+    const paginationWrapper = document.createElement("div");
+    paginationWrapper.className = "pagination-wrapper";
+
+    // Botão Anterior
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "‹";
+    prevBtn.className = "pagination-btn pagination-prev";
+    prevBtn.disabled = this.currentPage === 1;
+    prevBtn.addEventListener("click", async () => {
+      if (this.currentPage > 1) {
+        const scrollPos = window.scrollY;
+        this.currentPage--;
+        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        this._addPaginationControls(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+        );
+        window.scrollTo(0, scrollPos);
+      }
+    });
+    paginationWrapper.appendChild(prevBtn);
+
+    // Calcular range de páginas a mostrar (estilo Google)
+    const maxVisible = 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(this.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    // Adicionar link para primeira página se não for visível
+    if (startPage > 1) {
+      const firstBtn = document.createElement("button");
+      firstBtn.textContent = "1";
+      firstBtn.className = "pagination-btn";
+      firstBtn.addEventListener("click", async () => {
+        const scrollPos = window.scrollY;
+        this.currentPage = 1;
+        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        this._addPaginationControls(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+        );
+        window.scrollTo(0, scrollPos);
+      });
+      paginationWrapper.appendChild(firstBtn);
+
+      // Adicionar "..."
+      const dots = document.createElement("span");
+      dots.className = "pagination-dots";
+      dots.textContent = "...";
+      paginationWrapper.appendChild(dots);
+    }
+
+    // Adicionar números de página
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.textContent = i;
+      pageBtn.className = "pagination-btn";
+
+      if (i === this.currentPage) {
+        pageBtn.classList.add("active");
+      }
+
+      pageBtn.addEventListener("click", async () => {
+        const scrollPos = window.scrollY;
+        this.currentPage = i;
+        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        this._addPaginationControls(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+        );
+        window.scrollTo(0, scrollPos);
+      });
+      paginationWrapper.appendChild(pageBtn);
+    }
+
+    // Adicionar link para última página se não for visível
+    if (endPage < this.totalPages) {
+      // Adicionar "..."
+      const dots = document.createElement("span");
+      dots.className = "pagination-dots";
+      dots.textContent = "...";
+      paginationWrapper.appendChild(dots);
+
+      const lastBtn = document.createElement("button");
+      lastBtn.textContent = this.totalPages;
+      lastBtn.className = "pagination-btn";
+      lastBtn.addEventListener("click", async () => {
+        const scrollPos = window.scrollY;
+        this.currentPage = this.totalPages;
+        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        this._addPaginationControls(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+        );
+        window.scrollTo(0, scrollPos);
+      });
+      paginationWrapper.appendChild(lastBtn);
+    }
+
+    // Botão Próximo
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "›";
+    nextBtn.className = "pagination-btn pagination-next";
+    nextBtn.disabled = this.currentPage === this.totalPages;
+    nextBtn.addEventListener("click", async () => {
+      if (this.currentPage < this.totalPages) {
+        const scrollPos = window.scrollY;
+        this.currentPage++;
+        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        this._addPaginationControls(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+        );
+        window.scrollTo(0, scrollPos);
+      }
+    });
+    paginationWrapper.appendChild(nextBtn);
+
+    paginationContainer.appendChild(paginationWrapper);
   }
 
   renderSummary(totalQ, totalC, totalE, accPerc, title = null) {

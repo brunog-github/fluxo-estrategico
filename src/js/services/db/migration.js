@@ -40,11 +40,7 @@ export async function migrateFromLocalStorage() {
     if (studyCategories.length > 0) {
       console.log("📁 Migrando categorias...");
       for (const category of studyCategories) {
-        await dbService.addCategory({
-          name: category,
-          color: customCategoryColors[category] || "#8b8bff",
-          createdAt: new Date(),
-        });
+        await dbService.addCategory(category);
       }
     }
 
@@ -95,6 +91,10 @@ export async function migrateFromLocalStorage() {
     await dbService.setRestDays(restDays);
     if (lastBackupDate) {
       await dbService.setSetting("lastBackupDate", lastBackupDate);
+    }
+    // Salvar customCategoryColors como setting
+    if (Object.keys(customCategoryColors).length > 0) {
+      await dbService.setSetting("customCategoryColors", customCategoryColors);
     }
 
     // 9. Marcar migração como completa

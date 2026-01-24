@@ -134,6 +134,12 @@ tr:not(thead tr):hover {
   border-color: var(--text-secondary);
 }
 
+.btn-danger-text:hover {
+  color: #c0392b;
+  border-color: #c0392b;
+  background-color: rgba(192, 57, 43, 0.1);
+}
+
 /* Ajuste Mobile para a barra de ações */
 @media (max-width: 400px) {
   .table-actions {

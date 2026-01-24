@@ -14,7 +14,6 @@ db.version(1).stores({
   history: "++id", // histórico de estudos
   notes: "++id, linkedId", // notas de estudo
   achievements: "++id, achievementId", // conquistas desbloqueadas
-  timer: "++id, key", // variáveis do timer
 });
 
 /**
@@ -352,54 +351,6 @@ class DBService {
   async clearAchievements() {
     await db.achievements.clear();
   }
-  // ========== TIMER (Variáveis do Timer) ==========
-
-  /**
-   * Obter valor do timer
-   * @param {string} key - Chave do timer (ex: 'currentTimerSeconds', 'finishScreenSubject')
-   * @returns {Promise<any>} Valor do timer ou undefined
-   */
-  async getTimerValue(key) {
-    const timer = await db.timer.where("key").equals(key).first();
-    return timer ? timer.value : undefined;
-  }
-  /**
-   * Salvar valor do timer
-   * @param {string} key - Chave do timer
-   * @param {any} value - Valor a ser salvo
-   */
-  async setTimerValue(key, value) {
-    const existing = await db.timer.where("key").equals(key).first();
-    if (existing) {
-      await db.timer.update(existing.id, { value, updatedAt: new Date() });
-    } else {
-      await db.timer.add({
-        key,
-        value,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    }
-  }
-  /**
-   * Obter todos os valores do timer
-   * @returns {Promise<Object>} Objeto com todos os valores do timer
-   */
-  async getAllTimerValues() {
-    const timers = await db.timer.toArray();
-    const result = {};
-    timers.forEach((timer) => {
-      result[timer.key] = timer.value;
-    });
-    return result;
-  }
-  /**
-   * Deletar valor do timer
-   * @param {string} key - Chave do timer
-   */
-  async deleteTimerValue(key) {
-    await db.timer.where("key").equals(key).delete();
-  }
   // ========== SPECIAL: Dias de Descanso (REST DAYS) ==========
 
   /**
@@ -506,7 +457,6 @@ class DBService {
       history: await db.history.toArray(),
       notes: await db.notes.toArray(),
       achievements: await db.achievements.toArray(),
-      timer: await db.timer.toArray(),
     };
   }
   /**
@@ -523,7 +473,6 @@ class DBService {
         db.history,
         db.notes,
         db.achievements,
-        db.timer,
       ],
       async () => {
         if (data.settings)
@@ -537,7 +486,6 @@ class DBService {
         if (data.notes) await db.notes.bulkAdd(data.notes, { allKeys: true });
         if (data.achievements)
           await db.achievements.bulkAdd(data.achievements, { allKeys: true });
-        if (data.timer) await db.timer.bulkAdd(data.timer, { allKeys: true });
       },
     );
   }

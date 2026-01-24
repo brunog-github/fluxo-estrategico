@@ -11,7 +11,7 @@ export function computeLifetimeStats(history) {
   }
 
   let totalMinutes = 0;
-  const uniqueDays = new Set();
+  const dailyMinutes = {}; // Formato: {'DD/MM/YYYY': totalMinutesInDay}
 
   let firstDateObj = null;
   const now = new Date();
@@ -19,10 +19,16 @@ export function computeLifetimeStats(history) {
   history.forEach((item) => {
     if (!item.duration || !item.date) return;
 
-    totalMinutes += timeToMinutes(item.duration);
+    const minutesThisSession = timeToMinutes(item.duration);
+    totalMinutes += minutesThisSession;
 
     const dateOnly = item.date.split(" ")[0]; // "DD/MM/YYYY"
-    uniqueDays.add(dateOnly);
+
+    // Agrupar minutos por dia
+    if (!dailyMinutes[dateOnly]) {
+      dailyMinutes[dateOnly] = 0;
+    }
+    dailyMinutes[dateOnly] += minutesThisSession;
 
     const [d, m, y] = dateOnly.split("/");
     const currentDateObj = new Date(y, m - 1, d);
@@ -32,6 +38,11 @@ export function computeLifetimeStats(history) {
     }
   });
 
+  // Contar apenas dias com 20+ minutos de estudo
+  const daysStudiedCount = Object.values(dailyMinutes).filter(
+    (minutes) => minutes >= 20,
+  ).length;
+
   // Cálculo do range total de dias
   let totalDaysRange = 1;
   if (firstDateObj) {
@@ -40,8 +51,14 @@ export function computeLifetimeStats(history) {
     if (totalDaysRange < 1) totalDaysRange = 1;
   }
 
-  const daysStudiedCount = uniqueDays.size;
   const avgMinutes = daysStudiedCount > 0 ? totalMinutes / daysStudiedCount : 0;
+
+  console.log("Lifetime Stats:", {
+    totalMinutes,
+    avgMinutes,
+    daysStudiedCount,
+    totalDaysRange,
+  });
 
   return {
     totalMinutes,

@@ -233,6 +233,11 @@ export class ReportsUI {
     resultInfo.textContent = `Exibindo ${start} a ${end} de ${this.allHistory.length} resultados.`;
     paginationContainer.appendChild(resultInfo);
 
+    // Se tem apenas 1 página (40 ou menos items), não mostra botões
+    if (this.totalPages <= 1) {
+      return;
+    }
+
     // Criar wrapper para os botões
     const paginationWrapper = document.createElement("div");
     paginationWrapper.className = "pagination-wrapper";

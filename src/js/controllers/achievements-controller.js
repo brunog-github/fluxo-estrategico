@@ -27,15 +27,15 @@ export class AchievementsController {
 
     let newUnlock = false;
 
-    this.ACHIEVEMENTS.forEach((ach) => {
-      const achieved = ach.check(history);
+    for (const ach of this.ACHIEVEMENTS) {
+      const achieved = await ach.check(history);
 
       if (!unlocked.includes(ach.id) && achieved) {
         unlocked.push(ach.id);
         this.toastUI.showToast(ach);
         newUnlock = true;
       }
-    });
+    }
 
     if (newUnlock) {
       await this.saveUnlocked(unlocked);
@@ -71,4 +71,3 @@ export class AchievementsController {
     this.ui.renderList(list);
   }
 }
-

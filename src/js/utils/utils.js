@@ -38,6 +38,7 @@ async function calculateBestStreakForAchievements(history) {
 
   // Agrupa estudo por dia
   const dailyMinutes = {};
+
   history.forEach((item) => {
     const dateObj = parseDateStr(item.date);
     dateObj.setHours(0, 0, 0, 0);
@@ -51,6 +52,7 @@ async function calculateBestStreakForAchievements(history) {
   const dayKeys = Object.keys(dailyMinutes)
     .map(Number)
     .sort((a, b) => a - b);
+
   if (dayKeys.length === 0) return 0;
 
   const firstDay = new Date(dayKeys[0]);

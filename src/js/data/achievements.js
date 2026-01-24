@@ -68,13 +68,32 @@ export const ACHIEVEMENTS = [
     desc: "Complete uma sessão de estudos no Sábado ou Domingo.",
     icon: `<embed src="./src/assets/icons/guerreiro.svg" type="image/svg+xml" />`,
     check: (history) => {
-      return history.some((h) => {
-        let datePart = h.date.split(" às ")[0];
-        let parts = datePart.split("/");
-        let date = new Date(parts[2], parts[1] - 1, parts[0]);
-        let day = date.getDay();
-        return day === 0 || day === 6; // 0=Dom, 6=Sab
+      const dailySummary = {}; // Formato: {'dd/mm/yyyy': {day: 0-6, totalMin: 0}}
+
+      // Agrupa dados por dia
+      history.forEach((h) => {
+        const dateStr = h.date.split(" às ")[0];
+        const parts = dateStr.split("/");
+        const date = new Date(parts[2], parts[1] - 1, parts[0]);
+        const dayOfWeek = date.getDay();
+        const duration = timeToMinutes(h.duration);
+
+        if (!dailySummary[dateStr]) {
+          dailySummary[dateStr] = { day: dayOfWeek, totalMin: 0 };
+        }
+        dailySummary[dateStr].totalMin += duration;
       });
+
+      // Verifica se existe pelo menos um fim de semana com 20+ minutos
+      for (const date in dailySummary) {
+        const summary = dailySummary[date];
+        const isWeekend = summary.day === 0 || summary.day === 6; // 0=Dom, 6=Sab
+        if (isWeekend && summary.totalMin >= 20) {
+          return true;
+        }
+      }
+
+      return false;
     },
   },
   {
@@ -213,7 +232,7 @@ export const ACHIEVEMENTS = [
     title: "Maratonista",
     desc: "Complete uma única sessão de estudos com mais de 120 minutos (2 horas).",
     icon: `<embed src="./src/assets/icons/maratona.svg" type="image/svg+xml" />`,
-    check: (history) => history.some((h) => timeToMinutes(h.duration) > 120),
+    check: (history) => history.some((h) => timeToMinutes(h.duration) >= 120),
   },
   {
     id: "century_club",
@@ -222,10 +241,10 @@ export const ACHIEVEMENTS = [
     icon: `<embed src="./src/assets/icons/100-streaks.svg" type="image/svg+xml" />`,
     check: async (history) => {
       const streak = await calculateBestStreakForAchievements(history);
-      return streak >= 100;
+      const result = streak >= 100;
+      return result;
     },
   },
-  // (Novo - Simplificado) Atingiu um alto acerto depois de um dia de baixo acerto
   {
     id: "error_corrector",
     title: "Fênix",

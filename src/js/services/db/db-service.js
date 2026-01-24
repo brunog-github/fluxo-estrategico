@@ -489,6 +489,25 @@ class DBService {
       },
     );
   }
+
+  // ========== CICLO CORRENTE (Current Cycle Index) ==========
+
+  /**
+   * Obter índice do ciclo corrente
+   */
+  async getCurrentCycleIndex() {
+    const index = await this.getSetting("currentIndex");
+    return index || 0;
+  }
+
+  /**
+   * Definir índice do ciclo corrente
+   * @param {number} index - Índice da matéria ativa
+   */
+  async setCurrentCycleIndex(index) {
+    await this.setSetting("currentIndex", index);
+  }
+
   /**
    * Limpar todo o banco de dados
    */

@@ -24,60 +24,78 @@ export async function generateFakeData() {
   ];
 
   const history = [];
-  const count = Math.floor(Math.random() * (2000 - 1500 + 1)) + 1500; // Entre 1500 e 2000
+  const targetCount = Math.floor(Math.random() * (3000 - 2800 + 1)) + 2800; // Entre 2800 e 3000
 
   // Função auxiliar para adicionar zero à esquerda
   const pad = (num) => num.toString().padStart(2, "0");
 
-  for (let i = 0; i < count; i++) {
-    // 1. Data Aleatória (Últimos 120 dias até hoje/futuro próximo de 2026)
-    const dateObj = new Date(2026, 0, 15); // Base: 15/01/2026
-    dateObj.setDate(dateObj.getDate() - Math.floor(Math.random() * 120)); // Voltar até 120 dias
-    dateObj.setHours(Math.floor(Math.random() * 14) + 8); // Entre 08:00 e 22:00
-    dateObj.setMinutes(Math.floor(Math.random() * 60));
+  // Calcular quantos dias precisamos para gerar o número de estudos
+  // Com máximo 2 estudos por dia, precisamos de pelo menos targetCount/2 dias
+  const daysNeeded = Math.ceil(targetCount / 2);
 
-    const formattedDate = `${pad(dateObj.getDate())}/${pad(
-      dateObj.getMonth() + 1,
-    )}/${dateObj.getFullYear()} às ${pad(dateObj.getHours())}:${pad(
-      dateObj.getMinutes(),
-    )}`;
+  let createdCount = 0;
 
-    // 2. Duração Aleatória (10 min a 4 horas)
-    // 70% de chance de ser entre 30min e 1h30, 30% de ser longão ou curtinho
-    let totalSeconds;
-    if (Math.random() > 0.3) {
-      totalSeconds = Math.floor(Math.random() * (5400 - 1800 + 1)) + 1800; // 30min a 1h30
-    } else {
-      totalSeconds = Math.floor(Math.random() * (14400 - 600 + 1)) + 600; // 10min a 4h
+  // Gerar estudos distribuídos por dias
+  for (
+    let dayOffset = 0;
+    dayOffset < daysNeeded && createdCount < targetCount;
+    dayOffset++
+  ) {
+    // Data para este dia (regressiva a partir de hoje)
+    const dateObj = new Date(2026, 0, 24); // Base: 24/01/2026
+    dateObj.setDate(dateObj.getDate() - dayOffset);
+
+    // Decidir quantos estudos neste dia (1 ou 2)
+    const studiesThisDay = Math.random() > 0.4 ? 2 : 1; // 60% chance de 2, 40% de 1
+
+    for (
+      let study = 0;
+      study < studiesThisDay && createdCount < targetCount;
+      study++
+    ) {
+      // Horário aleatório (8:00 até 22:00)
+      dateObj.setHours(Math.floor(Math.random() * 14) + 8);
+      dateObj.setMinutes(Math.floor(Math.random() * 60));
+
+      const formattedDate = `${pad(dateObj.getDate())}/${pad(
+        dateObj.getMonth() + 1,
+      )}/${dateObj.getFullYear()} às ${pad(dateObj.getHours())}:${pad(
+        dateObj.getMinutes(),
+      )}`;
+
+      // Duração entre 10 minutos e 1h30 (90 minutos)
+      const totalSeconds = Math.floor(Math.random() * (5400 - 600 + 1)) + 600; // 600s=10min, 5400s=90min
+
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      const duration = `${pad(h)}:${pad(m)}:${pad(s)}`;
+
+      // Questões e Acertos
+      let questions = 0;
+      let correct = 0;
+
+      // 60% dos estudos têm questões
+      if (Math.random() > 0.4) {
+        questions = Math.floor(Math.random() * 30) + 5; // 5 a 35 questões
+        // Acertos entre 40% e 100% das questões
+        const minCorrect = Math.floor(questions * 0.4);
+        correct =
+          Math.floor(Math.random() * (questions - minCorrect + 1)) + minCorrect;
+      }
+
+      // Cria o objeto
+      history.push({
+        date: formattedDate,
+        subject: subjects[Math.floor(Math.random() * subjects.length)],
+        duration: duration,
+        questions: questions.toString(),
+        correct: correct.toString(),
+        category: categories[Math.floor(Math.random() * categories.length)],
+      });
+
+      createdCount++;
     }
-
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-    const duration = `${pad(h)}:${pad(m)}:${pad(s)}`;
-
-    // 3. Questões e Acertos
-    let questions = 0;
-    let correct = 0;
-
-    // 60% dos estudos têm questões
-    if (Math.random() > 0.4) {
-      questions = Math.floor(Math.random() * 30) + 5; // 5 a 35 questões
-      // Acertos entre 40% e 100% das questões
-      const minCorrect = Math.floor(questions * 0.4);
-      correct =
-        Math.floor(Math.random() * (questions - minCorrect + 1)) + minCorrect;
-    }
-
-    // 4. Cria o Objeto
-    history.push({
-      date: formattedDate,
-      subject: subjects[Math.floor(Math.random() * subjects.length)],
-      duration: duration,
-      questions: questions.toString(),
-      correct: correct.toString(),
-      category: categories[Math.floor(Math.random() * categories.length)],
-    });
   }
 
   // Ordenar por data (mais recente primeiro)

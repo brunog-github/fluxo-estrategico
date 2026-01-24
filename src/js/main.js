@@ -1,5 +1,8 @@
 import { ViewLoader } from "../view/view-loader.js";
 
+// Database & Migration
+import { migrateFromLocalStorage } from "./services/db/migration.js";
+
 // Controllers
 import { ToastController } from "./controllers/toast-controller.js";
 import { ConfirmController } from "./controllers/confirm-toast-controller.js";
@@ -54,6 +57,10 @@ class App {
   // Ponto de entrada
   async start() {
     try {
+      // Passo 0: Migrar dados do localStorage se necessário
+      console.log("🔍 Verificando migração de dados...");
+      await migrateFromLocalStorage();
+
       // Passo 1: Carregar HTML
       await ViewLoader.load(VIEWS_CONFIG);
 

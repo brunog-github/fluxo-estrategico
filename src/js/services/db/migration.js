@@ -8,7 +8,6 @@ export async function migrateFromLocalStorage() {
   try {
     // 1. Verificar se já foi feita a migração
     const isMigrated = await dbService.getSetting("migrationCompleted");
-    console.log("Estado da migração:", isMigrated);
     if (isMigrated === true) {
       console.log("✅ Migração já foi realizada anteriormente");
       return;

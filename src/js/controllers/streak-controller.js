@@ -65,13 +65,15 @@ export class StreakController {
     const firstDay = new Date(dayKeys[0] + "T00:00:00");
 
     let streak = 0;
+    // Começar de HOJE e iterar para trás
     let currentDay = new Date(today);
 
-    // Iterar do hoje para trás até encontrar dia sem estudo (que não seja descanso)
+    // Iterar de hoje para trás
     while (currentDay >= firstDay) {
       const dayKeyStr = currentDay.toISOString().split("T")[0];
       const studyMinutes = dailyMinutes[dayKeyStr] || 0;
       const isRest = this.restDays.includes(currentDay.getDay());
+      const isToday = dayKeyStr === today.toISOString().split("T")[0];
 
       if (studyMinutes >= 20) {
         // Estudou o mínimo necessário
@@ -79,8 +81,11 @@ export class StreakController {
       } else if (isRest) {
         // Dia de descanso sem estudo não quebra o streak
         // Continua verificando dias anteriores
+      } else if (isToday) {
+        // Se é TODAY e não tem 20 min, NÃO quebra
+        // Apenas não incrementa streak, mas continua verificando dias anteriores
       } else {
-        // Não estudou e não é dia de descanso: quebra o streak
+        // Não estudou em dia PASSADO e não é dia de descanso: quebra o streak
         break;
       }
 

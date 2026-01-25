@@ -1,0 +1,386 @@
+/* ========================================
+   BACKUP SYNC STYLES
+   ======================================== */
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sync-btn.synced {
+  background: #4caf50;
+  color: white;
+}
+
+.sync-btn.synced:hover {
+  background: #45a049;
+}
+
+.sync-btn.needs-sync {
+  background: #ff6b6b;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.sync-btn.needs-sync:hover {
+  background: #ff5252;
+}
+
+.sync-btn.loading {
+  background: #2196f3;
+  color: white;
+  cursor: wait;
+}
+
+.sync-btn.loading .sync-icon {
+  animation: spin 1s linear infinite;
+}
+
+.sync-btn.error {
+  background: #ff9800;
+  color: white;
+}
+
+.sync-btn.error:hover {
+  background: #f57c00;
+}
+
+.sync-btn.offline {
+  background: #9e9e9e;
+  color: white;
+  cursor: pointer;
+}
+
+.sync-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.sync-icon {
+  font-size: 16px;
+  display: inline-block;
+}
+
+.sync-text {
+  font-size: 14px;
+}
+
+/* Animações */
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-cooldown {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(33, 150, 243, 0);
+  }
+}
+
+/* Estilo dos botões auxiliares */
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: var(--primary-color, #2196f3);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--card-bg, #f5f5f5);
+  color: var(--text-color, #333);
+  border: 1px solid var(--border-color, #ddd);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--border-color, #e0e0e0);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Panel de backup */
+
+#backup-panel {
+  transition: all 0.2s ease;
+}
+
+#backup-panel h3 {
+  color: var(--text-color);
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+#backup-panel h4 {
+  color: var(--text-color);
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#backup-panel small {
+  color: var(--text-secondary, #999);
+}
+
+#email-input {
+  font-family: inherit;
+}
+
+#email-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #2196f3);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+/* Histórico de backups */
+
+#backups-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color, #2196f3) transparent;
+}
+
+#backups-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+#backups-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#backups-container::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #2196f3);
+  border-radius: 3px;
+}
+
+.restore-backup-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ===== ESTILOS DO MODAL DE BACKUP ===== */
+#modal-backup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+#modal-backup.hidden {
+  display: none;
+}
+
+.backup-modal-container {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: auto;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px var(--shadow-color);
+  animation: slideUp 0.3s ease-out;
+  box-sizing: border-box;
+}
+
+/* ===== BOTÕES DO MODAL DE BACKUP ===== */
+.backup-modal-container button {
+  transition: all 0.3s ease;
+}
+
+/* Botão Primary (Sincronizar/Enviar) */
+.backup-modal-container #sync-now-btn,
+.backup-modal-container #send-magic-link-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.backup-modal-container #sync-now-btn:hover:not(:disabled),
+.backup-modal-container #send-magic-link-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.backup-modal-container #sync-now-btn:active:not(:disabled),
+.backup-modal-container #send-magic-link-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Botão Secondary (Histórico) */
+.backup-modal-container #history-btn {
+  background: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.backup-modal-container #history-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.backup-modal-container #history-btn:active {
+  transform: translateY(0);
+}
+
+/* Botão Logout */
+.backup-modal-container #logout-btn {
+  background: transparent;
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.backup-modal-container #logout-btn:hover {
+  background: #f44336;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.backup-modal-container #logout-btn:active {
+  transform: translateY(0);
+}
+
+/* Botão Close (X) */
+.backup-modal-container #close-modal:hover {
+  opacity: 0.7;
+  transform: scale(1.1);
+}
+
+/* Desabilitado */
+.backup-modal-container button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Botão com cooldown */
+.backup-modal-container #send-magic-link-btn:disabled {
+  background: var(--primary-color);
+  opacity: 0.7;
+  animation: pulse-cooldown 1s infinite;
+}
+
+/* Responsivo */
+
+@media (max-width: 600px) {
+  .sync-btn {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+  }
+
+  .sync-text {
+    font-size: 12px;
+  }
+
+  #backup-panel > div {
+    flex-direction: column;
+  }
+
+  #backup-panel > div > button {
+    width: 100%;
+  }
+
+  /* ✅ Modal de Backup - Ajuste específico para mobile */
+  #modal-backup {
+    padding: 8px;
+  }
+
+  .backup-modal-container {
+    padding: 16px;
+    max-height: 90vh;
+    max-width: calc(100% - 16px);
+  }
+}
+
+@media (max-width: 425px) {
+  /* ✅ Telas muito pequenas - reduzir padding ainda mais */
+  #modal-backup {
+    padding: 4px;
+  }
+
+  .backup-modal-container {
+    padding: 12px;
+    max-width: calc(85% - 8px);
+  }
+}

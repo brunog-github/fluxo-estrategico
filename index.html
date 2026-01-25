@@ -46,6 +46,8 @@
       href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="src/css/backup.css" />
   </head>
 
   <body>
@@ -187,7 +189,7 @@
             <button
               id="btn-save-manual-entry"
               type="submit"
-              class="btn btn-primary manual-btn-flex"
+              class="btn manual-btn-flex"
             >
               Salvar
             </button>
@@ -234,11 +236,15 @@
         ></div>
 
         <div class="manual-actions-row" style="margin-top: 15px">
-          <button id="btn-close-notes" class="btn btn-primary manual-btn-flex">
+          <button id="btn-close-notes" class="btn manual-btn-flex">
             Salvar
           </button>
         </div>
       </div>
+    </div>
+
+    <div id="modal-backup" class="modal hidden">
+      <div class="modal-content backup-modal-container"></div>
     </div>
 
     <!-- Dexie.js para IndexedDB -->

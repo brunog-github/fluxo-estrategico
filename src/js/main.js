@@ -20,10 +20,12 @@ import { ManualEntryController } from "./controllers/manual-entry-controller.js"
 import { HistoryFilterController } from "./controllers/history-filter-controller.js";
 import { LifetimeController } from "./controllers/lifetime-controller.js";
 import { NotesController } from "./controllers/notes-controller.js";
+import { BackupSyncController } from "./controllers/backup-sync-controller.js";
 
 // UIs
 import { ConfigUI } from "./ui/configUI.js";
 import { HomeUI } from "./ui/homeUI.js";
+import { BackupUI } from "./ui/backupUI.js";
 
 // Data & Utils
 import { ACHIEVEMENTS } from "./data/achievements.js";
@@ -39,6 +41,7 @@ import { initReportsScreenEvents } from "./events/reports-screen-events.js";
 import { initManualEntryEvents } from "./events/manual-entry-events.js";
 import { initFiltersEvents } from "./events/filters-events.js";
 import { initGlobalTooltip } from "./controllers/tooltip-controller.js"; // Caso seja função
+import { generateFakeData } from "./data/fake-data.js";
 
 const VIEWS_CONFIG = [
   { id: "screen-home", url: "src/view/home.html" },
@@ -105,6 +108,10 @@ class App {
     const timer = new TimerController(subjects, screens, toast);
     timer.session = session; // Dependência circular resolvida
 
+    // Controladores de Backup
+    const backupSync = new BackupSyncController(toast, confirm);
+    await backupSync.init();
+
     // Controladores de Telas
     const settings = new SettingsController(toast, confirm);
     await settings.init();
@@ -115,6 +122,7 @@ class App {
     // UIs
     const configUI = new ConfigUI(subjects, toast);
     const homeUI = new HomeUI(subjects, screens);
+    const backupUI = new BackupUI();
     const theme = new ThemeManager({
       toggleButtonId: "theme-toggle",
       onThemeChange: async () =>
@@ -137,9 +145,11 @@ class App {
       settings,
       reports,
       manualEntry,
+      backupSync,
       filters,
       configUI,
       homeUI,
+      backupUI,
       theme,
     };
   }
@@ -158,10 +168,25 @@ class App {
     // Renderizações iniciais
     await s.streak.render();
 
+    // ✅ Renderizar botão de backup no header
+    const backupButtonContainer = document.getElementById(
+      "backup-button-container",
+    );
+    if (backupButtonContainer) {
+      //backupSync.headerButtonContainer = backupButtonContainer;
+
+      await s.backupUI.renderHeaderButton(backupButtonContainer, s.backupSync);
+    }
+
     // Ligações de callbacks
     s.screens.on("screen-home", async () => {
       s.homeUI.render();
       await s.streak.render();
+
+      // ✅ Verificar sincronização de backup quando chegar na home-screen
+      if (s.backupSync) {
+        await s.backupSync.checkSyncStatus();
+      }
     });
 
     s.reports.setNotesAction(async (linkedId) => {
@@ -187,7 +212,7 @@ class App {
     // Chamadas dos inicializadores de eventos
     initAchievementsEvents(s.screens, s.achievements);
     initCalendarEvents(s.calendar);
-    initFinishStudyEvents(s.session, s.screens, s.confirm);
+    initFinishStudyEvents(s.session, s.screens, s.confirm, s.notes);
     initConfigScreenEvents(
       s.screens,
       s.configUI,
@@ -240,4 +265,5 @@ class App {
 
 document.addEventListener("DOMContentLoaded", () => {
   new App().start();
+  //generateFakeData();
 });

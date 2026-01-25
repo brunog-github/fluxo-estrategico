@@ -1,0 +1,390 @@
+/**
+ * Serviço Supabase para autenticação e sincronização de backup
+ * Usa CDN: https://cdn.jsdelivr.net/npm/@supabase/supabase-js
+ */
+
+// Configuração do Supabase (substitua com suas credenciais)
+const SUPABASE_URL = "https://kxzxwwzhyyumlgkmlapb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zfDG-yT9i8j7Lmrnq9RICA_RWuihlW4";
+
+let supabaseClient = null;
+
+export class SupabaseService {
+  constructor() {
+    this.user = null;
+    this.session = null;
+  }
+
+  /**
+   * Inicializar o cliente Supabase
+   */
+  async init() {
+    if (!window.supabase) {
+      console.error(
+        "Supabase não foi carregado. Verifique o CDN na index.html",
+      );
+      return false;
+    }
+
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ✅ Restaurar sessão se existir
+    await this.restoreSession();
+
+    // ✅ IMPORTANTE: Escutar mudanças de autenticação entre abas
+    // Quando uma aba faz login, as outras abas detectam via storage event
+    window.addEventListener("storage", (event) => {
+      if (
+        event.key === "supabase_session" ||
+        event.key === "auth_redirect_trigger"
+      ) {
+        console.log("[AUTH] Detectada mudança de sessão em outra aba");
+        // Aguardar um pouco para a sessão estar disponível
+        setTimeout(async () => {
+          await this.restoreSession();
+        }, 300);
+      }
+    });
+
+    return true;
+  }
+
+  /**
+   * Enviar magic-link para email
+   */
+  async sendMagicLink(email) {
+    try {
+      // ✅ IMPORTANTE: Redirecionar para a raiz sem hash
+      // O Supabase automaticamente adiciona os parâmetros de autenticação
+      const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        message: "Confira seu email para o link de acesso",
+      };
+    } catch (error) {
+      console.error("Erro ao enviar magic-link:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Verificar sessão e restaurar se existir
+   */
+  async restoreSession() {
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabaseClient.auth.getSession();
+
+      if (error) throw error;
+
+      if (session) {
+        this.session = session;
+        this.user = session.user;
+        localStorage.setItem("supabase_session", JSON.stringify(session));
+
+        // ✅ IMPORTANTE: Limpar URL de parâmetros de autenticação
+        // Isso remove tokens da URL para segurança e evita hash
+        if (window.history.replaceState) {
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Erro ao restaurar sessão:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Fazer logout
+   */
+  async logout() {
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) throw error;
+
+      this.user = null;
+      this.session = null;
+      localStorage.removeItem("supabase_session");
+      // ✅ IMPORTANTE: Limpar hash ao fazer logout
+      // Isso força um novo sincronismo ao fazer login novamente
+      localStorage.removeItem("last_backup_sync");
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Fazer upload do backup
+   * @param {Object} backupDataForHash - Dados para calcular hash (SEM exportDate)
+   * @param {Object} backupDataForUpload - Dados para upload (COM exportDate)
+   */
+  async uploadBackup(backupDataForHash, backupDataForUpload) {
+    if (!this.user) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    try {
+      console.log(
+        "[UPLOAD] Iniciando upload do backup para usuário:",
+        this.user.id,
+      );
+      const timestamp = new Date().toISOString();
+      const fileName = `${this.user.id}/backup-${Date.now()}.json`;
+
+      // Usar dados para upload (com exportDate)
+      const backupJson = JSON.stringify(backupDataForUpload);
+      const blob = new Blob([backupJson], { type: "application/json" });
+      console.log("[UPLOAD] Blob criado. Tamanho:", blob.size, "bytes");
+
+      // Upload para Supabase Storage
+      console.log("[UPLOAD] Enviando arquivo para Storage:", fileName);
+      const { data, error: uploadError } = await supabaseClient.storage
+        .from("backups")
+        .upload(fileName, blob, {
+          contentType: "application/json",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error("[UPLOAD] Erro no upload do arquivo:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("[UPLOAD] Arquivo enviado com sucesso:", data);
+
+      // Registrar metadados no banco de dados
+      console.log("[UPLOAD] Registrando metadados no banco de dados...");
+      // IMPORTANTE: Usar hash dos dados SEM exportDate para comparação
+      const hashParaComparacao = this._generateHash(
+        JSON.stringify(backupDataForHash),
+      );
+
+      const { error: dbError } = await supabaseClient
+        .from("backup_metadata")
+        .insert({
+          user_id: this.user.id,
+          file_name: fileName,
+          backup_hash: hashParaComparacao,
+          backup_size: JSON.stringify(backupDataForUpload).length,
+          synced_at: timestamp,
+        });
+
+      if (dbError) {
+        console.error("[UPLOAD] Erro ao registrar metadados:", dbError);
+        throw dbError;
+      }
+
+      console.log("[UPLOAD] Metadados registrados com sucesso!");
+
+      // Salvar timestamp local - IMPORTANTE: Usar hash dos dados SEM exportDate
+      console.log("[UPLOAD] Salvando novo hash:", hashParaComparacao);
+
+      localStorage.setItem(
+        "last_backup_sync",
+        JSON.stringify({
+          timestamp,
+          hash: hashParaComparacao,
+        }),
+      );
+
+      console.log("[UPLOAD] Hash salvo em localStorage!");
+
+      // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
+      await this._deleteOldBackups();
+
+      return { success: true, fileName };
+    } catch (error) {
+      console.error("Erro ao fazer upload do backup:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Deletar backups antigos mantendo apenas os 3 mais recentes
+   */
+  async _deleteOldBackups() {
+    try {
+      const MAX_BACKUPS = 3;
+
+      // Obter todos os backups do usuário, ordenados por data
+      const { data: backups, error: queryError } = await supabaseClient
+        .from("backup_metadata")
+        .select("id, file_name, synced_at")
+        .eq("user_id", this.user.id)
+        .order("synced_at", { ascending: false });
+
+      if (queryError) {
+        console.error("[CLEANUP] Erro ao obter histórico:", queryError);
+        return;
+      }
+
+      if (!backups || backups.length <= MAX_BACKUPS) {
+        console.log(
+          `[CLEANUP] Total de backups: ${backups?.length || 0}/${MAX_BACKUPS} (nenhum para deletar)`,
+        );
+        return;
+      }
+
+      // Backups a deletar (do índice MAX_BACKUPS em diante)
+      const backupsToDelete = backups.slice(MAX_BACKUPS);
+      console.log(
+        `[CLEANUP] Deletando ${backupsToDelete.length} backup(s) antigo(s)...`,
+      );
+
+      for (const backup of backupsToDelete) {
+        try {
+          // Deletar arquivo do Storage
+          const { error: storageError } = await supabaseClient.storage
+            .from("backups")
+            .remove([backup.file_name]);
+
+          if (storageError) {
+            console.error(`[CLEANUP] Erro ao deletar arquivo:`, storageError);
+            continue;
+          }
+
+          // Deletar registro do banco de dados
+          const { error: dbError } = await supabaseClient
+            .from("backup_metadata")
+            .delete()
+            .eq("id", backup.id);
+
+          if (dbError) {
+            console.error(`[CLEANUP] Erro ao deletar metadados:`, dbError);
+            continue;
+          }
+
+          console.log(`[CLEANUP] Backup antigo deletado: ${backup.file_name}`);
+        } catch (error) {
+          console.error(`[CLEANUP] Erro ao processar exclusão:`, error);
+        }
+      }
+
+      console.log(
+        `[CLEANUP] Limpeza concluída. Backups restantes: ${MAX_BACKUPS}`,
+      );
+    } catch (error) {
+      console.error("[CLEANUP] Erro na limpeza de backups:", error);
+      // Não jogar erro, pois backup já foi feito com sucesso
+    }
+  }
+
+  /**
+   * Obter histórico de backups do usuário
+   */
+  async getBackupHistory() {
+    if (!this.user) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("backup_metadata")
+        .select("*")
+        .eq("user_id", this.user.id)
+        .order("synced_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      return data || [];
+    } catch (error) {
+      console.error("Erro ao obter histórico de backups:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Restaurar backup anterior
+   */
+  async restoreBackup(fileName) {
+    if (!this.user) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    try {
+      const { data, error } = await supabaseClient.storage
+        .from("backups")
+        .download(fileName);
+
+      if (error) throw error;
+
+      const backupText = await data.text();
+      return JSON.parse(backupText);
+    } catch (error) {
+      console.error("Erro ao restaurar backup:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verificar se há alterações desde o último backup
+   */
+  async hasChanges(currentBackupData) {
+    try {
+      const lastSync = JSON.parse(
+        localStorage.getItem("last_backup_sync") || "{}",
+      );
+      const currentHash = this._generateHash(JSON.stringify(currentBackupData));
+
+      console.log("[HASH] Último hash salvo:", lastSync.hash);
+      console.log("[HASH] Hash atual:", currentHash);
+      const hasChanges = currentHash !== lastSync.hash;
+      console.log("[HASH] Tem mudanças?", hasChanges);
+
+      return hasChanges;
+    } catch (error) {
+      console.error("[HASH] Erro ao verificar mudanças:", error);
+      return true; // Em caso de erro, considera que há alterações
+    }
+  }
+
+  /**
+   * Gerar hash simples dos dados (para detectar mudanças)
+   */
+  _generateHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+    return hash.toString();
+  }
+
+  /**
+   * Verificar se usuário está autenticado
+   */
+  isAuthenticated() {
+    return !!this.user;
+  }
+
+  /**
+   * Obter email do usuário
+   */
+  getUserEmail() {
+    return this.user?.email || null;
+  }
+}
+
+export const supabaseService = new SupabaseService();

@@ -12,6 +12,11 @@
   --badge-bg: #f0f2f5;
   --shadow-color: rgba(0, 0, 0, 0.08);
   --timer-display: #2c3e50;
+
+  --needs-sync-bg: rgba(255, 153, 0, 0.21);
+  --needs-sync-color: #ff9100;
+  --needs-sync-success-bg: rgba(76, 175, 80, 0.251);
+  --needs-sync-success-color: #439a46;
 }
 
 /* --- TEMA ESCURO --- */
@@ -27,6 +32,11 @@
   --badge-bg: #333333;
   --shadow-color: rgba(0, 0, 0, 0.4);
   --timer-display: #fff;
+
+  --needs-sync-bg: rgba(255, 152, 0, 0.12);
+  --needs-sync-color: #ff9800;
+  --needs-sync-success-bg: rgba(76, 175, 80, 0.12);
+  --needs-sync-success-color: #4caf50;
 }
 
 body {
@@ -69,6 +79,7 @@ body {
   margin-bottom: 25px;
   display: block;
   letter-spacing: -1px;
+  gap: 10px;
 }
 
 .logo span {
@@ -76,6 +87,8 @@ body {
 }
 
 .logo svg {
+  width: 40px;
+  height: 40px;
   stroke: var(--text-color);
 } /* Ícone muda de cor */
 
@@ -95,6 +108,12 @@ body {
   }
   .btn {
     padding: 12px;
+  }
+  .logo svg {
+    display: none;
+  }
+  .logo h2 {
+    font-size: 24px;
   }
 }
 
@@ -253,53 +272,72 @@ body {
   border: 2px solid var(--primary-color);
 }
 /* ===== ESTILO DO BOTÃO DE SYNC BACKUP ===== */
+#backup-button-container {
+  display: flex;
+  align-items: center;
+}
+
 .sync-btn {
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-color);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(158, 158, 158, 0.15);
+  color: #999;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   transition: all 0.3s ease;
   white-space: nowrap;
-  min-height: 40px;
+  min-height: 36px;
   touch-action: manipulation;
 }
 
 .sync-icon {
-  font-size: 16px;
+  font-size: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 18px;
 }
 
 .sync-text {
-  display: none;
-  font-size: 13px;
+  display: inline;
+  font-size: 14px;
 }
 
-/* Mobile: Apenas ícone */
+/* Mobile: Botão com tamanho do conteúdo, abaixo do título */
 @media (max-width: 480px) {
+  #backup-button-container {
+    margin-bottom: 0;
+  }
+
   .sync-btn {
-    padding: 8px;
-    width: 40px;
-    height: 40px;
-    justify-content: center;
-    border-radius: 50%;
+    padding: 10px 14px;
+    width: auto;
+    height: auto;
+    min-height: 36px;
+    border-radius: 8px;
   }
 
   .sync-text {
-    display: none;
+    display: inline;
+  }
+
+  .sync-icon {
+    font-size: 16px;
   }
 }
 
-/* Tablet+: Ícone e texto */
+/* Tablet+: Ícone e texto, ao lado do tema */
 @media (min-width: 481px) {
+  #backup-button-container {
+    margin-right: 10px;
+  }
+
   .sync-text {
     display: inline;
   }
@@ -307,32 +345,31 @@ body {
 
 /* Estados do botão */
 .sync-btn.synced {
-  border-color: #4caf50;
-  color: #4caf50;
-  background: rgba(76, 175, 80, 0.1);
+  background: var(--needs-sync-success-bg);
+  color: var(--needs-sync-success-color);
 }
 
 .sync-btn.synced:hover {
   background: rgba(76, 175, 80, 0.2);
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
 }
 
 .sync-btn.needs-sync {
-  border-color: #ff9800;
-  color: #ff9800;
-  background: rgba(255, 152, 0, 0.1);
+  background: var(--needs-sync-bg);
+  color: var(--needs-sync-color);
 }
 
 .sync-btn.needs-sync:hover {
   background: rgba(255, 152, 0, 0.2);
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
   cursor: pointer;
 }
 
 .sync-btn.loading {
-  border-color: var(--primary-color);
+  background: rgba(69, 164, 196, 0.12);
   color: var(--primary-color);
-  background: rgba(69, 164, 196, 0.1);
   cursor: wait;
 }
 
@@ -341,22 +378,27 @@ body {
 }
 
 .sync-btn.error {
-  border-color: #f44336;
+  background: rgba(244, 67, 54, 0.12);
   color: #f44336;
-  background: rgba(244, 67, 54, 0.1);
 }
 
 .sync-btn.error:hover {
   background: rgba(244, 67, 54, 0.2);
-  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
 }
 
 .sync-btn.offline {
-  border-color: #9e9e9e;
-  color: #9e9e9e;
-  background: rgba(158, 158, 158, 0.1);
-  cursor: not-allowed;
-  opacity: 0.6;
+  background: rgba(158, 158, 158, 0.12);
+  color: #999;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.sync-btn.offline:hover {
+  background: rgba(158, 158, 158, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(158, 158, 158, 0.15);
 }
 
 .sync-btn:disabled {

@@ -2,73 +2,7 @@
    BACKUP SYNC STYLES
    ======================================== */
 
-.sync-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.sync-btn.synced {
-  background: #4caf50;
-  color: white;
-}
-
-.sync-btn.synced:hover {
-  background: #45a049;
-}
-
-.sync-btn.needs-sync {
-  background: #ff6b6b;
-  color: white;
-  animation: pulse 2s infinite;
-}
-
-.sync-btn.needs-sync:hover {
-  background: #ff5252;
-}
-
-.sync-btn.loading {
-  background: #2196f3;
-  color: white;
-  cursor: wait;
-}
-
-.sync-btn.loading .sync-icon {
-  animation: spin 1s linear infinite;
-}
-
-.sync-btn.error {
-  background: #ff9800;
-  color: white;
-}
-
-.sync-btn.error:hover {
-  background: #f57c00;
-}
-
-.sync-btn.offline {
-  background: #9e9e9e;
-  color: white;
-  cursor: pointer;
-}
-
-.sync-btn:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.sync-icon {
-  font-size: 16px;
-  display: inline-block;
-}
+/* ✅ Estilos de .sync-btn movidos para style.css para manter consistência */
 
 .sync-text {
   font-size: 14px;

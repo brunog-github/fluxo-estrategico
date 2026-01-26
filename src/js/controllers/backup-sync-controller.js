@@ -58,7 +58,10 @@ export class BackupSyncController {
         this.toast.showToast("success", "Desconectado com sucesso");
         this.stopPeriodicSync();
 
-        // ✅ Re-renderizar botão do header para "Offline"
+        // ✅ Atualizar botão para "offline" imediatamente
+        this.ui.setSyncButtonState("offline");
+
+        // ✅ Re-renderizar botão do header com estado offline
         if (this.headerButtonContainer) {
           await this.ui.renderHeaderButton(this.headerButtonContainer, this);
         }

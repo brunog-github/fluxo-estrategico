@@ -424,16 +424,8 @@ export class BackupUI {
     container.querySelectorAll(".restore-backup-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const fileName = btn.getAttribute("data-filename");
-        // ✅ Usar confirmController ao invés de alert do navegador
-        this.confirm.confirm(
-          "Tem certeza que deseja restaurar este backup? Seus dados atuais serão substituídos.",
-          async () => {
-            await controller.restoreBackup(fileName);
-            // Fechar o modal após restaurar
-            const modal = document.getElementById("modal-backup");
-            if (modal) modal.classList.add("hidden");
-          },
-        );
+        // ✅ Controller já tem sua própria confirmação
+        await controller.restoreBackup(fileName);
       });
     });
   }

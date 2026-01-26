@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none; /* Permite clique apenas no toast */
-  z-index: 9999;
+  z-index: 10002;
 }
 
 /* Fundo escurecido (overlay) */
@@ -81,7 +81,7 @@
   background: var(--shadow-color);
   backdrop-filter: blur(3px);
   pointer-events: all;
-  z-index: 9998;
+  z-index: 9999;
   opacity: 0;
   transition: opacity 0.25s ease;
 }

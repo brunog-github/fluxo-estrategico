@@ -1,7 +1,8 @@
 import { supabaseService } from "../services/supabase/supabase-service.js";
 
 export class BackupUI {
-  constructor() {
+  constructor(confirmToast) {
+    this.confirm = confirmToast;
     this.syncButton = null;
     this.loginForm = null;
     this.backupPanel = null;
@@ -226,10 +227,14 @@ export class BackupUI {
       modalContent
         .querySelector("#logout-btn")
         .addEventListener("click", async () => {
-          if (confirm("Tem certeza que deseja desconectar?")) {
-            await controller.logout();
-            modal.classList.add("hidden");
-          }
+          // ✅ Usar confirmController ao invés de alert do navegador
+          this.confirm.confirm(
+            "Tem certeza que deseja desconectar?",
+            async () => {
+              await controller.logout();
+              modal.classList.add("hidden");
+            },
+          );
         });
     } else {
       // Não autenticado - mostrar formulário de login
@@ -418,17 +423,17 @@ export class BackupUI {
     // Event listeners para restaurar
     container.querySelectorAll(".restore-backup-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (
-          confirm(
-            "Tem certeza que deseja restaurar este backup? Seus dados atuais serão substituídos.",
-          )
-        ) {
-          const fileName = btn.getAttribute("data-filename");
-          await controller.restoreBackup(fileName);
-          // Fechar o modal após restaurar
-          const modal = document.getElementById("modal-backup");
-          if (modal) modal.classList.add("hidden");
-        }
+        const fileName = btn.getAttribute("data-filename");
+        // ✅ Usar confirmController ao invés de alert do navegador
+        this.confirm.confirm(
+          "Tem certeza que deseja restaurar este backup? Seus dados atuais serão substituídos.",
+          async () => {
+            await controller.restoreBackup(fileName);
+            // Fechar o modal após restaurar
+            const modal = document.getElementById("modal-backup");
+            if (modal) modal.classList.add("hidden");
+          },
+        );
       });
     });
   }
@@ -497,10 +502,8 @@ export class BackupUI {
 
       const logoutBtn = panel.querySelector("#logout-button");
       logoutBtn.addEventListener("click", async () => {
-        if (confirm("Tem certeza que deseja desconectar?")) {
-          await controller.logout();
-          await this.renderBackupPanel(container, controller);
-        }
+        await controller.logout();
+        await this.renderBackupPanel(container, controller);
       });
 
       this.syncButton = syncBtn;

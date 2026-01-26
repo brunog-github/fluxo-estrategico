@@ -3,9 +3,10 @@ import { dbService } from "../services/db/db-service.js";
 import { BackupUI } from "../ui/backupUI.js";
 
 export class BackupSyncController {
-  constructor(toast) {
+  constructor(toast, confirmToast) {
     this.toast = toast;
-    this.ui = new BackupUI();
+    this.confirm = confirmToast;
+    this.ui = new BackupUI(confirmToast);
     this.isSyncing = false;
     this.syncCheckInterval = null;
     this.backupContainer = null; // Container para re-renderizar após logout
@@ -219,18 +220,17 @@ export class BackupSyncController {
     try {
       const backupData = await supabaseService.restoreBackup(fileName);
 
-      if (
-        confirm(
-          "Tem certeza que deseja restaurar este backup? Os dados atuais serão substituídos.",
-        )
-      ) {
-        await this._restoreBackupData(backupData);
-        this.toast.showToast("success", "Backup restaurado com sucesso!");
-        location.reload();
-        return true;
-      }
+      // ✅ Usar confirmController ao invés de alert do navegador
+      this.confirm.confirm(
+        "Tem certeza que deseja restaurar este backup? Os dados atuais serão substituídos.",
+        async () => {
+          await this._restoreBackupData(backupData);
+          this.toast.showToast("success", "Backup restaurado com sucesso!");
+          location.reload();
+        },
+      );
 
-      return false;
+      return true;
     } catch (error) {
       console.error("Erro ao restaurar backup:", error);
       this.toast.showToast("error", `Erro ao restaurar: ${error.message}`);

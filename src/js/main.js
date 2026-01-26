@@ -122,7 +122,7 @@ class App {
     // UIs
     const configUI = new ConfigUI(subjects, toast);
     const homeUI = new HomeUI(subjects, screens);
-    const backupUI = new BackupUI();
+    const backupUI = new BackupUI(confirm);
     const theme = new ThemeManager({
       toggleButtonId: "theme-toggle",
       onThemeChange: async () =>

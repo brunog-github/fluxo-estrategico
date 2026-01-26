@@ -3,6 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+      default-src 'self';
+      script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+      style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;
+      connect-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://kxzxwwzhyyumlgkmlapb.supabase.co wss://kxzxwwzhyyumlgkmlapb.supabase.co;
+      font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+      img-src 'self' data:;
+      object-src 'self' data:;
+      base-uri 'self';
+      form-action 'self';
+    "
+    />
+
     <title>Fluxo ESTRATÉGICO</title>
     <link
       rel="icon"
@@ -104,7 +120,7 @@
       <div class="modal-content card-elevated manual-modal-container">
         <h3 id="manual-modal-title" class="manual-modal-title"></h3>
 
-        <form id="form-manual-entry" onsubmit="event.preventDefault()">
+        <form id="form-manual-entry">
           <div class="manual-field-group">
             <label class="manual-label">Matéria</label>
             <select id="manual-subject" class="manual-input" required>

@@ -4,6 +4,12 @@ export function initManualEntryEvents(manualEntry, lifetime) {
     .getElementById("btn-add-manual-entry")
     .addEventListener("click", async () => await manualEntry.open());
 
+  document
+    .getElementById("form-manual-entry")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+    });
+
   // Salvar
   document
     .getElementById("btn-save-manual-entry")

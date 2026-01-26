@@ -3,11 +3,14 @@
  * Usa CDN: https://cdn.jsdelivr.net/npm/@supabase/supabase-js
  */
 
+import DBService from "../db/db-service.js";
+
 // Configuração do Supabase (substitua com suas credenciais)
 const SUPABASE_URL = "https://kxzxwwzhyyumlgkmlapb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_zfDG-yT9i8j7Lmrnq9RICA_RWuihlW4";
 
 let supabaseClient = null;
+const dbService = new DBService();
 
 export class SupabaseService {
   constructor() {
@@ -64,6 +67,8 @@ export class SupabaseService {
           emailRedirectTo: redirectUrl,
         },
       });
+
+      console.log(error);
 
       if (error) throw error;
 
@@ -125,6 +130,9 @@ export class SupabaseService {
       // ✅ IMPORTANTE: Limpar hash ao fazer logout
       // Isso força um novo sincronismo ao fazer login novamente
       localStorage.removeItem("last_backup_sync");
+
+      // ✅ CACHE: Limpar cache do histórico ao fazer logout
+      dbService.clearBackupHistoryCache();
 
       return true;
     } catch (error) {
@@ -212,6 +220,10 @@ export class SupabaseService {
       // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
       await this._deleteOldBackups();
 
+      // ✅ CACHE: Invalidar cache do histórico (será recarregado na próxima requisição)
+      dbService.clearBackupHistoryCache();
+      console.log("[CACHE] Cache do histórico invalidado");
+
       return { success: true, fileName };
     } catch (error) {
       console.error("Erro ao fazer upload do backup:", error);
@@ -298,6 +310,16 @@ export class SupabaseService {
     }
 
     try {
+      // ✅ CACHE: Verificar se há cache válido em localStorage
+      // (não usa IndexedDB para não modificar dados de backup)
+      const cached = dbService.getBackupHistoryCache();
+      if (cached) {
+        console.log("[HISTORY] Usando cache do histórico (economizando banda)");
+        return cached.data;
+      }
+
+      // ✅ Cache expirou ou não existe - buscar do Supabase
+      console.log("[HISTORY] Cache não disponível, buscando do Supabase...");
       const { data, error } = await supabaseClient
         .from("backup_metadata")
         .select("*")
@@ -306,6 +328,12 @@ export class SupabaseService {
         .limit(10);
 
       if (error) throw error;
+
+      // ✅ Salvar no cache para próximas requisições (localStorage)
+      if (data) {
+        dbService.setBackupHistoryCache(data);
+        console.log("[HISTORY] Cache atualizado com sucesso");
+      }
 
       return data || [];
     } catch (error) {

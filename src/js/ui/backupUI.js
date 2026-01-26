@@ -326,9 +326,8 @@ export class BackupUI {
         sendBtn.disabled = true;
         sendBtn.textContent = "Enviando...";
 
-        await controller.sendMagicLink(email);
-
-        // ✅ Bloquear botão por 60 segundos com contador regressivo (cooldown do Supabase)
+        // ✅ IMPORTANTE: Iniciar cooldown de 60s IMEDIATAMENTE (mesmo antes da resposta)
+        // Isso impede cliques múltiplos que causam rate limit
         let cooldownSeconds = 60;
         const originalText = "Enviar Link de Acesso";
 
@@ -342,6 +341,19 @@ export class BackupUI {
             sendBtn.textContent = originalText;
           }
         }, 1000);
+
+        const result = await controller.sendMagicLink(email);
+
+        // ✅ Se enviou com sucesso, fechar modal após 1 segundo
+        if (result.success) {
+          setTimeout(() => {
+            modal.classList.add("hidden");
+            emailInput.value = ""; // Limpar email
+          }, 1000);
+          return;
+        }
+
+        // ❌ Se falhou, o cooldown já está rodando (não precisa iniciar aqui)
       });
 
       // Permitir enviar ao pressionar Enter
@@ -424,8 +436,28 @@ export class BackupUI {
     container.querySelectorAll(".restore-backup-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const fileName = btn.getAttribute("data-filename");
-        // ✅ Controller já tem sua própria confirmação
-        await controller.restoreBackup(fileName);
+
+        // ✅ Desabilitar todos os botões de restaurar (evita clique duplo)
+        const allRestoreButtons = container.querySelectorAll(
+          ".restore-backup-btn",
+        );
+        allRestoreButtons.forEach((b) => {
+          b.disabled = true;
+          b.style.opacity = "0.5";
+          b.style.cursor = "not-allowed";
+        });
+
+        try {
+          // ✅ Controller já tem sua própria confirmação
+          await controller.restoreBackup(fileName);
+        } finally {
+          // ✅ Re-habilitar botões após operação (sucesso ou erro)
+          allRestoreButtons.forEach((b) => {
+            b.disabled = false;
+            b.style.opacity = "1";
+            b.style.cursor = "pointer";
+          });
+        }
       });
     });
   }
@@ -539,10 +571,22 @@ export class BackupUI {
         sendBtn.disabled = true;
         sendBtn.textContent = "Enviando...";
 
-        await controller.sendMagicLink(email);
+        // ✅ IMPORTANTE: Iniciar cooldown de 60s IMEDIATAMENTE
+        let cooldownSeconds = 60;
+        const originalText = "Enviar Link";
 
-        sendBtn.disabled = false;
-        sendBtn.textContent = "Enviar Link";
+        const cooldownInterval = setInterval(() => {
+          sendBtn.textContent = `Aguarde ${cooldownSeconds}s...`;
+          cooldownSeconds--;
+
+          if (cooldownSeconds < 0) {
+            clearInterval(cooldownInterval);
+            sendBtn.disabled = false;
+            sendBtn.textContent = originalText;
+          }
+        }, 1000);
+
+        await controller.sendMagicLink(email);
       });
 
       this.loginForm = panel;
@@ -686,7 +730,27 @@ export class BackupUI {
       container.querySelectorAll(".restore-backup-btn").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const fileName = btn.getAttribute("data-filename");
-          await controller.restoreBackup(fileName);
+
+          // ✅ Desabilitar todos os botões de restaurar (evita clique duplo)
+          const allRestoreButtons = container.querySelectorAll(
+            ".restore-backup-btn",
+          );
+          allRestoreButtons.forEach((b) => {
+            b.disabled = true;
+            b.style.opacity = "0.5";
+            b.style.cursor = "not-allowed";
+          });
+
+          try {
+            await controller.restoreBackup(fileName);
+          } finally {
+            // ✅ Re-habilitar botões após operação (sucesso ou erro)
+            allRestoreButtons.forEach((b) => {
+              b.disabled = false;
+              b.style.opacity = "1";
+              b.style.cursor = "pointer";
+            });
+          }
         });
       });
     } else {

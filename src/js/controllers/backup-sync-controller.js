@@ -33,16 +33,29 @@ export class BackupSyncController {
       const result = await supabaseService.sendMagicLink(email);
 
       if (result.success) {
-        this.toast.showToast("success", result.message);
+        this.toast.showToast("success", result.message, 8000);
         //this.ui.showMagicLinkSent(email);
       } else {
-        this.toast.showToast("error", `Erro: ${result.error}`);
+        // ✅ Mensagem customizada para rate limit
+        let errorMsg = result.error || "Erro ao enviar link";
+        if (result.error?.includes("rate limit")) {
+          errorMsg =
+            "Muitas tentativas. Aguarde 60 segundos antes de tentar novamente.";
+        }
+        this.toast.showToast("error", errorMsg);
       }
 
       return result;
     } catch (error) {
       console.error("Erro ao enviar magic-link:", error);
-      this.toast.showToast("error", "Erro ao enviar magic-link");
+
+      // ✅ Detectar rate limit no catch também
+      let toastMsg = "Erro ao enviar magic-link";
+      if (error.message?.includes("rate limit")) {
+        toastMsg =
+          "Muitas tentativas. Aguarde 60 segundos antes de tentar novamente.";
+      }
+      this.toast.showToast("error", toastMsg);
       return { success: false };
     }
   }

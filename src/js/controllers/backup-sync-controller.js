@@ -125,6 +125,24 @@ export class BackupSyncController {
           // Aplicar backup aos dados locais
           await this._restoreBackupData(backupData);
 
+          // ✅ NOVO: Atualizar hash local após restaurar para evitar falsas mudanças
+          const restoredBackupDataForHash =
+            await this._gatherBackupDataForHash();
+          const restoredHash = supabaseService._generateHash(
+            JSON.stringify(restoredBackupDataForHash),
+          );
+          const lastBackupSync = JSON.parse(
+            localStorage.getItem("last_backup_sync") || "{}",
+          );
+          localStorage.setItem(
+            "last_backup_sync",
+            JSON.stringify({
+              ...lastBackupSync,
+              hash: restoredHash,
+            }),
+          );
+          console.log("[SYNC] Hash local atualizado após restauração");
+
           this.toast.showToast("success", "Dados atualizados com sucesso!");
           this.ui.setSyncButtonState("synced");
           this.ui.showUpdateBanner(null); // Remover banner

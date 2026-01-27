@@ -25,6 +25,10 @@ export class SupabaseService {
   constructor() {
     this.user = null;
     this.session = null;
+    this.newerBackupAvailable = false; // ✅ Flag para indicar se há backup mais recente no Supabase
+    this.newerBackupInfo = null; // ✅ Informações do backup mais recente
+    this.checkingForNewerBackup = false; // ✅ Flag para rastrear se a checagem está em progresso
+    this.backupUI = null; // ✅ Referência ao UI para atualizar banner automaticamente
   }
 
   /**
@@ -69,6 +73,13 @@ export class SupabaseService {
     });
 
     return true;
+  }
+
+  /**
+   * ✅ NOVO: Registrar UI para atualizar automaticamente quando há backup mais recente
+   */
+  setBackupUI(backupUI) {
+    this.backupUI = backupUI;
   }
 
   /**
@@ -138,6 +149,12 @@ export class SupabaseService {
         }
 
         console.log("✅ Sessão restaurada - Usuário:", session.user.email);
+
+        // ✅ NOVO: Verificar se há backup mais recente no Supabase (em background - não bloqueia o carregamento)
+        this._checkForNewerBackup().catch((err) =>
+          console.error("[BACKUP-CHECK] Erro em background:", err),
+        );
+
         return true;
       }
 
@@ -236,6 +253,9 @@ export class SupabaseService {
         JSON.stringify(backupDataForHash),
       );
 
+      // ✅ NOVO: Gerar versão do backup baseado no timestamp
+      const backupVersion = Math.floor(Date.now() / 1000); // Versão = timestamp em segundos
+
       const { error: dbError } = await supabaseClient
         .from("backup_metadata")
         .insert({
@@ -244,6 +264,7 @@ export class SupabaseService {
           backup_hash: hashParaComparacao,
           backup_size: JSON.stringify(backupDataForUpload).length,
           synced_at: timestamp,
+          backup_version: backupVersion, // ✅ Novo campo para identificar versão
         });
 
       if (dbError) {
@@ -261,10 +282,15 @@ export class SupabaseService {
         JSON.stringify({
           timestamp,
           hash: hashParaComparacao,
+          backup_version: backupVersion, // ✅ Salvar versão também
         }),
       );
 
-      console.log("[UPLOAD] Hash salvo em localStorage!");
+      // ✅ Limpar flag de backup mais recente (agora estamos atualizados)
+      localStorage.removeItem("newer_backup_available");
+      localStorage.removeItem("newer_backup_info");
+
+      console.log("[UPLOAD] Hash e versão salvos em localStorage!");
 
       // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
       await this._deleteOldBackups();
@@ -351,6 +377,123 @@ export class SupabaseService {
   }
 
   /**
+   * ✅ NOVO: Verificar se há backup mais recente no Supabase
+   * Compara a versão do backup local com a do servidor
+   */
+  async _checkForNewerBackup() {
+    try {
+      this.checkingForNewerBackup = true; // ✅ Marcar início da checagem
+
+      if (!this.user) return;
+
+      console.log(
+        "[BACKUP-CHECK] Verificando se há backup mais recente no Supabase...",
+      );
+
+      // 1. Obter versão do backup local
+      const localBackupInfo = JSON.parse(
+        localStorage.getItem("last_backup_sync") || "{}",
+      );
+      const localTimestamp = localBackupInfo.timestamp
+        ? new Date(localBackupInfo.timestamp)
+        : null;
+      const localVersion = localBackupInfo.backup_version || 0;
+
+      console.log("[BACKUP-CHECK] Backup local:", {
+        timestamp: localTimestamp,
+        version: localVersion,
+      });
+
+      // 2. Obter backup mais recente do Supabase
+      const { data: backups, error } = await supabaseClient
+        .from("backup_metadata")
+        .select("*")
+        .eq("user_id", this.user.id)
+        .order("synced_at", { ascending: false })
+        .limit(1);
+
+      if (error || !backups || backups.length === 0) {
+        console.log("[BACKUP-CHECK] Nenhum backup encontrado no Supabase");
+        this.newerBackupAvailable = false;
+        return;
+      }
+
+      const serverBackup = backups[0];
+      const serverTimestamp = new Date(serverBackup.synced_at);
+      const serverVersion = serverBackup.backup_version || 0;
+
+      console.log("[BACKUP-CHECK] Backup Supabase:", {
+        timestamp: serverTimestamp,
+        version: serverVersion,
+        fileName: serverBackup.file_name,
+      });
+
+      // 3. Comparar versões
+      if (!localTimestamp) {
+        // Não há backup local = sempre restaurar do servidor
+        console.log(
+          "[BACKUP-CHECK] ⚠️ Nenhum backup local encontrado - servidor é mais recente",
+        );
+        this.newerBackupAvailable = true;
+        this.newerBackupInfo = {
+          timestamp: serverTimestamp.toLocaleString("pt-BR"),
+          file_name: serverBackup.file_name,
+        };
+      } else if (serverTimestamp > localTimestamp) {
+        // Servidor é mais recente
+        console.log("[BACKUP-CHECK] ⚠️ Backup no Supabase é mais recente!");
+        this.newerBackupAvailable = true;
+        this.newerBackupInfo = {
+          timestamp: serverTimestamp.toLocaleString("pt-BR"),
+          file_name: serverBackup.file_name,
+        };
+
+        // Salvar info no localStorage para exibir no UI
+        localStorage.setItem("newer_backup_available", "true");
+        localStorage.setItem(
+          "newer_backup_info",
+          JSON.stringify({
+            timestamp: serverTimestamp.toLocaleString("pt-BR"),
+            file_name: serverBackup.file_name,
+          }),
+        );
+      } else {
+        console.log("[BACKUP-CHECK] ✅ Backup local é atual");
+        this.newerBackupAvailable = false;
+        localStorage.removeItem("newer_backup_available");
+        localStorage.removeItem("newer_backup_info");
+      }
+
+      // ✅ NOVO: Atualizar UI automaticamente se há backup mais recente
+      if (this.backupUI && this.newerBackupAvailable && this.newerBackupInfo) {
+        console.log(
+          "[BACKUP-CHECK] ✅ Exibindo banner de atualização automáticamente",
+        );
+        this.backupUI.showUpdateBanner(this.newerBackupInfo);
+        this.backupUI.setSyncButtonState("needsSync");
+      }
+    } catch (error) {
+      console.error(
+        "[BACKUP-CHECK] Erro ao verificar backup mais recente:",
+        error,
+      );
+    } finally {
+      this.checkingForNewerBackup = false; // ✅ Marcar fim da checagem
+    }
+  }
+
+  /**
+   * ✅ NOVO: Obter status de backup mais recente
+   * Retorna se há atualização disponível e as informações
+   */
+  getNewerBackupStatus() {
+    return {
+      available: this.newerBackupAvailable,
+      info: this.newerBackupInfo,
+    };
+  }
+
+  /**
    * Obter histórico de backups do usuário
    */
   async getBackupHistory() {
@@ -411,6 +554,88 @@ export class SupabaseService {
     } catch (error) {
       console.error("Erro ao restaurar backup:", error);
       throw error;
+    }
+  }
+
+  /**
+   * ✅ NOVO: Restaurar backup do Supabase (download e aplicar)
+   * Usado quando há backup mais recente no servidor
+   */
+  async downloadAndRestoreBackup(fileName) {
+    try {
+      console.log("[RESTORE] Baixando backup do servidor:", fileName);
+
+      // 1. Download do arquivo
+      const { data, error } = await supabaseClient.storage
+        .from("backups")
+        .download(fileName);
+
+      if (error) throw error;
+
+      const backupText = await data.text();
+      const backupData = JSON.parse(backupText);
+
+      console.log(
+        "[RESTORE] Backup baixado com sucesso. Tamanho:",
+        Object.keys(backupData).length,
+        "tabelas",
+      );
+
+      // 2. Atualizar localStorage com a versão do backup restaurado
+      const { data: metadata } = await supabaseClient
+        .from("backup_metadata")
+        .select("*")
+        .eq("file_name", fileName)
+        .single();
+
+      if (metadata) {
+        localStorage.setItem(
+          "last_backup_sync",
+          JSON.stringify({
+            timestamp: metadata.synced_at,
+            hash: metadata.backup_hash,
+            backup_version: metadata.backup_version,
+          }),
+        );
+        console.log("[RESTORE] Versão local atualizada");
+      }
+
+      // 3. Limpar flag de atualização disponível
+      localStorage.removeItem("newer_backup_available");
+      localStorage.removeItem("newer_backup_info");
+
+      return backupData;
+    } catch (error) {
+      console.error("[RESTORE] Erro ao restaurar backup:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * ✅ NOVO: Verificar se há alterações locais não sincronizadas
+   * Usado para avisar quando vai sobrescrever o backup no servidor
+   */
+  async hasLocalChanges(currentBackupData) {
+    try {
+      const lastSync = JSON.parse(
+        localStorage.getItem("last_backup_sync") || "{}",
+      );
+      const currentHash = this._generateHash(JSON.stringify(currentBackupData));
+
+      const hasChanges = currentHash !== lastSync.hash;
+
+      if (hasChanges) {
+        console.log(
+          "[CHANGES] ⚠️ Há mudanças locais que vão sobrescrever o servidor!",
+        );
+      } else {
+        console.log("[CHANGES] ✅ Sem mudanças locais, sincronização segura");
+      }
+
+      return hasChanges;
+    } catch (error) {
+      console.error("[CHANGES] Erro ao verificar mudanças:", error);
+      return true; // Em caso de erro, assume que há mudanças (mais seguro)
     }
   }
 

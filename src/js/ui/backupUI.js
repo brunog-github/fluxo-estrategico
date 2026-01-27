@@ -759,6 +759,278 @@ export class BackupUI {
   }
 
   /**
+   * ✅ NOVO: Mostrar banner de atualização disponível
+   * Exibido logo abaixo do título da home-screen
+   */
+  showUpdateBanner(backupInfo) {
+    // Remover banner anterior se existir
+    const oldBanner = document.getElementById("update-banner-container");
+    if (oldBanner) oldBanner.remove();
+
+    // Criar container separado para o banner
+    const bannerContainer = document.createElement("div");
+    bannerContainer.id = "update-banner-container";
+    bannerContainer.style.cssText = `
+      padding: 0 0 15px 0;
+      margin-bottom: 0;
+    `;
+
+    const banner = document.createElement("div");
+    banner.id = "update-banner";
+    banner.style.cssText = `
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      animation: slideDown 0.3s ease-out;
+      width: 100%;
+      box-sizing: border-box;
+    `;
+
+    const infoText = backupInfo
+      ? `
+      <strong>Atualização disponível!</strong>
+      <small style="display: block; margin-top: 5px; opacity: 0.9;">
+        Há dados mais recentes na nuvem (${backupInfo.timestamp}).
+        <br>(atualize antes de continuar)
+      </small>
+    `
+      : `
+      <strong>Atualização disponível!</strong>
+      <small style="display: block; margin-top: 5px; opacity: 0.9;">
+        Há dados mais recentes para sincronizar na nuvem.
+      </small>
+    `;
+
+    banner.innerHTML = `
+      <div style="flex: 1;">
+        ${infoText}
+      </div>
+      <button id="banner-dismiss" style="
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.5);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        white-space: nowrap;
+      ">Descartar</button>
+    `;
+
+    bannerContainer.appendChild(banner);
+
+    // Encontrar o cycle-card e inserir o banner ANTES dele
+    const cycleCard = document.querySelector(".cycle-card");
+    if (cycleCard && cycleCard.parentNode) {
+      cycleCard.parentNode.insertBefore(bannerContainer, cycleCard);
+    } else {
+      // Fallback: inserir no homeScreen após o header
+      const homeScreen =
+        document.querySelector(".home-screen") ||
+        document.querySelector("main") ||
+        document.body;
+      homeScreen.insertBefore(
+        bannerContainer,
+        homeScreen.querySelector(".cycle-card") || homeScreen.firstChild,
+      );
+    }
+
+    // Listener para descartar
+    document.getElementById("banner-dismiss")?.addEventListener("click", () => {
+      bannerContainer.remove();
+    });
+  }
+
+  /**
+   * ✅ NOVO: Adicionar confirmação ao modal para restaurar backup
+   * Pergunta se o usuário quer mesmo atualizar os dados
+   */
+  async showRestoreConfirmation(controller, backupInfo) {
+    return new Promise((resolve) => {
+      const confirmBox = document.createElement("div");
+      confirmBox.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10003;
+      `;
+
+      confirmBox.innerHTML = `
+        <div style="
+          background: var(--card-bg);
+          padding: 30px;
+          border-radius: 12px;
+          max-width: 500px;
+          color: var(--text-color);
+          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+          margin: 0 10px;
+        ">
+          <h3 style="margin-top: 0; color: var(--primary-color);">⚠️ Atualizar dados?</h3>
+          <p style="margin: 15px 0; color: var(--text-secondary);">
+            Há dados mais recentes na nuvem. Se você continuar, seus dados locais serão substituídos pelos da nuvem.
+          </p>
+          ${
+            backupInfo
+              ? `
+            <div style="
+              background: var(--badge-bg);
+              padding: 12px;
+              border-radius: 6px;
+              margin: 15px 0;
+              font-size: 13px;
+            ">
+              <strong>Backup na nuvem:</strong><br>
+              ${backupInfo.timestamp}
+            </div>
+          `
+              : ""
+          }
+          <p style="color: var(--text-secondary); font-size: 13px; margin: 15px 0;">
+            ⚠️ Esta ação não pode ser desfeita!
+          </p>
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="confirm-restore" style="
+              flex: 1;
+              padding: 12px;
+              background: var(--primary-color);
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            ">
+              Sim, atualizar
+            </button>
+            <button id="cancel-restore" style="
+              flex: 1;
+              padding: 12px;
+              background: var(--badge-bg);
+              color: var(--text-color);
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            ">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(confirmBox);
+
+      document
+        .getElementById("confirm-restore")
+        .addEventListener("click", () => {
+          confirmBox.remove();
+          resolve(true);
+        });
+
+      document
+        .getElementById("cancel-restore")
+        .addEventListener("click", () => {
+          confirmBox.remove();
+          resolve(false);
+        });
+    });
+  }
+
+  /**
+   * ✅ NOVO: Adicionar confirmação para sobrescrever backup no servidor
+   * Avisa quando há mudanças locais que vão sobrescrever dados no Supabase
+   */
+  async showOverwriteConfirmation() {
+    return new Promise((resolve) => {
+      const confirmBox = document.createElement("div");
+      confirmBox.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10003;
+      `;
+
+      confirmBox.innerHTML = `
+        <div style="
+          background: var(--card-bg);
+          padding: 30px;
+          border-radius: 12px;
+          max-width: 500px;
+          color: var(--text-color);
+          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+          margin: 0 10px;
+        ">
+          <h3 style="margin-top: 0; color: #f57c00;">⚠️ Sobrescrever dados na nuvem?</h3>
+          <p style="margin: 15px 0; color: var(--text-secondary);">
+            Você fez alterações que vão sobrescrever o backup mais antigo na nuvem.
+          </p>
+          <p style="color: var(--text-secondary); font-size: 13px; margin: 15px 0;">
+            Certifique-se de que realmente deseja sincronizar esses dados.
+          </p>
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="confirm-overwrite" style="
+              flex: 1;
+              padding: 12px;
+              background: #f57c00;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            ">
+              Sim, sincronizar
+            </button>
+            <button id="cancel-overwrite" style="
+              flex: 1;
+              padding: 12px;
+              background: var(--badge-bg);
+              color: var(--text-color);
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+            ">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(confirmBox);
+
+      document
+        .getElementById("confirm-overwrite")
+        .addEventListener("click", () => {
+          confirmBox.remove();
+          resolve(true);
+        });
+
+      document
+        .getElementById("cancel-overwrite")
+        .addEventListener("click", () => {
+          confirmBox.remove();
+          resolve(false);
+        });
+    });
+  }
+
+  /**
    * Mostrar mensagem de magic-link enviado
    */
   showMagicLinkSent(email) {

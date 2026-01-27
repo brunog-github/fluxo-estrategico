@@ -2,6 +2,7 @@ import { ViewLoader } from "../view/view-loader.js";
 
 // Database & Migration
 import { migrateFromLocalStorage } from "./services/db/migration.js";
+import { supabaseService } from "./services/supabase/supabase-service.js";
 
 // Controllers
 import { ToastController } from "./controllers/toast-controller.js";
@@ -177,6 +178,9 @@ class App {
 
       await s.backupUI.renderHeaderButton(backupButtonContainer, s.backupSync);
     }
+
+    // ✅ NOVO: Registrar UI no supabaseService para atualizar banner automaticamente
+    supabaseService.setBackupUI(s.backupUI);
 
     // Ligações de callbacks
     s.screens.on("screen-home", async () => {

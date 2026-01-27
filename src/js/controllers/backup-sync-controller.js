@@ -107,8 +107,60 @@ export class BackupSyncController {
     this.ui.setSyncButtonState("loading");
 
     try {
+      // ✅ NOVO: Verificar se há backup mais recente no Supabase
+      const newerBackupStatus = supabaseService.getNewerBackupStatus();
+      if (newerBackupStatus.available) {
+        // Há backup mais recente - perguntar se quer restaurar
+        const wantRestore = await this.ui.showRestoreConfirmation(
+          this,
+          newerBackupStatus.info,
+        );
+
+        if (wantRestore) {
+          console.log("[SYNC] Restaurando backup mais recente do Supabase...");
+          const backupData = await supabaseService.downloadAndRestoreBackup(
+            newerBackupStatus.info.file_name,
+          );
+
+          // Aplicar backup aos dados locais
+          await this._restoreBackupData(backupData);
+
+          this.toast.showToast("success", "Dados atualizados com sucesso!");
+          this.ui.setSyncButtonState("synced");
+          this.ui.showUpdateBanner(null); // Remover banner
+          this.isSyncing = false;
+
+          // ✅ NOVO: Recarregar a página após restaurar para atualizar dados
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+
+          return;
+        } else {
+          // Usuário não quis restaurar, mas continua com sincronização
+          console.log(
+            "[SYNC] Usuário cancelou restauração, continuando com sincronização...",
+          );
+        }
+      }
+
       // Obter dados para backup (SEM exportDate para comparação)
       const backupDataForHash = await this._gatherBackupDataForHash();
+
+      // ✅ NOVO: Verificar se há mudanças locais que vão sobrescrever o servidor
+      const hasLocalChanges =
+        await supabaseService.hasLocalChanges(backupDataForHash);
+
+      // Se há mudanças locais e havia backup mais recente, avisar
+      if (hasLocalChanges && newerBackupStatus.available) {
+        const confirmed = await this.ui.showOverwriteConfirmation();
+        if (!confirmed) {
+          console.log("[SYNC] Usuário cancelou sincronização");
+          this.ui.setSyncButtonState("needsSync");
+          this.isSyncing = false;
+          return;
+        }
+      }
 
       // Verificar se há alterações (comparar apenas dados reais)
       const hasChanges = await supabaseService.hasChanges(backupDataForHash);
@@ -161,6 +213,16 @@ export class BackupSyncController {
         history: backupDataForHash.data.history?.length || 0,
         categories: backupDataForHash.data.categories?.length || 0,
       });
+
+      // ✅ NOVO: Verificar se há backup mais recente no Supabase
+      const newerBackupStatus = supabaseService.getNewerBackupStatus();
+      if (newerBackupStatus.available) {
+        console.log("[BACKUP] ⚠️ Há backup mais recente no Supabase!");
+        this.ui.setSyncButtonState("needsSync");
+        // Mostrar banner indicando atualização disponível
+        this.ui.showUpdateBanner(newerBackupStatus.info);
+        return;
+      }
 
       // Comparar hash dos dados reais (sem exportDate)
       const hasChanges = await supabaseService.hasChanges(backupDataForHash);

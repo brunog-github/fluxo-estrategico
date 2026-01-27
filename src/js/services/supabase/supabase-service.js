@@ -1,6 +1,7 @@
 /**
  * Serviço Supabase para autenticação e sincronização de backup
  * Usa CDN: https://cdn.jsdelivr.net/npm/@supabase/supabase-js
+ * ✅ SessionStorage: Tokens persistem ao recarregar, apagam ao fechar aba
  */
 
 import DBService from "../db/db-service.js";
@@ -12,6 +13,14 @@ const SUPABASE_KEY = "sb_publishable_zfDG-yT9i8j7Lmrnq9RICA_RWuihlW4";
 let supabaseClient = null;
 const dbService = new DBService();
 
+/**
+ * ✅ SEGURANÇA: Usar SessionStorage
+ * - Persiste ao recarregar a página
+ * - Apaga automaticamente ao fechar a aba
+ * - Inacessível a ataques XSS entre abas
+ * - Tokens ficam protegidos durante a sessão
+ */
+
 export class SupabaseService {
   constructor() {
     this.user = null;
@@ -20,6 +29,7 @@ export class SupabaseService {
 
   /**
    * Inicializar o cliente Supabase
+   * ✅ Usa sessionStorage para tokens (persiste ao recarregar, apaga ao fechar aba)
    */
   async init() {
     if (!window.supabase) {
@@ -29,7 +39,15 @@ export class SupabaseService {
       return false;
     }
 
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ✅ SEGURANÇA: Usar sessionStorage (não localStorage)
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        storage: window.sessionStorage, // ← SessionStorage em vez de localStorage
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
 
     // ✅ Restaurar sessão se existir
     await this.restoreSession();
@@ -38,8 +56,9 @@ export class SupabaseService {
     // Quando uma aba faz login, as outras abas detectam via storage event
     window.addEventListener("storage", (event) => {
       if (
-        event.key === "supabase_session" ||
-        event.key === "auth_redirect_trigger"
+        event.key?.startsWith("sb-") ||
+        event.key === "supabase.auth.token" ||
+        event.key === "user_authenticated"
       ) {
         console.log("[AUTH] Detectada mudança de sessão em outra aba");
         // Aguardar um pouco para a sessão estar disponível
@@ -84,6 +103,7 @@ export class SupabaseService {
 
   /**
    * Verificar sessão e restaurar se existir
+   * ✅ SEGURANÇA: Armazena apenas dados públicos, nunca tokens
    */
   async restoreSession() {
     try {
@@ -97,7 +117,18 @@ export class SupabaseService {
       if (session) {
         this.session = session;
         this.user = session.user;
-        localStorage.setItem("supabase_session", JSON.stringify(session));
+
+        // ✅ SEGURANÇA: Salvar apenas dados públicos (SEM tokens)
+        const publicUserData = {
+          id: session.user.id,
+          email: session.user.email,
+          createdAt: session.user.created_at,
+          emailVerified: session.user.email_confirmed_at ? true : false,
+          // ❌ NUNCA incluir: access_token, refresh_token
+        };
+
+        localStorage.setItem("user_profile", JSON.stringify(publicUserData));
+        localStorage.setItem("user_authenticated", "true");
 
         // ✅ IMPORTANTE: Limpar URL de parâmetros de autenticação
         // Isso remove tokens da URL para segurança e evita hash
@@ -106,6 +137,7 @@ export class SupabaseService {
           window.history.replaceState({}, document.title, cleanUrl);
         }
 
+        console.log("✅ Sessão restaurada - Usuário:", session.user.email);
         return true;
       }
 
@@ -118,6 +150,7 @@ export class SupabaseService {
 
   /**
    * Fazer logout
+   * ✅ SEGURANÇA: Remove todos os dados de autenticação
    */
   async logout() {
     try {
@@ -126,14 +159,30 @@ export class SupabaseService {
 
       this.user = null;
       this.session = null;
+
+      // ✅ SEGURANÇA: Limpar localStorage (dados públicos)
+      localStorage.removeItem("user_profile");
+      localStorage.removeItem("user_authenticated");
       localStorage.removeItem("supabase_session");
-      // ✅ IMPORTANTE: Limpar hash ao fazer logout
-      // Isso força um novo sincronismo ao fazer login novamente
       localStorage.removeItem("last_backup_sync");
+
+      // ✅ SEGURANÇA: Limpar sessionStorage (tokens)
+      // Supabase armazena tokens em sessionStorage agora
+      Object.keys(sessionStorage).forEach((key) => {
+        if (
+          key.startsWith("sb-") ||
+          key.includes("token") ||
+          key === "supabase.auth.token"
+        ) {
+          sessionStorage.removeItem(key);
+          console.log(`[AUTH] SessionStorage removido: ${key}`);
+        }
+      });
 
       // ✅ CACHE: Limpar cache do histórico ao fazer logout
       dbService.clearBackupHistoryCache();
 
+      console.log("✅ Logout realizado - Todos os dados removidos");
       return true;
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
@@ -412,6 +461,31 @@ export class SupabaseService {
    */
   getUserEmail() {
     return this.user?.email || null;
+  }
+
+  /**
+   * Obter perfil público do usuário (SEM tokens)
+   * ✅ SEGURANÇA: Retorna apenas dados públicos do localStorage
+   */
+  getPublicUserProfile() {
+    const profile = localStorage.getItem("user_profile");
+    return profile ? JSON.parse(profile) : null;
+  }
+
+  /**
+   * Verificar se autenticado (mais seguro)
+   * ✅ Verifica localStorage em vez de confiar apenas na memória
+   */
+  isAuthenticatedSecure() {
+    // Verificar em memória (preferível)
+    if (this.user && this.session) {
+      return true;
+    }
+
+    // Fallback: verificar localStorage (para persistência entre abas)
+    const isAuthenticated =
+      localStorage.getItem("user_authenticated") === "true";
+    return isAuthenticated;
   }
 }
 

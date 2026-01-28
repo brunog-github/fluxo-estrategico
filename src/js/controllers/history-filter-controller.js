@@ -32,9 +32,10 @@ export class HistoryFilterController {
   // Quando mudar qualquer filtro
   async applyFilters() {
     const history = await dbService.getHistory();
+    const allNotes = await dbService.getNotes();
     const filters = this.ui.getFilters();
 
-    const filtered = filterHistory(history, filters);
+    const filtered = filterHistory(history, filters, allNotes);
 
     await this.reports.ui.renderHistoryTable(
       filtered,
@@ -43,6 +44,11 @@ export class HistoryFilterController {
       },
       (item) => {
         this.reports.onEditHandler(item);
+      },
+      (id) => {
+        if (this.reports.onViewNotesHandler) {
+          this.reports.onViewNotesHandler(id);
+        }
       },
     );
 

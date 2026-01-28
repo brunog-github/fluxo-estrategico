@@ -91,6 +91,10 @@
   color: var(--text-color) !important;
 }
 
+.filter-group #notes-check {
+  display: none;
+}
+
 /* --- RESPONSIVIDADE (MOBILE) --- */
 @media (max-width: 600px) {
   .notes-modal-container {
@@ -108,5 +112,9 @@
   /* Esconde opções menos úteis do Quill no mobile se quiser economizar espaço (opcional) */
   .ql-formats {
     margin-right: 5px !important;
+  }
+
+  .filter-group #notes-check {
+    display: block;
   }
 }

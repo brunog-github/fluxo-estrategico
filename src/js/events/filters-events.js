@@ -45,6 +45,12 @@ export function initFiltersEvents(filterController) {
     });
 
   document
+    .getElementById("filter-has-notes")
+    .addEventListener("change", async () => {
+      await filterController.applyFilters();
+    });
+
+  document
     .getElementById("btn-clear-filter-history")
     .addEventListener("click", async () => {
       const today = new Date().toISOString().split("T")[0];

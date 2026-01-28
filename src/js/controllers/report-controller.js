@@ -212,6 +212,9 @@ export class ReportsController {
       if (filters.category) {
         return filters.category; // Ex: "Teoria"
       }
+      if (filters.hasNotes) {
+        return "Com Anotações";
+      }
     }
 
     const subjects = [...new Set(items.map((i) => i.subject))];

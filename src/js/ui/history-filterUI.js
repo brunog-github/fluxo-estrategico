@@ -4,6 +4,7 @@ export class HistoryFilterUI {
     this.startInput = document.getElementById("filter-start");
     this.endInput = document.getElementById("filter-end");
     this.categorySelect = document.getElementById("filter-category");
+    this.hasNotesCheckbox = document.getElementById("filter-has-notes");
   }
 
   applyMaxDate() {
@@ -52,6 +53,7 @@ export class HistoryFilterUI {
     if (this.startInput) this.startInput.value = "";
     if (this.endInput) this.endInput.value = "";
     if (this.categorySelect) this.categorySelect.value = "";
+    if (this.hasNotesCheckbox) this.hasNotesCheckbox.checked = false;
   }
 
   getFilters() {
@@ -60,6 +62,7 @@ export class HistoryFilterUI {
       start: this.startInput?.value || "",
       end: this.endInput?.value || "",
       category: this.categorySelect ? this.categorySelect.value : "",
+      hasNotes: this.hasNotesCheckbox ? this.hasNotesCheckbox.checked : false,
     };
   }
 }

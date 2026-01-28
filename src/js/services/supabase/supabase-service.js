@@ -41,9 +41,6 @@ export class SupabaseService {
    */
   async init() {
     if (!window.supabase) {
-      console.error(
-        "Supabase não foi carregado. Verifique o CDN na index.html",
-      );
       return false;
     }
 
@@ -68,7 +65,6 @@ export class SupabaseService {
         event.key === "supabase.auth.token" ||
         event.key === "user_authenticated"
       ) {
-        console.log("[AUTH] Detectada mudança de sessão em outra aba");
         // Aguardar um pouco para a sessão estar disponível
         setTimeout(async () => {
           await this.restoreSession();
@@ -78,13 +74,8 @@ export class SupabaseService {
 
     // ✅ NOVO: Escutar mudanças de estado de autenticação (expirações, refresh token inválido)
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log("[AUTH] Evento de autenticação:", event);
-
       if (event === "SIGNED_OUT" || (event === "TOKEN_REFRESHED" && !session)) {
         // Sessão expirou ou foi revogada
-        console.warn(
-          "[AUTH] Sessão expirada ou inválida - usuário desconectado",
-        );
         this.user = null;
         this.session = null;
         localStorage.removeItem("user_profile");
@@ -161,7 +152,6 @@ export class SupabaseService {
         localStorage.setItem("user_profile", JSON.stringify(publicUserData));
         localStorage.setItem("user_authenticated", "true");
 
-        console.log("✅ OTP verificado - Usuário:", data.user.email);
         return { success: true, message: "Login realizado com sucesso!" };
       }
 
@@ -170,7 +160,6 @@ export class SupabaseService {
         error: "Código inválido ou expirado",
       };
     } catch (error) {
-      console.error("Erro ao verificar OTP:", error);
       return { success: false, error: error.message };
     }
   }
@@ -220,8 +209,6 @@ export class SupabaseService {
           window.history.replaceState({}, document.title, cleanUrl);
         }
 
-        console.log("✅ Sessão restaurada - Usuário:", session.user.email);
-
         // ✅ NOVO: Validar se o hash salvo é da mesma conta
         const lastBackupSync = JSON.parse(
           localStorage.getItem("last_backup_sync") || "{}",
@@ -231,9 +218,6 @@ export class SupabaseService {
           lastBackupSync.user_id !== session.user.id
         ) {
           // ✅ Mudança de conta detectada - limpar hash anterior
-          console.log(
-            "[BACKUP] Conta diferente detectada - limpando hash anterior",
-          );
           localStorage.removeItem("last_backup_sync");
         }
 
@@ -280,11 +264,8 @@ export class SupabaseService {
           key === "supabase.auth.token"
         ) {
           sessionStorage.removeItem(key);
-          console.log(`[AUTH] SessionStorage removido: ${key}`);
         }
       });
-
-      console.log("✅ Logout realizado - Todos os dados removidos");
       return true;
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
@@ -303,10 +284,6 @@ export class SupabaseService {
     }
 
     try {
-      console.log(
-        "[UPLOAD] Iniciando upload do backup para usuário:",
-        this.user.id,
-      );
       const timestamp = new Date().toISOString();
       const fileName = `${this.user.id}/backup-${Date.now()}.gz`;
 
@@ -314,16 +291,8 @@ export class SupabaseService {
       // Comprimir JSON com gzip usando função utilitária
       const compressed = await compressBackupGzip(backupDataForUpload);
       const blob = new Blob([compressed], { type: "application/gzip" });
-      console.log(
-        "[UPLOAD] Blob comprimido. Tamanho:",
-        blob.size,
-        "bytes (original:",
-        JSON.stringify(backupDataForUpload).length,
-        "bytes)",
-      );
 
       // Upload para Supabase Storage
-      console.log("[UPLOAD] Enviando arquivo para Storage:", fileName);
       const { data, error: uploadError } = await supabaseClient.storage
         .from("backups")
         .upload(fileName, blob, {
@@ -336,10 +305,7 @@ export class SupabaseService {
         throw uploadError;
       }
 
-      console.log("[UPLOAD] Arquivo enviado com sucesso:", data);
-
       // Registrar metadados no banco de dados
-      console.log("[UPLOAD] Registrando metadados no banco de dados...");
       // IMPORTANTE: Usar hash dos dados SEM exportDate para comparação
       const hashParaComparacao = this._generateHash(
         JSON.stringify(backupDataForHash),
@@ -364,10 +330,7 @@ export class SupabaseService {
         throw dbError;
       }
 
-      console.log("[UPLOAD] Metadados registrados com sucesso!");
-
       // Salvar timestamp local - IMPORTANTE: Usar hash dos dados SEM exportDate
-      console.log("[UPLOAD] Salvando novo hash:", hashParaComparacao);
 
       localStorage.setItem(
         "last_backup_sync",
@@ -382,8 +345,6 @@ export class SupabaseService {
       // ✅ Limpar flag de backup mais recente (agora estamos atualizados)
       localStorage.removeItem("newer_backup_available");
       localStorage.removeItem("newer_backup_info");
-
-      console.log("[UPLOAD] Hash e versão salvos em localStorage!");
 
       // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
       await this._deleteOldBackups();
@@ -415,17 +376,11 @@ export class SupabaseService {
       }
 
       if (!backups || backups.length <= MAX_BACKUPS) {
-        console.log(
-          `[CLEANUP] Total de backups: ${backups?.length || 0}/${MAX_BACKUPS} (nenhum para deletar)`,
-        );
         return;
       }
 
       // Backups a deletar (do índice MAX_BACKUPS em diante)
       const backupsToDelete = backups.slice(MAX_BACKUPS);
-      console.log(
-        `[CLEANUP] Deletando ${backupsToDelete.length} backup(s) antigo(s)...`,
-      );
 
       for (const backup of backupsToDelete) {
         try {
@@ -449,19 +404,12 @@ export class SupabaseService {
             console.error(`[CLEANUP] Erro ao deletar metadados:`, dbError);
             continue;
           }
-
-          console.log(`[CLEANUP] Backup antigo deletado: ${backup.file_name}`);
         } catch (error) {
           console.error(`[CLEANUP] Erro ao processar exclusão:`, error);
         }
       }
-
-      console.log(
-        `[CLEANUP] Limpeza concluída. Backups restantes: ${MAX_BACKUPS}`,
-      );
     } catch (error) {
-      console.error("[CLEANUP] Erro na limpeza de backups:", error);
-      // Não jogar erro, pois backup já foi feito com sucesso
+      console.error("[CLEANUP] Erro ao deletar backups antigos:", error);
     }
   }
 
@@ -475,10 +423,6 @@ export class SupabaseService {
 
       if (!this.user) return;
 
-      console.log(
-        "[BACKUP-CHECK] Verificando se há backup mais recente no Supabase...",
-      );
-
       // 1. Obter versão do backup local
       const localBackupInfo = JSON.parse(
         localStorage.getItem("last_backup_sync") || "{}",
@@ -487,11 +431,6 @@ export class SupabaseService {
         ? new Date(localBackupInfo.timestamp)
         : null;
       const localVersion = localBackupInfo.backup_version || 0;
-
-      console.log("[BACKUP-CHECK] Backup local:", {
-        timestamp: localTimestamp,
-        version: localVersion,
-      });
 
       // 2. Obter backup mais recente do Supabase
       const { data: backups, error } = await supabaseClient
@@ -502,7 +441,6 @@ export class SupabaseService {
         .limit(1);
 
       if (error || !backups || backups.length === 0) {
-        console.log("[BACKUP-CHECK] Nenhum backup encontrado no Supabase");
         this.newerBackupAvailable = false;
         return;
       }
@@ -511,18 +449,9 @@ export class SupabaseService {
       const serverTimestamp = new Date(serverBackup.synced_at);
       const serverVersion = serverBackup.backup_version || 0;
 
-      console.log("[BACKUP-CHECK] Backup Supabase:", {
-        timestamp: serverTimestamp,
-        version: serverVersion,
-        fileName: serverBackup.file_name,
-      });
-
       // 3. Comparar versões
       if (!localTimestamp) {
         // Não há backup local = sempre restaurar do servidor
-        console.log(
-          "[BACKUP-CHECK] ⚠️ Nenhum backup local encontrado - servidor é mais recente",
-        );
         this.newerBackupAvailable = true;
         this.newerBackupInfo = {
           timestamp: serverTimestamp.toLocaleString("pt-BR"),
@@ -530,7 +459,6 @@ export class SupabaseService {
         };
       } else if (serverTimestamp > localTimestamp) {
         // Servidor é mais recente
-        console.log("[BACKUP-CHECK] ⚠️ Backup no Supabase é mais recente!");
         this.newerBackupAvailable = true;
         this.newerBackupInfo = {
           timestamp: serverTimestamp.toLocaleString("pt-BR"),
@@ -547,7 +475,6 @@ export class SupabaseService {
           }),
         );
       } else {
-        console.log("[BACKUP-CHECK] ✅ Backup local é atual");
         this.newerBackupAvailable = false;
         localStorage.removeItem("newer_backup_available");
         localStorage.removeItem("newer_backup_info");
@@ -555,9 +482,6 @@ export class SupabaseService {
 
       // ✅ NOVO: Atualizar UI automaticamente se há backup mais recente
       if (this.backupUI && this.newerBackupAvailable && this.newerBackupInfo) {
-        console.log(
-          "[BACKUP-CHECK] ✅ Exibindo banner de atualização automáticamente",
-        );
         this.backupUI.showUpdateBanner(this.newerBackupInfo);
         this.backupUI.setSyncButtonState("needsSync");
       }
@@ -615,8 +539,6 @@ export class SupabaseService {
    */
   async downloadAndRestoreBackup(fileName) {
     try {
-      console.log("[RESTORE] Baixando backup do servidor:", fileName);
-
       // 1. Download do arquivo
       const { data, error } = await supabaseClient.storage
         .from("backups")
@@ -627,12 +549,6 @@ export class SupabaseService {
       // Descomprimir dados com gzip usando função utilitária
       const uint8Array = new Uint8Array(await data.arrayBuffer());
       const backupData = await decompressBackupGzip(uint8Array);
-
-      console.log(
-        "[RESTORE] Backup baixado e descomprimido com sucesso. Tamanho:",
-        Object.keys(backupData).length,
-        "tabelas",
-      );
 
       // 2. Atualizar localStorage com a versão do backup restaurado
       const { data: metadata } = await supabaseClient
@@ -651,7 +567,6 @@ export class SupabaseService {
             backup_version: metadata.backup_version,
           }),
         );
-        console.log("[RESTORE] Versão local atualizada");
       }
 
       // 3. Limpar flag de atualização disponível
@@ -660,7 +575,6 @@ export class SupabaseService {
 
       return backupData;
     } catch (error) {
-      console.error("[RESTORE] Erro ao restaurar backup:", error);
       throw error;
     }
   }
@@ -678,17 +592,8 @@ export class SupabaseService {
 
       const hasChanges = currentHash !== lastSync.hash;
 
-      if (hasChanges) {
-        console.log(
-          "[CHANGES] ⚠️ Há mudanças locais que vão sobrescrever o servidor!",
-        );
-      } else {
-        console.log("[CHANGES] ✅ Sem mudanças locais, sincronização segura");
-      }
-
       return hasChanges;
     } catch (error) {
-      console.error("[CHANGES] Erro ao verificar mudanças:", error);
       return true; // Em caso de erro, assume que há mudanças (mais seguro)
     }
   }
@@ -703,14 +608,10 @@ export class SupabaseService {
       );
       const currentHash = this._generateHash(JSON.stringify(currentBackupData));
 
-      console.log("[HASH] Último hash salvo:", lastSync.hash);
-      console.log("[HASH] Hash atual:", currentHash);
       const hasChanges = currentHash !== lastSync.hash;
-      console.log("[HASH] Tem mudanças?", hasChanges);
 
       return hasChanges;
     } catch (error) {
-      console.error("[HASH] Erro ao verificar mudanças:", error);
       return true; // Em caso de erro, considera que há alterações
     }
   }

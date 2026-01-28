@@ -139,7 +139,6 @@ export class BackupSyncController {
         );
 
         if (wantRestore) {
-          console.log("[SYNC] Restaurando backup mais recente do Supabase...");
           const backupData = await supabaseService.downloadAndRestoreBackup(
             newerBackupStatus.info.file_name,
           );
@@ -163,7 +162,6 @@ export class BackupSyncController {
               hash: restoredHash,
             }),
           );
-          console.log("[SYNC] Hash local atualizado após restauração");
 
           this.toast.showToast("success", "Dados atualizados com sucesso!");
           this.ui.setSyncButtonState("synced");
@@ -178,9 +176,6 @@ export class BackupSyncController {
           return;
         } else {
           // Usuário não quis restaurar, mas continua com sincronização
-          console.log(
-            "[SYNC] Usuário cancelou restauração, continuando com sincronização...",
-          );
         }
       }
 
@@ -195,7 +190,6 @@ export class BackupSyncController {
       if (hasLocalChanges && newerBackupStatus.available) {
         const confirmed = await this.ui.showOverwriteConfirmation();
         if (!confirmed) {
-          console.log("[SYNC] Usuário cancelou sincronização");
           this.ui.setSyncButtonState("needsSync");
           this.isSyncing = false;
           return;
@@ -239,25 +233,17 @@ export class BackupSyncController {
    */
   async checkSyncStatus() {
     if (!supabaseService.isAuthenticated()) {
-      console.log("[BACKUP] Usuário não autenticado");
       this.ui.setSyncButtonState("offline");
       return;
     }
 
     try {
-      console.log("[BACKUP] Coletando dados para verificação...");
       // Usar dados SEM exportDate para comparação de hash
       const backupDataForHash = await this._gatherBackupDataForHash();
-      console.log("[BACKUP] Dados coletados:", {
-        subjects: backupDataForHash.data.subjects?.length || 0,
-        history: backupDataForHash.data.history?.length || 0,
-        categories: backupDataForHash.data.categories?.length || 0,
-      });
 
       // ✅ NOVO: Verificar se há backup mais recente no Supabase
       const newerBackupStatus = supabaseService.getNewerBackupStatus();
       if (newerBackupStatus.available) {
-        console.log("[BACKUP] ⚠️ Há backup mais recente no Supabase!");
         this.ui.setSyncButtonState("needsSync");
         // Mostrar banner indicando atualização disponível
         this.ui.showUpdateBanner(newerBackupStatus.info);
@@ -266,14 +252,11 @@ export class BackupSyncController {
 
       // Comparar hash dos dados reais (sem exportDate)
       const hasChanges = await supabaseService.hasChanges(backupDataForHash);
-      console.log("[BACKUP] Tem mudanças?", hasChanges);
 
       // APENAS ATUALIZAR ESTADO VISUAL - NÃO SINCRONIZAR AUTOMATICAMENTE
       if (hasChanges) {
-        console.log("[BACKUP] Status: Tem mudanças não sincronizadas");
         this.ui.setSyncButtonState("needsSync");
       } else {
-        console.log("[BACKUP] Status: Sincronizado");
         this.ui.setSyncButtonState("synced");
       }
     } catch (error) {

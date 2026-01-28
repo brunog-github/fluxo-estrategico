@@ -9,11 +9,8 @@ export async function migrateFromLocalStorage() {
     // 1. Verificar se já foi feita a migração
     const isMigrated = await dbService.getSetting("migrationCompleted");
     if (isMigrated === true) {
-      console.log("✅ Migração já foi realizada anteriormente");
       return;
     }
-
-    console.log("🔄 Iniciando migração do localStorage para IndexedDB...");
 
     // 2. Buscar todos os dados do localStorage
     const studyCategories = JSON.parse(
@@ -37,7 +34,6 @@ export async function migrateFromLocalStorage() {
 
     // 3. Migrar categorias
     if (studyCategories.length > 0) {
-      console.log("📁 Migrando categorias...");
       for (const category of studyCategories) {
         await dbService.addCategory(category);
       }
@@ -45,14 +41,12 @@ export async function migrateFromLocalStorage() {
 
     // 4. Migrar ciclo de estudo (subjects)
     if (studyCycle.length > 0) {
-      console.log("📚 Migrando ciclo de estudo...");
       await dbService.addSubjects(studyCycle);
       await dbService.setCurrentCycleIndex(currentIndex);
     }
 
     // 5. Migrar histórico de estudo
     if (studyHistory.length > 0) {
-      console.log("📊 Migrando histórico de estudo...");
       const historyEntries = studyHistory.map((item) => ({
         id: item.id,
         date: item.date, // Já está no formato "DD/MM/YYYY às HH:mm"
@@ -67,7 +61,6 @@ export async function migrateFromLocalStorage() {
 
     // 6. Migrar anotações
     if (studyNotes.length > 0) {
-      console.log("📝 Migrando anotações...");
       const notesToAdd = studyNotes.map((item) => ({
         linkedId: item.linkedId,
         content: item.content,
@@ -78,14 +71,12 @@ export async function migrateFromLocalStorage() {
 
     // 7. Migrar conquistas desbloqueadas
     if (unlockedAchievements.length > 0) {
-      console.log("🏆 Migrando conquistas...");
       for (const achievementId of unlockedAchievements) {
         await dbService.unlockAchievement(achievementId);
       }
     }
 
     // 8. Migrar configurações
-    console.log("⚙️ Migrando configurações...");
     await dbService.setTheme(theme);
     await dbService.setRestDays(restDays);
     if (lastBackupDate) {
@@ -99,16 +90,7 @@ export async function migrateFromLocalStorage() {
     // 9. Marcar migração como completa
     await dbService.setSetting("migrationCompleted", true);
     await dbService.setSetting("migrationDate", new Date().toISOString());
-
-    console.log("✅ Migração concluída com sucesso!");
-    console.log("📦 Dados transferidos:");
-    console.log(`   - ${studyCategories.length} categorias`);
-    console.log(`   - ${studyCycle.length} matérias`);
-    console.log(`   - ${studyHistory.length} sessões de estudo`);
-    console.log(`   - ${studyNotes.length} anotações`);
-    console.log(`   - ${unlockedAchievements.length} conquistas`);
   } catch (error) {
-    console.error("❌ Erro durante a migração:", error);
     throw error;
   }
 }
@@ -147,8 +129,4 @@ export function clearLocalStorageAfterMigration() {
   keysToRemove.forEach((key) => {
     localStorage.removeItem(key);
   });
-
-  console.log(
-    "🗑️ Dados do localStorage removidos (após migração bem-sucedida)",
-  );
 }

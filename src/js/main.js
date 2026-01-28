@@ -62,7 +62,6 @@ class App {
   async start() {
     try {
       // Passo 0: Migrar dados do localStorage se necessário
-      console.log("🔍 Verificando migração de dados...");
       await migrateFromLocalStorage();
 
       // Passo 1: Carregar HTML
@@ -77,8 +76,6 @@ class App {
 
       // Passo 4: Restaurar Estado (Timer ou Home)
       await this._handleInitialState();
-
-      console.log("Fluxo Estratégico iniciado com sucesso!");
     } catch (error) {
       console.error("Erro fatal ao iniciar aplicação:", error);
     }

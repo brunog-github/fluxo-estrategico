@@ -41,7 +41,6 @@ export class BackupUI {
       container.appendChild(button);
 
       // ✅ Verificar status de backup imediatamente após adicionar ao DOM
-      console.log("[HeaderUI] Verificando status de backup imediatamente...");
       await controller.checkSyncStatus();
     } else {
       // Não autenticado - estado offline
@@ -567,7 +566,6 @@ export class BackupUI {
 
     // ✅ IMPORTANTE: Chamar DEPOIS de adicionar ao DOM
     if (supabaseService.isAuthenticated()) {
-      console.log("[UI] Verificando status de backup imediatamente...");
       await controller.checkSyncStatus();
     }
   }
@@ -579,7 +577,6 @@ export class BackupUI {
     // Encontrar o botão sempre (em caso de re-renderização)
     const syncBtn = document.querySelector("#sync-button");
     if (!syncBtn) {
-      console.warn("[UI] Botão de sincronização não encontrado");
       return;
     }
 
@@ -638,7 +635,6 @@ export class BackupUI {
    */
   showLoginForm() {
     // Apenas disparar re-renderização (será chamado do controller)
-    console.log("[UI] showLoginForm chamado");
   }
 
   /**

@@ -120,7 +120,6 @@ export async function generateFakeData() {
     if (existingSubjects.length === 0) {
       await dbService.addSubjects(subjects);
     }
-
     console.log(`✅ Sucesso! ${history.length} registos gerados no IndexedDB.`);
     console.log("Recarrega a página para ver os gráficos e tabelas.");
   } catch (error) {

@@ -177,6 +177,16 @@ export class NotesController {
     const allNotes = await dbService.getNotes();
     const existingNote = allNotes.find((n) => n.linkedId == linkedId);
 
+    // SE NÃO HÁ TEXTO REAL
+    if (!textPreview || textPreview.trim() === "") {
+      // Se existe uma nota anterior, DELETA ela (usuário esvaziou o conteúdo)
+      if (existingNote && existingNote.id) {
+        await dbService.deleteNote(existingNote.id);
+      }
+      return;
+    }
+
+    // SE HÁ TEXTO: Atualiza ou adiciona a nota normalmente
     const newNote = {
       linkedId: linkedId,
       content: contentToSave,

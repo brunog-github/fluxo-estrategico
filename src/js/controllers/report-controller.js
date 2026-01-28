@@ -37,6 +37,7 @@ export class ReportsController {
   async renderHistory() {
     let raw = await dbService.getHistory();
     let filtered = getFilteredHistory(raw);
+    const allNotes = await dbService.getNotes();
 
     await this.ui.renderHistoryTable(
       filtered,
@@ -55,6 +56,7 @@ export class ReportsController {
           console.warn("No notes handler defined.");
         }
       },
+      allNotes,
     );
   }
 

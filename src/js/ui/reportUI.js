@@ -64,6 +64,7 @@ export class ReportsUI {
     deleteCallback,
     editCallback,
     viewNotesCallback,
+    allNotes = [],
   ) {
     const body = document.getElementById("history-list");
     const empty = document.getElementById("empty-history-msg");
@@ -87,18 +88,32 @@ export class ReportsUI {
     this.currentPage = 1;
 
     // Renderizar primeira página
-    await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+    await this._renderPage(
+      deleteCallback,
+      editCallback,
+      viewNotesCallback,
+      allNotes,
+    );
 
     // Adicionar controles de paginação
     this._addPaginationControls(
       deleteCallback,
       editCallback,
       viewNotesCallback,
+      allNotes,
     );
   }
 
-  async _renderPage(deleteCallback, editCallback, viewNotesCallback) {
+  async _renderPage(
+    deleteCallback,
+    editCallback,
+    viewNotesCallback,
+    allNotes = [],
+  ) {
     const body = document.getElementById("history-list");
+
+    // Criar um Set de IDs que têm anotações para acesso rápido
+    const notesIds = new Set(allNotes.map((note) => note.linkedId));
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = Math.min(start + this.itemsPerPage, this.allHistory.length);
@@ -160,7 +175,7 @@ export class ReportsUI {
 
           <td style="white-space: nowrap; width:1%; vertical-align: middle;">
             <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-                <button class="notes-row" style="background:transparent; border:none; font-size:16px; color:var(--text-color); cursor:pointer;" title="Anotações">
+                <button class="notes-row" style="background:transparent; border:none; font-size:16px; color:${notesIds.has(item.id) ? "#ffc107" : "var(--text-color)"}; cursor:pointer;" title="Anotações">
                     <i class="fa fa-sticky-note-o"></i>
                 </button>
                 <button class="edit-row" style="background:transparent; border:none; font-size:16px; cursor:pointer;" title="Editar">
@@ -212,7 +227,12 @@ export class ReportsUI {
     body.appendChild(fragment);
   }
 
-  _addPaginationControls(deleteCallback, editCallback, viewNotesCallback) {
+  _addPaginationControls(
+    deleteCallback,
+    editCallback,
+    viewNotesCallback,
+    allNotes = [],
+  ) {
     let paginationContainer = document.querySelector(
       ".table-actions div:first-child",
     );
@@ -251,11 +271,17 @@ export class ReportsUI {
       if (this.currentPage > 1) {
         const scrollPos = window.scrollY;
         this.currentPage--;
-        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        await this._renderPage(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+          allNotes,
+        );
         this._addPaginationControls(
           deleteCallback,
           editCallback,
           viewNotesCallback,
+          allNotes,
         );
         window.scrollTo(0, scrollPos);
       }
@@ -280,11 +306,17 @@ export class ReportsUI {
       firstBtn.addEventListener("click", async () => {
         const scrollPos = window.scrollY;
         this.currentPage = 1;
-        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        await this._renderPage(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+          allNotes,
+        );
         this._addPaginationControls(
           deleteCallback,
           editCallback,
           viewNotesCallback,
+          allNotes,
         );
         window.scrollTo(0, scrollPos);
       });
@@ -310,11 +342,17 @@ export class ReportsUI {
       pageBtn.addEventListener("click", async () => {
         const scrollPos = window.scrollY;
         this.currentPage = i;
-        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        await this._renderPage(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+          allNotes,
+        );
         this._addPaginationControls(
           deleteCallback,
           editCallback,
           viewNotesCallback,
+          allNotes,
         );
         window.scrollTo(0, scrollPos);
       });
@@ -335,11 +373,17 @@ export class ReportsUI {
       lastBtn.addEventListener("click", async () => {
         const scrollPos = window.scrollY;
         this.currentPage = this.totalPages;
-        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        await this._renderPage(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+          allNotes,
+        );
         this._addPaginationControls(
           deleteCallback,
           editCallback,
           viewNotesCallback,
+          allNotes,
         );
         window.scrollTo(0, scrollPos);
       });
@@ -355,11 +399,17 @@ export class ReportsUI {
       if (this.currentPage < this.totalPages) {
         const scrollPos = window.scrollY;
         this.currentPage++;
-        await this._renderPage(deleteCallback, editCallback, viewNotesCallback);
+        await this._renderPage(
+          deleteCallback,
+          editCallback,
+          viewNotesCallback,
+          allNotes,
+        );
         this._addPaginationControls(
           deleteCallback,
           editCallback,
           viewNotesCallback,
+          allNotes,
         );
         window.scrollTo(0, scrollPos);
       }

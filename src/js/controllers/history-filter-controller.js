@@ -50,6 +50,7 @@ export class HistoryFilterController {
           this.reports.onViewNotesHandler(id);
         }
       },
+      allNotes,
     );
 
     await this.reports.updateSummary(filtered, filters);

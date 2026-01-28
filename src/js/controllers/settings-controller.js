@@ -7,6 +7,7 @@ import {
   buildBackupData,
   saveBackupToFile,
   restoreBackup,
+  decompressBackupGzip,
 } from "../utils/backup-utils.js";
 
 import {
@@ -410,25 +411,58 @@ export class SettingsController {
 
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
-        const text = e.target.result;
-        const backup = JSON.parse(text);
+        let backup;
+
+        // Detectar se é arquivo comprimido ou JSON
+        if (file.name.endsWith(".gz") || file.type === "application/gzip") {
+          // Arquivo comprimido com gzip - usar função utilitária
+          const uint8Array = new Uint8Array(e.target.result);
+          backup = await decompressBackupGzip(uint8Array);
+        } else {
+          // Arquivo JSON simples (retrocompatibilidade)
+          const text = e.target.result;
+          backup = JSON.parse(text);
+        }
 
         if (!backup.data) throw new Error("Backup inválido.");
 
         const date = new Date(backup.date).toLocaleDateString("pt-BR");
 
+        // Verificar se há dados existentes
+        const existingHistory = await dbService.getHistory();
+        const existingSubjects = await dbService.getSubjects();
+        const hasExistingData =
+          existingHistory.length > 0 || existingSubjects.length > 0;
+
         this.confirm.confirm(
           `Backup de ${date} encontrado. Isso irá substituir todo o seu histórico e configurações. Continuar?`,
           async () => {
-            await restoreBackup(backup);
+            try {
+              // Se há dados existentes, limpar apenas as tabelas que têm risco de duplicatas
+              if (hasExistingData) {
+                await dbService.clearSubjects();
+                await dbService.clearHistory();
+                await dbService.clearNotes();
+                await dbService.clearCategories();
+                await dbService.clearAchievements();
+              }
 
-            this.toast.showToast(
-              "success",
-              "Backup restaurado com sucesso! O app será recarregado.",
-            );
-            window.location.reload();
+              await restoreBackup(backup);
+
+              this.toast.showToast(
+                "success",
+                "Backup restaurado com sucesso! O app será recarregado.",
+              );
+              window.location.reload();
+            } catch (restoreErr) {
+              console.error("Erro ao restaurar backup:", restoreErr);
+              this.toast.showToast(
+                "error",
+                "Erro ao restaurar backup. Tente novamente.",
+              );
+            }
           },
         );
       } catch (err) {
@@ -442,6 +476,11 @@ export class SettingsController {
       }
     };
 
-    reader.readAsText(file);
+    // Ler como ArrayBuffer para suportar gzip
+    if (file.name.endsWith(".gz") || file.type === "application/gzip") {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
   }
 }

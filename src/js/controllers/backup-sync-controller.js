@@ -369,6 +369,7 @@ export class BackupSyncController {
       // ✅ IMPORTANTE: Remover campos internos que NÃO devem ser inclusos no backup
       const cleanSettings = { ...settings };
       delete cleanSettings.lastBackupSync; // Campo interno de sincronização
+      delete cleanSettings.lastBackupDate; // Campo local - não sincronizar com Supabase
 
       // ✅ IMPORTANTE: Normalizar subjects (extrair apenas nomes)
       const subjectsNormalized = subjects.map((s) => s.name || s);

@@ -1,5 +1,24 @@
 import { dbService } from "../services/db/db-service.js";
 
+// Funções de compressão/descompressão com gzip usando fflate
+export async function compressBackupGzip(data) {
+  const json = JSON.stringify(data);
+  const uint8 = new TextEncoder().encode(json);
+  const compressed = fflate.gzipSync(uint8);
+  return compressed;
+}
+
+export async function decompressBackupGzip(compressedData) {
+  try {
+    const decompressed = fflate.gunzipSync(compressedData);
+    const json = new TextDecoder().decode(decompressed);
+    return JSON.parse(json);
+  } catch (error) {
+    console.error("Erro ao descomprimir backup:", error);
+    throw new Error("Falha ao descomprimir o arquivo de backup");
+  }
+}
+
 export async function buildBackupData() {
   return {
     version: 1.0,
@@ -21,7 +40,9 @@ export async function buildBackupData() {
 
 export function saveBackupToFile(backupData) {
   const json = JSON.stringify(backupData, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
+  const uint8 = new TextEncoder().encode(json);
+  const compressed = fflate.gzipSync(uint8);
+  const blob = new Blob([compressed], { type: "application/gzip" });
   const url = URL.createObjectURL(blob);
 
   // Nome bonito
@@ -43,7 +64,7 @@ export function saveBackupToFile(backupData) {
     })
     .replace(/:/g, "-");
 
-  const fileName = `backup_estudos_${dateStr}_${timeStr}.json`;
+  const fileName = `backup_estudos_${dateStr}_${timeStr}.gz`;
 
   const link = document.createElement("a");
   link.href = url;
@@ -68,7 +89,7 @@ export async function restoreBackup(backup) {
   }
 
   // Importa configurações
-  if (backup.data.restDays && backup.data.restDays.length > 0) {
+  if (backup.data.restDays) {
     await dbService.setRestDays(backup.data.restDays);
   }
 

@@ -5,6 +5,10 @@
  */
 
 import DBService from "../db/db-service.js";
+import {
+  compressBackupGzip,
+  decompressBackupGzip,
+} from "../../utils/backup-utils.js";
 
 // Configuração do Supabase (substitua com suas credenciais)
 const SUPABASE_URL = "https://kxzxwwzhyyumlgkmlapb.supabase.co";
@@ -304,19 +308,26 @@ export class SupabaseService {
         this.user.id,
       );
       const timestamp = new Date().toISOString();
-      const fileName = `${this.user.id}/backup-${Date.now()}.json`;
+      const fileName = `${this.user.id}/backup-${Date.now()}.gz`;
 
       // Usar dados para upload (com exportDate)
-      const backupJson = JSON.stringify(backupDataForUpload);
-      const blob = new Blob([backupJson], { type: "application/json" });
-      console.log("[UPLOAD] Blob criado. Tamanho:", blob.size, "bytes");
+      // Comprimir JSON com gzip usando função utilitária
+      const compressed = await compressBackupGzip(backupDataForUpload);
+      const blob = new Blob([compressed], { type: "application/gzip" });
+      console.log(
+        "[UPLOAD] Blob comprimido. Tamanho:",
+        blob.size,
+        "bytes (original:",
+        JSON.stringify(backupDataForUpload).length,
+        "bytes)",
+      );
 
       // Upload para Supabase Storage
       console.log("[UPLOAD] Enviando arquivo para Storage:", fileName);
       const { data, error: uploadError } = await supabaseClient.storage
         .from("backups")
         .upload(fileName, blob, {
-          contentType: "application/json",
+          contentType: "application/gzip",
           upsert: false,
         });
 
@@ -343,7 +354,7 @@ export class SupabaseService {
           user_id: this.user.id,
           file_name: fileName,
           backup_hash: hashParaComparacao,
-          backup_size: JSON.stringify(backupDataForUpload).length,
+          backup_size: blob.size,
           synced_at: timestamp,
           backup_version: backupVersion, // ✅ Novo campo para identificar versão
         });
@@ -589,8 +600,9 @@ export class SupabaseService {
 
       if (error) throw error;
 
-      const backupText = await data.text();
-      return JSON.parse(backupText);
+      // Descomprimir dados com gzip usando função utilitária
+      const uint8Array = new Uint8Array(await data.arrayBuffer());
+      return await decompressBackupGzip(uint8Array);
     } catch (error) {
       console.error("Erro ao restaurar backup:", error);
       throw error;
@@ -612,11 +624,12 @@ export class SupabaseService {
 
       if (error) throw error;
 
-      const backupText = await data.text();
-      const backupData = JSON.parse(backupText);
+      // Descomprimir dados com gzip usando função utilitária
+      const uint8Array = new Uint8Array(await data.arrayBuffer());
+      const backupData = await decompressBackupGzip(uint8Array);
 
       console.log(
-        "[RESTORE] Backup baixado com sucesso. Tamanho:",
+        "[RESTORE] Backup baixado e descomprimido com sucesso. Tamanho:",
         Object.keys(backupData).length,
         "tabelas",
       );

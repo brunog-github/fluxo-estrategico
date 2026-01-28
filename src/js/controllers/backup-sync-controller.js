@@ -26,18 +26,17 @@ export class BackupSyncController {
   }
 
   /**
-   * Enviar magic-link
+   * Enviar OTP
    */
-  async sendMagicLink(email) {
+  async sendOTP(email) {
     try {
-      const result = await supabaseService.sendMagicLink(email);
+      const result = await supabaseService.sendOTP(email);
 
       if (result.success) {
         this.toast.showToast("success", result.message, 8000);
-        //this.ui.showMagicLinkSent(email);
       } else {
         // ✅ Mensagem customizada para rate limit
-        let errorMsg = result.error || "Erro ao enviar link";
+        let errorMsg = result.error || "Erro ao enviar código";
         if (result.error?.includes("rate limit")) {
           errorMsg =
             "Muitas tentativas. Aguarde 60 segundos antes de tentar novamente.";
@@ -47,17 +46,40 @@ export class BackupSyncController {
 
       return result;
     } catch (error) {
-      console.error("Erro ao enviar magic-link:", error);
-
-      // ✅ Detectar rate limit no catch também
-      let toastMsg = "Erro ao enviar magic-link";
-      if (error.message?.includes("rate limit")) {
-        toastMsg =
-          "Muitas tentativas. Aguarde 60 segundos antes de tentar novamente.";
-      }
-      this.toast.showToast("error", toastMsg);
-      return { success: false };
+      console.error("Erro ao enviar OTP:", error);
+      this.toast.showToast("error", "Erro ao enviar código");
+      return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Verificar OTP
+   */
+  async verifyOTP(email, token) {
+    try {
+      const result = await supabaseService.verifyOTP(email, token);
+
+      if (result.success) {
+        this.toast.showToast("success", result.message, 3000);
+      } else {
+        this.toast.showToast("error", result.error || "Código inválido");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Erro ao verificar OTP:", error);
+      this.toast.showToast("error", "Erro ao verificar código");
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Enviar magic-link (DEPRECATED - usar sendOTP em vez disso)
+   * @deprecated Use sendOTP() instead
+   */
+  async sendMagicLink(email) {
+    // Redirecionar para novo método
+    return this.sendOTP(email);
   }
 
   /**

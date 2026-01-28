@@ -103,31 +103,81 @@ export class SupabaseService {
   /**
    * Enviar magic-link para email
    */
-  async sendMagicLink(email) {
+  /**
+   * Enviar OTP (One-Time Password) para email
+   * ✅ Usuário recebe um código de 6 dígitos no email
+   */
+  async sendOTP(email) {
     try {
-      // ✅ IMPORTANTE: Redirecionar para a raiz sem hash
-      // O Supabase automaticamente adiciona os parâmetros de autenticação
-      const redirectUrl = `${window.location.origin}${window.location.pathname}`;
-
       const { error } = await supabaseClient.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: undefined, // OTP não precisa de redirect URL
         },
       });
-
-      console.log(error);
 
       if (error) throw error;
 
       return {
         success: true,
-        message: "Confira seu email para o link de acesso",
+        message: "Código enviado para seu email! Verifique a caixa de entrada.",
       };
     } catch (error) {
-      console.error("Erro ao enviar magic-link:", error);
+      console.error("Erro ao enviar OTP:", error);
       return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Verificar código OTP enviado por email
+   * ✅ Autentica o usuário com o código recebido
+   */
+  async verifyOTP(email, token) {
+    try {
+      const { data, error } = await supabaseClient.auth.verifyOtp({
+        email,
+        token,
+        type: "email",
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        this.session = data.session;
+        this.user = data.user;
+
+        // ✅ SEGURANÇA: Salvar apenas dados públicos (SEM tokens)
+        const publicUserData = {
+          id: data.user.id,
+          email: data.user.email,
+          createdAt: data.user.created_at,
+          emailVerified: data.user.email_confirmed_at ? true : false,
+        };
+
+        localStorage.setItem("user_profile", JSON.stringify(publicUserData));
+        localStorage.setItem("user_authenticated", "true");
+
+        console.log("✅ OTP verificado - Usuário:", data.user.email);
+        return { success: true, message: "Login realizado com sucesso!" };
+      }
+
+      return {
+        success: false,
+        error: "Código inválido ou expirado",
+      };
+    } catch (error) {
+      console.error("Erro ao verificar OTP:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Enviar magic-link para email (DEPRECATED - usar sendOTP em vez disso)
+   * @deprecated Use sendOTP() instead
+   */
+  async sendMagicLink(email) {
+    // Redirecionar para novo método
+    return this.sendOTP(email);
   }
 
   /**

@@ -245,6 +245,32 @@ export class BackupUI {
           />
         </div>
 
+        <!-- ✅ Campo de OTP (inicialmente oculto) -->
+        <div id="otp-container" style="display: none; margin-bottom: 15px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px;">
+            Código recebido no email
+          </label>
+          <input 
+            id="otp-input"
+            type="text"
+            placeholder="Insira o código de 8 dígitos"
+            maxlength="8"
+            inputmode="numeric"
+            style="
+              width: 100%;
+              padding: 12px;
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              background: var(--input-bg);
+              color: var(--text-color);
+              box-sizing: border-box;
+              font-size: 16px;
+              letter-spacing: 2px;
+              text-align: center;
+            "
+          />
+        </div>
+
         <button id="send-magic-link-btn" class="backup-modal-btn backup-modal-btn-primary" style="
           width: 100%;
           padding: 12px;
@@ -256,7 +282,23 @@ export class BackupUI {
           font-weight: 500;
           transition: background 0.3s ease;
         ">
-          Enviar Link de Acesso
+          Enviar Código
+        </button>
+
+        <!-- ✅ Botão para verificar OTP (inicialmente oculto) -->
+        <button id="verify-otp-btn" class="backup-modal-btn backup-modal-btn-primary" style="
+          display: none;
+          width: 100%;
+          padding: 12px;
+          background: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: background 0.3s ease;
+        ">
+          Verificar Código
         </button>
 
         <small style="
@@ -266,7 +308,7 @@ export class BackupUI {
           color: var(--text-secondary);
           font-size: 12px;
         ">
-          Você receberá um link de acesso no seu email<br>
+          Um código será enviado para seu email<br>
           (nenhuma senha necessária - confira também a pasta de spam)
         </small>
       `;
@@ -275,9 +317,13 @@ export class BackupUI {
       const closeBtn = modalContent.querySelector("#close-modal");
       const emailInput = modalContent.querySelector("#email-input");
       const sendBtn = modalContent.querySelector("#send-magic-link-btn");
+      const otpContainer = modalContent.querySelector("#otp-container");
+      const otpInput = modalContent.querySelector("#otp-input");
+      const verifyBtn = modalContent.querySelector("#verify-otp-btn");
 
       closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
 
+      // ✅ Enviar OTP
       sendBtn.addEventListener("click", async () => {
         const email = emailInput.value.trim();
         if (!email) {
@@ -288,10 +334,9 @@ export class BackupUI {
         sendBtn.disabled = true;
         sendBtn.textContent = "Enviando...";
 
-        // ✅ IMPORTANTE: Iniciar cooldown de 60s IMEDIATAMENTE (mesmo antes da resposta)
-        // Isso impede cliques múltiplos que causam rate limit
+        // ✅ IMPORTANTE: Iniciar cooldown de 60s IMEDIATAMENTE
         let cooldownSeconds = 60;
-        const originalText = "Enviar Link de Acesso";
+        const originalText = "Enviar Código";
 
         const cooldownInterval = setInterval(() => {
           sendBtn.textContent = `Aguarde ${cooldownSeconds}s...`;
@@ -304,24 +349,69 @@ export class BackupUI {
           }
         }, 1000);
 
-        const result = await controller.sendMagicLink(email);
+        const result = await controller.sendOTP(email);
 
-        // ✅ Se enviou com sucesso, fechar modal após 1 segundo
+        // ✅ Se enviou com sucesso, mostrar campo de OTP
         if (result.success) {
-          setTimeout(() => {
-            modal.classList.add("hidden");
-            emailInput.value = ""; // Limpar email
-          }, 1000);
+          sendBtn.style.display = "none";
+          otpContainer.style.display = "block";
+          verifyBtn.style.display = "block";
+          otpInput.focus();
           return;
         }
 
-        // ❌ Se falhou, o cooldown já está rodando (não precisa iniciar aqui)
+        // ❌ Se falhou, o cooldown já está rodando
       });
 
-      // Permitir enviar ao pressionar Enter
+      // ✅ Verificar OTP
+      verifyBtn.addEventListener("click", async () => {
+        const otp = otpInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!otp || otp.length !== 8) {
+          alert("Por favor, insira um código válido de 8 dígitos");
+          return;
+        }
+
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "Verificando...";
+
+        const result = await controller.verifyOTP(email, otp);
+
+        if (result.success) {
+          setTimeout(() => {
+            modal.classList.add("hidden");
+            emailInput.value = "";
+            otpInput.value = "";
+            // Resetar interface
+            sendBtn.style.display = "block";
+            otpContainer.style.display = "none";
+            verifyBtn.style.display = "none";
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "Verificar Código";
+
+            // ✅ NOVO: Recarregar página para atualizar estado de autenticação
+            window.location.reload();
+          }, 500);
+          return;
+        }
+
+        // ❌ Se falhou, permitir nova tentativa
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "Verificar Código";
+      });
+
+      // Permitir enviar ao pressionar Enter (campo de email)
       emailInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && sendBtn.style.display !== "none") {
           sendBtn.click();
+        }
+      });
+
+      // Permitir verificar ao pressionar Enter (campo de OTP)
+      otpInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && verifyBtn.style.display !== "none") {
+          verifyBtn.click();
         }
       });
     }

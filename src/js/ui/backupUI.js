@@ -308,8 +308,9 @@ export class BackupUI {
           color: var(--text-secondary);
           font-size: 12px;
         ">
-          Um código será enviado para seu email<br>
-          (nenhuma senha necessária - confira também a pasta de spam)
+          Um código será enviado para seu email.<br>
+          Use sempre o mesmo email para evitar conflito de backup.
+          <br>(nenhuma senha necessária - confira também a pasta de spam)
         </small>
       `;
 

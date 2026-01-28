@@ -288,22 +288,6 @@ export class BackupSyncController {
   /**
    * Obter histórico de backups
    */
-  async getBackupHistory() {
-    if (!supabaseService.isAuthenticated()) {
-      this.toast.showToast("warning", "Faça login para ver o histórico");
-      return [];
-    }
-
-    try {
-      const history = await supabaseService.getBackupHistory();
-      return history;
-    } catch (error) {
-      console.error("Erro ao obter histórico:", error);
-      this.toast.showToast("error", "Erro ao obter histórico de backups");
-      return [];
-    }
-  }
-
   /**
    * Restaurar um backup anterior
    */

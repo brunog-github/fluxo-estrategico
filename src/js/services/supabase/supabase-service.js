@@ -72,6 +72,24 @@ export class SupabaseService {
       }
     });
 
+    // ✅ NOVO: Escutar mudanças de estado de autenticação (expirações, refresh token inválido)
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log("[AUTH] Evento de autenticação:", event);
+
+      if (event === "SIGNED_OUT" || (event === "TOKEN_REFRESHED" && !session)) {
+        // Sessão expirou ou foi revogada
+        console.warn(
+          "[AUTH] Sessão expirada ou inválida - usuário desconectado",
+        );
+        this.user = null;
+        this.session = null;
+        localStorage.removeItem("user_profile");
+        localStorage.removeItem("user_authenticated");
+        // ✅ Recarregar página para mostrar tela de login
+        window.location.reload();
+      }
+    });
+
     return true;
   }
 
@@ -150,6 +168,21 @@ export class SupabaseService {
 
         console.log("✅ Sessão restaurada - Usuário:", session.user.email);
 
+        // ✅ NOVO: Validar se o hash salvo é da mesma conta
+        const lastBackupSync = JSON.parse(
+          localStorage.getItem("last_backup_sync") || "{}",
+        );
+        if (
+          lastBackupSync.user_id &&
+          lastBackupSync.user_id !== session.user.id
+        ) {
+          // ✅ Mudança de conta detectada - limpar hash anterior
+          console.log(
+            "[BACKUP] Conta diferente detectada - limpando hash anterior",
+          );
+          localStorage.removeItem("last_backup_sync");
+        }
+
         // ✅ NOVO: Verificar se há backup mais recente no Supabase (em background - não bloqueia o carregamento)
         this._checkForNewerBackup().catch((err) =>
           console.error("[BACKUP-CHECK] Erro em background:", err),
@@ -181,7 +214,8 @@ export class SupabaseService {
       localStorage.removeItem("user_profile");
       localStorage.removeItem("user_authenticated");
       localStorage.removeItem("supabase_session");
-      localStorage.removeItem("last_backup_sync");
+      // ✅ IMPORTANTE: NÃO remover last_backup_sync aqui
+      // O hash será validado no próximo login para saber se é a mesma conta
 
       // ✅ SEGURANÇA: Limpar sessionStorage (tokens)
       // Supabase armazena tokens em sessionStorage agora
@@ -195,9 +229,6 @@ export class SupabaseService {
           console.log(`[AUTH] SessionStorage removido: ${key}`);
         }
       });
-
-      // ✅ CACHE: Limpar cache do histórico ao fazer logout
-      dbService.clearBackupHistoryCache();
 
       console.log("✅ Logout realizado - Todos os dados removidos");
       return true;
@@ -280,6 +311,7 @@ export class SupabaseService {
       localStorage.setItem(
         "last_backup_sync",
         JSON.stringify({
+          user_id: this.user.id, // ✅ Salvar ID do usuário para validação
           timestamp,
           hash: hashParaComparacao,
           backup_version: backupVersion, // ✅ Salvar versão também
@@ -294,10 +326,6 @@ export class SupabaseService {
 
       // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
       await this._deleteOldBackups();
-
-      // ✅ CACHE: Invalidar cache do histórico (será recarregado na próxima requisição)
-      dbService.clearBackupHistoryCache();
-      console.log("[CACHE] Cache do histórico invalidado");
 
       return { success: true, fileName };
     } catch (error) {
@@ -496,44 +524,6 @@ export class SupabaseService {
   /**
    * Obter histórico de backups do usuário
    */
-  async getBackupHistory() {
-    if (!this.user) {
-      throw new Error("Usuário não autenticado");
-    }
-
-    try {
-      // ✅ CACHE: Verificar se há cache válido em localStorage
-      // (não usa IndexedDB para não modificar dados de backup)
-      const cached = dbService.getBackupHistoryCache();
-      if (cached) {
-        console.log("[HISTORY] Usando cache do histórico (economizando banda)");
-        return cached.data;
-      }
-
-      // ✅ Cache expirou ou não existe - buscar do Supabase
-      console.log("[HISTORY] Cache não disponível, buscando do Supabase...");
-      const { data, error } = await supabaseClient
-        .from("backup_metadata")
-        .select("*")
-        .eq("user_id", this.user.id)
-        .order("synced_at", { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-
-      // ✅ Salvar no cache para próximas requisições (localStorage)
-      if (data) {
-        dbService.setBackupHistoryCache(data);
-        console.log("[HISTORY] Cache atualizado com sucesso");
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error("Erro ao obter histórico de backups:", error);
-      return [];
-    }
-  }
-
   /**
    * Restaurar backup anterior
    */
@@ -592,6 +582,7 @@ export class SupabaseService {
         localStorage.setItem(
           "last_backup_sync",
           JSON.stringify({
+            user_id: this.user.id, // ✅ Salvar ID do usuário para validação
             timestamp: metadata.synced_at,
             hash: metadata.backup_hash,
             backup_version: metadata.backup_version,

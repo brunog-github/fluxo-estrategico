@@ -69,67 +69,6 @@ class DBService {
     await db.settings.where("key").equals(key).delete();
   }
 
-  // ========== BACKUP HISTORY CACHE (localStorage - não sincroniza) ==========
-
-  /**
-   * Obter cache do histórico de backups
-   * ✅ Usa localStorage para não modificar IndexedDB e não afetar hash
-   * @returns {Object|null} Objeto com data e histórico, ou null se expirado
-   */
-  getBackupHistoryCache() {
-    try {
-      const cacheStr = localStorage.getItem("backup_history_cache");
-      if (!cacheStr) return null;
-
-      const cache = JSON.parse(cacheStr);
-
-      // Verificar se cache expirou (1 hora = 3600000 ms)
-      const now = Date.now();
-      const cacheAge = now - cache.timestamp;
-      if (cacheAge > 3600000) {
-        // Cache expirado
-        this.clearBackupHistoryCache();
-        return null;
-      }
-
-      return cache;
-    } catch (error) {
-      console.error("[CACHE] Erro ao obter cache do histórico:", error);
-      return null;
-    }
-  }
-
-  /**
-   * Salvar cache do histórico de backups
-   * ✅ Usa localStorage para não modificar IndexedDB e não afetar hash
-   * @param {Array} historyData - Array com dados do histórico
-   */
-  setBackupHistoryCache(historyData) {
-    try {
-      localStorage.setItem(
-        "backup_history_cache",
-        JSON.stringify({
-          data: historyData,
-          timestamp: Date.now(),
-        }),
-      );
-    } catch (error) {
-      console.error("[CACHE] Erro ao salvar cache do histórico:", error);
-    }
-  }
-
-  /**
-   * Limpar cache do histórico de backups
-   * ✅ Usa localStorage para não modificar IndexedDB
-   */
-  clearBackupHistoryCache() {
-    try {
-      localStorage.removeItem("backup_history_cache");
-    } catch (error) {
-      console.error("[CACHE] Erro ao limpar cache do histórico:", error);
-    }
-  }
-
   // ========== CATEGORIES (Categorias de Estudo) ==========
 
   /**

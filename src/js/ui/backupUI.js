@@ -132,21 +132,6 @@ export class BackupUI {
           ⟳ Sincronizar Agora
         </button>
 
-        <button id="history-btn" class="backup-modal-btn backup-modal-btn-secondary" style="
-          width: 100%;
-          padding: 12px;
-          background: transparent;
-          color: var(--primary-color);
-          border: 2px solid var(--primary-color);
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 600;
-          margin-bottom: 15px;
-          transition: all 0.3s ease;
-        ">
-          📋 Histórico de Backups
-        </button>
-
         <button id="logout-btn" class="backup-modal-btn backup-modal-btn-danger" style="
           width: 100%;
           padding: 12px;
@@ -160,13 +145,6 @@ export class BackupUI {
         ">
           🚪 Desconectar
         </button>
-
-        <div id="history-container" style="margin-top: 20px; display: none;">
-          <h3 style="margin: 15px 0 10px 0;">Histórico de Backups</h3>
-          <div id="backups-list" style="max-height: 300px; overflow-y: auto;">
-            <p style="text-align: center; color: var(--text-secondary);">Carregando...</p>
-          </div>
-        </div>
       `;
 
       // Event listeners para modal autenticado
@@ -207,22 +185,6 @@ export class BackupUI {
           modal.classList.add("hidden");
         }, 500);
       });
-
-      modalContent
-        .querySelector("#history-btn")
-        .addEventListener("click", async () => {
-          const container = modalContent.querySelector("#history-container");
-          const historyBtn = modalContent.querySelector("#history-btn");
-
-          if (container.style.display === "none") {
-            container.style.display = "block";
-            historyBtn.style.opacity = "0.6";
-            await this._renderBackupHistory(modalContent, controller);
-          } else {
-            container.style.display = "none";
-            historyBtn.style.opacity = "1";
-          }
-        });
 
       modalContent
         .querySelector("#logout-btn")
@@ -376,90 +338,6 @@ export class BackupUI {
       });
       this.modalClickListenerAdded = true;
     }
-  }
-
-  /**
-   * Renderizar histórico de backups no modal
-   */
-  async _renderBackupHistory(modalContent, controller) {
-    const container = modalContent.querySelector("#backups-list");
-
-    const history = await controller.getBackupHistory();
-
-    if (history.length === 0) {
-      container.innerHTML =
-        "<p style='text-align: center; color: var(--text-secondary);'>Nenhum backup encontrado</p>";
-      return;
-    }
-
-    container.innerHTML = history
-      .map(
-        (backup) => `
-      <div style="
-        padding: 12px;
-        margin-bottom: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        background: var(--badge-bg);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-      ">
-        <div style="flex: 1;">
-          <strong style="display: block; font-size: 14px;">
-            ${new Date(backup.synced_at).toLocaleString("pt-BR")}
-          </strong>
-          <small style="display: block; color: var(--text-secondary); font-size: 12px;">
-            ${(backup.backup_size / 1024).toFixed(2)} KB
-          </small>
-        </div>
-        <button class="restore-backup-btn" data-filename="${backup.file_name}" style="
-          padding: 8px 12px;
-          background: var(--primary-color);
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          white-space: nowrap;
-          transition: background 0.3s ease;
-        ">
-          Restaurar
-        </button>
-      </div>
-    `,
-      )
-      .join("");
-
-    // Event listeners para restaurar
-    container.querySelectorAll(".restore-backup-btn").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const fileName = btn.getAttribute("data-filename");
-
-        // ✅ Desabilitar todos os botões de restaurar (evita clique duplo)
-        const allRestoreButtons = container.querySelectorAll(
-          ".restore-backup-btn",
-        );
-        allRestoreButtons.forEach((b) => {
-          b.disabled = true;
-          b.style.opacity = "0.5";
-          b.style.cursor = "not-allowed";
-        });
-
-        try {
-          // ✅ Controller já tem sua própria confirmação
-          await controller.restoreBackup(fileName);
-        } finally {
-          // ✅ Re-habilitar botões após operação (sucesso ou erro)
-          allRestoreButtons.forEach((b) => {
-            b.disabled = false;
-            b.style.opacity = "1";
-            b.style.cursor = "pointer";
-          });
-        }
-      });
-    });
   }
 
   /**

@@ -464,7 +464,7 @@ export class ReportsUI {
         <div style="font-size:18px;font-weight:bold;color:#f44">${totalE}</div>
       </div>
       <div>
-        <div style="opacity:.7;font-size:12px;">Precisão de Acertos</div>
+        <div style="opacity:.7;font-size:12px;">Desempenho</div>
         <div style="font-size:18px;font-weight:bold;color:${color}">${accPerc}%</div>
       </div>
     </div>

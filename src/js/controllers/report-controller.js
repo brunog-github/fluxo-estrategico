@@ -183,7 +183,7 @@ export class ReportsController {
     });
 
     const totalE = Math.max(totalQ - totalC, 0);
-    const accPerc = totalQ > 0 ? ((totalC / totalQ) * 100).toFixed(1) : 0;
+    const accPerc = totalQ > 0 ? ((totalC / totalQ) * 100).toFixed(0) : 0;
 
     this.ui.renderSummary(totalQ, totalC, totalE, accPerc, title);
   }

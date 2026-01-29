@@ -18,7 +18,7 @@ export class ConfigUI {
         // Mostra aviso e cancela a exclusão
         this.toast.showToast(
           "warning",
-          "Desbloqueie a lista para excluir matérias."
+          "Desbloqueie a lista para excluir matérias.",
         );
         return;
       }
@@ -90,8 +90,8 @@ export class ConfigUI {
           <span class="drag-handle">::</span>
           <span>${index + 1}. ${subj}</span>
         </div>
-        <button style="background:red; color:white; border:none; border-radius:5px; cursor:pointer;" class="delete-subject">
-          <i class="fa fa-trash-o"></i>
+        <button style="background:red; color:white; border:none; border-radius:5px; cursor:pointer; padding: 5px;" class="delete-subject">
+          <i class="fa-regular fa-trash-can"></i>
         </button>
       `;
 

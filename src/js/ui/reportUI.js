@@ -177,13 +177,13 @@ export class ReportsUI {
           <td style="white-space: nowrap; width:1%; vertical-align: middle;">
             <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
                 <button class="notes-row" style="background:transparent; border:none; font-size:16px; color:${notesIds.has(item.id) ? "#ffc107" : "var(--text-color)"}; cursor:pointer;" title="Anotações">
-                    <i class="fa fa-sticky-note-o"></i>
+                    <i class="fa-regular fa-sticky-note"></i>
                 </button>
                 <button class="edit-row" style="background:transparent; border:none; font-size:16px; cursor:pointer;" title="Editar">
-                    <i class="fa fa-pencil"></i>
+                    <i class="fa-regular fa-pen-to-square"></i>
                 </button>
                 <button class="delete-row" style="background:transparent; border:none; font-size:16px; color:red; cursor:pointer;" title="Excluir">
-                    <i class="fa fa-trash-o"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </button>
             </div>
           </td>

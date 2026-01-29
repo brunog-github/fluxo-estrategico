@@ -151,7 +151,7 @@ tr:not(thead tr):hover {
   }
 }
 
-.fa.fa-pencil {
+.fa-regular.fa-pen-to-square {
   color: var(--text-color);
 }
 

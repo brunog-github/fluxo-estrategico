@@ -1,5 +1,6 @@
 import { parseHistoryDatetime } from "../utils/reports-utils.js";
 import { getCategoryColor } from "../utils/category-colors.js";
+import { timeToMinutes, formatMinutesToHm } from "../utils/utils.js";
 
 export class ReportsUI {
   constructor(toast, confirm, charts) {
@@ -471,5 +472,144 @@ export class ReportsUI {
     `;
 
     box.innerHTML = titleHTML + rowsHTML;
+  }
+
+  // ===== MODAL DE VISUALIZAÇÃO DETALHADA =====
+
+  initDetailedViewModal() {
+    const modal = document.getElementById("detailed-view-modal");
+    const btnOpen = document.getElementById("btn-detailed-view");
+    const btnClose = document.getElementById("btn-close-detailed-view");
+
+    if (!modal || !btnOpen || !btnClose) return;
+
+    // Abrir modal
+    btnOpen.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    });
+
+    // Fechar modal
+    btnClose.addEventListener("click", () => {
+      this.closeDetailedViewModal();
+    });
+
+    // Fechar ao clicar fora
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        this.closeDetailedViewModal();
+      }
+    });
+
+    // Fechar com tecla ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+        this.closeDetailedViewModal();
+      }
+    });
+  }
+
+  closeDetailedViewModal() {
+    const modal = document.getElementById("detailed-view-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+      document.body.style.overflow = "auto";
+    }
+  }
+
+  async renderDetailedView(history, allNotes = []) {
+    const tbody = document.getElementById("detailed-subjects-body");
+    if (!tbody) return;
+
+    // Agrupar dados por disciplina
+    const subjectStats = {};
+
+    history.forEach((item) => {
+      const subject = item.subject || "Sem disciplina";
+      if (!subjectStats[subject]) {
+        subjectStats[subject] = {
+          subject: subject,
+          totalTime: 0, // em minutos
+          totalQuestions: 0,
+          totalCorrect: 0,
+          totalNotes: 0,
+        };
+      }
+
+      // Somar tempo (convertendo para minutos)
+      if (item.duration) {
+        const minutes = timeToMinutes(item.duration);
+        subjectStats[subject].totalTime += minutes;
+      }
+
+      // Somar questões
+      subjectStats[subject].totalQuestions += parseInt(item.questions) || 0;
+      subjectStats[subject].totalCorrect += parseInt(item.correct) || 0;
+    });
+
+    // Contar notas por disciplina
+    allNotes.forEach((note) => {
+      history.forEach((item) => {
+        if (item.id === note.recordId) {
+          const subject = item.subject || "Sem disciplina";
+          if (subjectStats[subject]) {
+            subjectStats[subject].totalNotes++;
+          }
+        }
+      });
+    });
+
+    // Converter para array e ordenar
+    const stats = Object.values(subjectStats).sort((a, b) =>
+      a.subject.localeCompare(b.subject),
+    );
+
+    // Renderizar linhas
+    tbody.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
+    stats.forEach((stat) => {
+      const tr = document.createElement("tr");
+
+      // Calcular performance
+      const performance =
+        stat.totalQuestions > 0
+          ? Math.round((stat.totalCorrect / stat.totalQuestions) * 100)
+          : 0;
+
+      // Determinar classe de desempenho
+      let performanceClass = "no-data";
+      if (stat.totalQuestions > 0) {
+        if (performance >= 70) {
+          performanceClass = "excellent";
+        } else if (performance >= 50) {
+          performanceClass = "good";
+        } else {
+          performanceClass = "poor";
+        }
+      }
+
+      // Calcular erros
+      const totalErrors = Math.max(stat.totalQuestions - stat.totalCorrect, 0);
+
+      tr.innerHTML = `
+        <td class="subject-name">${stat.subject}</td>
+        <td class="time-spent">${formatMinutesToHm(stat.totalTime)}</td>
+        <td class="correct-count">${stat.totalCorrect}</td>
+        <td class="error-count">${totalErrors}</td>
+        <td class="questions-icon" title="Total de Questões">${
+          stat.totalQuestions
+        }</td>
+        <td>
+          <span class="performance-badge ${performanceClass}">
+            ${stat.totalQuestions > 0 ? performance + "%" : "-"}
+          </span>
+        </td>
+      `;
+
+      fragment.appendChild(tr);
+    });
+
+    tbody.appendChild(fragment);
   }
 }

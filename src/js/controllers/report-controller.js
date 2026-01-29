@@ -31,6 +31,14 @@ export class ReportsController {
     await this.updateSummary();
     this.ui.updateRotateTip();
 
+    // Inicializar modal de visualização detalhada
+    this.ui.initDetailedViewModal();
+
+    // Renderizar dados detalhados
+    const history = await dbService.getHistory();
+    const allNotes = await dbService.getNotes();
+    await this.ui.renderDetailedView(history, allNotes);
+
     this.screens.switch("screen-reports");
   }
 

@@ -190,6 +190,23 @@
 <div
   style="
     display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+  "
+>
+  <button
+    id="btn-detailed-view"
+    class="btn-modern-small"
+    style="background: var(--primary-color); color: white; border: none"
+  >
+    📊 Visualização Detalhada
+  </button>
+</div>
+
+<div
+  style="
+    display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
@@ -296,4 +313,35 @@
   <button id="btn-clean-all-history" class="btn-sm btn-danger-text">
     <i class="fa fa-trash-o"></i> Limpar tudo
   </button>
+</div>
+
+<!-- Modal de Visualização Detalhada -->
+<div id="detailed-view-modal" class="detailed-view-modal hidden">
+  <div class="detailed-view-container">
+    <div class="detailed-view-header">
+      <h2>Desempenho Detalhado por Disciplina</h2>
+      <button id="btn-close-detailed-view" class="btn-close-modal">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <div class="detailed-view-content">
+      <div class="detailed-table-wrapper">
+        <table id="detailed-subjects-table" class="detailed-subjects-table">
+          <thead>
+            <tr>
+              <th style="text-align: center">Disciplinas</th>
+              <th style="text-align: center">Tempo</th>
+              <th style="color: #2ecc71; text-align: center">✓</th>
+              <th style="color: #ff5252; text-align: center">✗</th>
+              <th style="text-align: center">📝</th>
+              <th style="text-align: center">%</th>
+            </tr>
+          </thead>
+          <tbody id="detailed-subjects-body">
+            <!-- Preenchido dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

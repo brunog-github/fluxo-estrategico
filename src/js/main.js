@@ -31,6 +31,7 @@ import { BackupUI } from "./ui/backupUI.js";
 // Data & Utils
 import { ACHIEVEMENTS } from "./data/achievements.js";
 import { formatTime } from "./utils/utils.js";
+import { DevToolsProtection } from "./utils/devtools-protection.js";
 
 // Events Initializers
 import { initAchievementsEvents } from "./events/achievements-events.js";
@@ -61,7 +62,19 @@ class App {
   // Ponto de entrada
   async start() {
     try {
-      // Passo 0: Migrar dados do localStorage se necessário
+      new DevToolsProtection({
+        debug: false, // Mude para false em produção real
+        blockKeyboard: true,
+        clearConsole: true,
+        disableRightClick: true,
+        detectSize: true,
+        redirectOnDetect: true,
+        onDetect: (info) => {
+          console.warn("🚨 DevTools detectado!", info);
+        },
+      });
+
+      // Passo 1: Migrar dados do localStorage se necessário
       await migrateFromLocalStorage();
 
       // Passo 1: Carregar HTML

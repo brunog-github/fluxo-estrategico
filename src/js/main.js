@@ -22,6 +22,7 @@ import { HistoryFilterController } from "./controllers/history-filter-controller
 import { LifetimeController } from "./controllers/lifetime-controller.js";
 import { NotesController } from "./controllers/notes-controller.js";
 import { BackupSyncController } from "./controllers/backup-sync-controller.js";
+import { WeeklyGoalsController } from "./controllers/weekly-goals-controller.js";
 
 // UIs
 import { ConfigUI } from "./ui/configUI.js";
@@ -107,6 +108,7 @@ class App {
     await subjects.init();
     const achievements = new AchievementsController(ACHIEVEMENTS);
     const notes = new NotesController(); // Instancia o NotesController
+    const weeklyGoals = new WeeklyGoalsController(toast);
 
     // Core da Aplicação
     const streak = new StreakController(toast);
@@ -150,6 +152,7 @@ class App {
       subjects,
       achievements,
       notes,
+      weeklyGoals,
       streak,
       session,
       timer,
@@ -176,6 +179,9 @@ class App {
     // Inicializar streak com dados do DB
     await s.streak.init();
 
+    // Inicializar metas semanais
+    await s.weeklyGoals.init();
+
     // Renderizações iniciais
     await s.streak.render();
 
@@ -196,6 +202,7 @@ class App {
     s.screens.on("screen-home", async () => {
       s.homeUI.render();
       await s.streak.render();
+      await s.weeklyGoals.render();
 
       // ✅ Verificar sincronização de backup quando chegar na home-screen
       if (s.backupSync) {

@@ -47,6 +47,7 @@
     <link rel="stylesheet" href="src/css/color-picker.css" />
     <link rel="stylesheet" href="src/css/notes.css" />
     <link rel="stylesheet" href="src/css/detailed-view.css" />
+    <link rel="stylesheet" href="src/css/weekly-goals.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -263,6 +264,101 @@
 
     <div id="modal-backup" class="modal hidden">
       <div class="modal-content backup-modal-container"></div>
+    </div>
+
+    <div id="modal-weekly-goals" class="modal hidden">
+      <div class="modal-content weekly-goals-modal-container">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <h2 style="margin: 0">Metas de Estudo</h2>
+          <button
+            id="close-weekly-goals-modal"
+            class="weekly-goals-modal-btn-close"
+            style="
+              background: transparent;
+              border: none;
+              font-size: 24px;
+              cursor: pointer;
+              color: var(--text-color);
+              padding: 0;
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            ✕
+          </button>
+        </div>
+
+        <p
+          style="
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+          "
+        >
+          Configure as métricas para suas metas de estudo semanais.
+        </p>
+
+        <form
+          id="form-weekly-goals"
+          style="display: flex; flex-direction: column; gap: 15px"
+        >
+          <div class="weekly-goals-field-group">
+            <label for="weekly-duration" class="weekly-goals-label"
+              >DURAÇÃO</label
+            >
+            <input
+              type="text"
+              id="weekly-duration"
+              class="weekly-goals-input"
+              placeholder="00:00"
+              maxlength="5"
+            />
+          </div>
+
+          <div class="weekly-goals-field-group">
+            <label for="weekly-questions" class="weekly-goals-label"
+              >QUESTÕES</label
+            >
+            <input
+              type="number"
+              id="weekly-questions"
+              class="weekly-goals-input"
+              placeholder="0"
+              min="0"
+            />
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 15px">
+            <button
+              id="btn-cancel-weekly-goals"
+              type="button"
+              class="btn btn-outline"
+              style="flex: 1"
+            >
+              Cancelar
+            </button>
+            <button
+              id="btn-save-weekly-goals"
+              type="submit"
+              class="btn"
+              style="flex: 1"
+            >
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Dexie.js para IndexedDB -->

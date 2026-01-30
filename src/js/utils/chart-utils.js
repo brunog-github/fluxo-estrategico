@@ -78,17 +78,30 @@ export class ReportsCharts {
   }
 
   buildPerformanceChart(ctx, labels, correct, wrong) {
+    // Abreviar "Direito" para "D."
+    const abbreviatedLabels = labels.map((label) =>
+      label.replace(/DIREITO/g, "D."),
+    );
+
     this.performanceChart = new Chart(ctx, {
       type: "bar",
       data: {
-        labels,
+        labels: abbreviatedLabels,
         datasets: [
-          { label: "Acertos", data: correct, backgroundColor: "#4CAF50" },
-          { label: "Erros", data: wrong, backgroundColor: "#F44336" },
+          {
+            label: "Acertos",
+            data: correct,
+            backgroundColor: "#4CAF50",
+          },
+          {
+            label: "Erros",
+            data: wrong,
+            backgroundColor: "#F44336",
+          },
         ],
       },
       options: {
-        indexAxis: "x",
+        indexAxis: "y",
         responsive: true,
         animation: {
           duration: 0,
@@ -96,9 +109,15 @@ export class ReportsCharts {
         scales: {
           x: {
             stacked: true,
-            ticks: { autoSkip: false, maxRotation: 90, minRotation: 45 },
+            //ticks: { autoSkip: false, maxRotation: 90, minRotation: 45 },
           },
-          y: { stacked: true, beginAtZero: true },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: {
+              autoSkip: false, // NÃO pular matérias
+            },
+          },
         },
         plugins: {
           legend: {

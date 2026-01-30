@@ -63,7 +63,7 @@ export class WeeklyGoalsUI {
       container.innerHTML = `
         <div class="weekly-goals-card-header">
           <strong class="weekly-goals-card-title">
-            METAS DE ESTUDO
+            METAS DE ESTUDO SEMANAL
           </strong>
           <button
             id="btn-edit-weekly-goals"

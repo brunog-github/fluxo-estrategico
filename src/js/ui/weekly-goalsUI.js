@@ -25,12 +25,12 @@ export class WeeklyGoalsUI {
   }
 
   /**
-   * Validar se um valor de duração é considerado "vazio" (00:00, 0:00, etc)
+   * Validar se um valor de duração é considerado "vazio" (00:00:00, 0:00:00, etc)
    * @param {string} duration
    * @returns {boolean}
    */
   isDurationEmpty(duration) {
-    return !duration || duration === "00:00" || duration === "0:00";
+    return !duration || duration === "00:00:00" || duration === "0:00:00";
   }
 
   /**
@@ -83,11 +83,19 @@ export class WeeklyGoalsUI {
       // Com dados
       const durationPercentage = progress?.duration?.percentage || 0;
       const questionsPercentage = progress?.questions?.percentage || 0;
-      const durationCurrent = progress?.duration?.current || "00:00";
+      const durationCurrent = progress?.duration?.current || "00:00:00";
       const questionsCurrent = progress?.questions?.current || 0;
 
-      const goalsDurationFormatted = `${goals.duration.split(":")[0]}h${goals.duration.split(":")[1]}min`;
-      const durationCurrentFormatted = `${durationCurrent.split(":")[0]}h${durationCurrent.split(":")[1]}min`;
+      const goalParts = goals.duration.split(":");
+      const currentParts = durationCurrent.split(":");
+      const goalsDurationFormatted =
+        goalParts.length >= 3
+          ? `${goalParts[0]}h${goalParts[1]}min`
+          : `${goalParts[0]}h${goalParts[1]}min`;
+      const durationCurrentFormatted =
+        currentParts.length >= 3
+          ? `${currentParts[0]}h${currentParts[1]}min`
+          : `${currentParts[0]}h${currentParts[1]}min`;
 
       container.innerHTML = `
         <div class="weekly-goals-card-header">
@@ -181,16 +189,16 @@ export class WeeklyGoalsUI {
   }
 
   /**
-   * Validar formato da duração (HH:MM)
+   * Validar formato da duração (HH:MM:SS)
    * @param {string} duration
    * @returns {boolean}
    */
   isValidDuration(duration) {
-    const regex = /^(\d{1,2}):(\d{2})$/;
+    const regex = /^(\d{1,2}):(\d{2}):(\d{2})$/;
     if (!regex.test(duration)) return false;
 
-    const [_, hours, minutes] = duration.match(regex);
-    return parseInt(minutes) < 60;
+    const [_, hours, minutes, seconds] = duration.match(regex);
+    return parseInt(minutes) < 60 && parseInt(seconds) < 60;
   }
 
   /**
@@ -202,13 +210,34 @@ export class WeeklyGoalsUI {
     // Remove caracteres não numéricos
     let cleaned = value.replace(/\D/g, "");
 
-    // Limita a 4 dígitos
-    if (cleaned.length > 4) {
-      cleaned = cleaned.slice(0, 4);
+    // Limita a 6 dígitos (HHMMSS)
+    if (cleaned.length > 6) {
+      cleaned = cleaned.slice(0, 6);
     }
 
-    // Formata como HH:MM
-    if (cleaned.length >= 3) {
+    // Valida minutos (posições 2-3)
+    if (cleaned.length >= 4) {
+      let mins = parseInt(cleaned.substring(2, 4));
+      if (mins > 59)
+        cleaned = cleaned.substring(0, 2) + "59" + cleaned.substring(4);
+    }
+
+    // Valida segundos (posições 4-5)
+    if (cleaned.length >= 6) {
+      let secs = parseInt(cleaned.substring(4, 6));
+      if (secs > 59) cleaned = cleaned.substring(0, 4) + "59";
+    }
+
+    // Formata como HH:MM:SS
+    if (cleaned.length >= 5) {
+      return (
+        cleaned.slice(0, -4) +
+        ":" +
+        cleaned.slice(-4, -2) +
+        ":" +
+        cleaned.slice(-2)
+      );
+    } else if (cleaned.length >= 3) {
       return cleaned.slice(0, -2) + ":" + cleaned.slice(-2);
     }
 

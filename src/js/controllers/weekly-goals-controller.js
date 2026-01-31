@@ -93,7 +93,7 @@ export class WeeklyGoalsController {
     } catch (error) {
       console.error("[WEEKLY_GOALS] Erro ao calcular progresso:", error);
       return {
-        duration: { current: "00:00", percentage: 0 },
+        duration: { current: "00:00:00", percentage: 0 },
         questions: { current: 0, percentage: 0 },
       };
     }
@@ -126,27 +126,28 @@ export class WeeklyGoalsController {
   }
 
   /**
-   * Parsear duração da meta (formato: "HH:MM")
+   * Parsear duração da meta (formato: "HH:MM:SS")
    * @param {string} goalDuration
    * @returns {number} Total em minutos
    */
   parseGoalDuration(goalDuration) {
     if (!goalDuration) return 0;
-    const [hours, minutes] = goalDuration.split(":").map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
+    const [hours, minutes, seconds] = goalDuration.split(":").map(Number);
+    return (hours || 0) * 60 + (minutes || 0) + (seconds >= 30 ? 1 : 0);
   }
 
   /**
-   * Formatar minutos para HH:MM
+   * Formatar minutos para HH:MM:SS
    * @param {number} minutes
    * @returns {string}
    */
   formatMinutesToHHMM(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
+    const seconds = 0;
     return `${hours.toString().padStart(2, "0")}:${mins
       .toString()
-      .padStart(2, "0")}`;
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }
 
   /**
@@ -206,12 +207,13 @@ export class WeeklyGoalsController {
   }
 
   /**
-   * Validar se um valor de duração é válido (não é "00:00")
+   * Validar se um valor de duração é válido (não é "00:00:00")
    * @param {string} duration
    * @returns {boolean}
    */
   isValidGoalDuration(duration) {
-    if (!duration || duration === "00:00" || duration === "0:00") return false;
+    if (!duration || duration === "00:00:00" || duration === "0:00:00")
+      return false;
     return true;
   }
 
@@ -242,7 +244,7 @@ export class WeeklyGoalsController {
     if (formData.duration && !this.ui.isValidDuration(formData.duration)) {
       this.toast.showToast(
         "error",
-        "Formato de duração inválido. Use HH:MM (ex: 15:30)",
+        "Formato de duração inválido. Use HH:MM:SS (ex: 15:30:00)",
       );
       return;
     }

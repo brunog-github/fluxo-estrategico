@@ -483,4 +483,9 @@ export class SettingsController {
       reader.readAsText(file);
     }
   }
+
+  async renderEditaisSummary() {
+    const { EditaisSummaryUI } = await import("../ui/editais-summaryUI.js");
+    await EditaisSummaryUI.render();
+  }
 }

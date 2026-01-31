@@ -34,6 +34,9 @@ export async function buildBackupData() {
       unlockedAchievements: await dbService.getUnlockedAchievements(),
       studyNotes: await dbService.getNotes(),
       lastBackupDate: await dbService.getLastBackupDate(),
+      editais: await dbService.getEditais(),
+      editalMaterias: await dbService.getAllEditalMaterias(),
+      editalTopicos: await dbService.getAllEditalTopicos(),
     },
   };
 }
@@ -103,6 +106,7 @@ export async function restoreBackup(backup) {
 
   // Importa categorias
   if (backup.data.studyCategories && backup.data.studyCategories.length > 0) {
+    await dbService.clearCategories();
     await dbService.addCategories(
       backup.data.studyCategories.map((c) => c.name || c),
     );
@@ -132,5 +136,20 @@ export async function restoreBackup(backup) {
   // Importa data do último backup
   if (backup.data.lastBackupDate !== "") {
     await dbService.setLastBackupDate(backup.data.lastBackupDate);
+  }
+
+  // Importa editais
+  if (backup.data.editais && backup.data.editais.length > 0) {
+    await dbService.importAll({ editais: backup.data.editais });
+  }
+
+  // Importa matérias do edital
+  if (backup.data.editalMaterias && backup.data.editalMaterias.length > 0) {
+    await dbService.importAll({ editalMaterias: backup.data.editalMaterias });
+  }
+
+  // Importa tópicos do edital
+  if (backup.data.editalTopicos && backup.data.editalTopicos.length > 0) {
+    await dbService.importAll({ editalTopicos: backup.data.editalTopicos });
   }
 }

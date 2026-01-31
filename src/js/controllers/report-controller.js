@@ -2,6 +2,7 @@ import { ReportsUI } from "../ui/reportUI.js";
 import { ReportsCharts } from "../utils/chart-utils.js";
 import { getFilteredHistory } from "../utils/reports-utils.js";
 import { dbService } from "../services/db/db-service.js";
+import { EditaisSummaryUI } from "../ui/editais-summaryUI.js";
 
 export class ReportsController {
   constructor(toast, confirm, screenNavigator) {
@@ -29,6 +30,7 @@ export class ReportsController {
     await this.renderHistory();
     await this.updateCharts();
     await this.updateSummary();
+    await EditaisSummaryUI.render("editais-summary-container-reports");
     this.ui.updateRotateTip();
 
     // Inicializar modal de visualização detalhada

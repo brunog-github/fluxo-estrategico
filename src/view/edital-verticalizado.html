@@ -1,0 +1,147 @@
+<div
+  class="nav-header"
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+  "
+>
+  <div style="display: flex; align-items: center; gap: 10px">
+    <button
+      id="btn-back-to-home-from-edital"
+      class="btn-back"
+      title="Voltar para o Início"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
+    <h2 class="edital-title">Edital</h2>
+  </div>
+</div>
+
+<div
+  class="edital-header-actions"
+  style="
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: end;
+    margin-bottom: 15px;
+  "
+>
+  <button id="btn-adicionar-edital" class="btn btn-success">Adicionar</button>
+
+  <div class="edital-selector-wrapper">
+    <div class="edital-selector-container">
+      <select id="edital-selector" class="edital-selector">
+        <option value="">Selecione um edital...</option>
+      </select>
+      <i class="fa-solid fa-chevron-down edital-selector-arrow"></i>
+    </div>
+    <button
+      id="btn-editar-edital"
+      class="btn-edit-edital"
+      title="Editar este edital"
+      style="display: none"
+    >
+      <i class="fa-solid fa-pen-to-square"></i>
+    </button>
+    <button
+      id="btn-deletar-edital"
+      class="btn-delete-edital"
+      title="Deletar este edital"
+    >
+      ✕
+    </button>
+  </div>
+</div>
+
+<div class="edital-container">
+  <!-- Progressbar Geral -->
+  <div
+    class="edital-progress-section"
+    id="edital-progress-container"
+    style="display: none"
+  >
+    <div class="progress-header">
+      <h3>PROGRESSO NO EDITAL</h3>
+      <span id="edital-progress-text" class="progress-text"
+        >0 de 0 tópicos concluídos</span
+      >
+    </div>
+    <div class="progress-bar-wrapper">
+      <div id="edital-progress-bar" class="progress-bar">
+        <div id="edital-progress-fill" class="progress-fill"></div>
+      </div>
+      <span id="edital-progress-percent" class="progress-percent">0%</span>
+    </div>
+  </div>
+
+  <!-- Lista de Matérias e Tópicos -->
+  <div class="edital-subjects-list" id="edital-subjects-list">
+    <!-- Renderizado dinamicamente -->
+  </div>
+</div>
+
+<!-- Modal Adicionar/Editar Edital -->
+<div id="modal-adicionar-edital" class="modal hidden">
+  <div class="modal-content card-elevated edital-modal-container">
+    <h3 class="edital-modal-title" id="modal-title">Novo Edital</h3>
+
+    <form id="form-adicionar-edital">
+      <input type="hidden" id="edital-edit-id" value="" />
+      <div class="edital-field-group">
+        <label class="edital-label">Nome do Edital</label>
+        <input
+          type="text"
+          id="input-nome-edital"
+          class="edital-input"
+          placeholder="Ex: TJ-SP, OAB, Magistratura..."
+          required
+        />
+      </div>
+
+      <div class="edital-field-group">
+        <label class="edital-label">Matérias</label>
+        <div class="edital-materias-list" id="edital-materias-list"></div>
+
+        <div class="edital-add-materia-form">
+          <input
+            type="text"
+            id="input-nome-materia"
+            class="edital-input"
+            placeholder="Ex: Português, Direito Penal..."
+          />
+          <button
+            type="button"
+            id="btn-adicionar-materia"
+            class="btn-add-materia"
+          >
+            + Matéria
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px">
+        <button
+          type="button"
+          id="btn-cancelar-edital"
+          class="btn btn-outline"
+          style="flex: 1"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn" style="flex: 1">Criar Edital</button>
+      </div>
+    </form>
+  </div>
+</div>

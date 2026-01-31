@@ -14,6 +14,9 @@ db.version(1).stores({
   history: "++id", // histórico de estudos
   notes: "++id, linkedId", // notas de estudo
   achievements: "++id, achievementId", // conquistas desbloqueadas
+  editais: "++id", // editais verticalizados (ex: TJ-SP, OAB, etc)
+  editalMaterias: "++id, editalId", // matérias de cada edital
+  editalTopicos: "++id, editalMateriaId", // tópicos de cada matéria do edital
 });
 
 /**
@@ -458,6 +461,9 @@ class DBService {
       history: await db.history.toArray(),
       notes: await db.notes.toArray(),
       achievements: await db.achievements.toArray(),
+      editais: await db.editais.toArray(),
+      editalMaterias: await db.editalMaterias.toArray(),
+      editalTopicos: await db.editalTopicos.toArray(),
     };
   }
   /**
@@ -474,6 +480,9 @@ class DBService {
         db.history,
         db.notes,
         db.achievements,
+        db.editais,
+        db.editalMaterias,
+        db.editalTopicos,
       ],
       async () => {
         if (data.settings)
@@ -487,6 +496,14 @@ class DBService {
         if (data.notes) await db.notes.bulkAdd(data.notes, { allKeys: true });
         if (data.achievements)
           await db.achievements.bulkAdd(data.achievements, { allKeys: true });
+        if (data.editais)
+          await db.editais.bulkAdd(data.editais, { allKeys: true });
+        if (data.editalMaterias)
+          await db.editalMaterias.bulkAdd(data.editalMaterias, {
+            allKeys: true,
+          });
+        if (data.editalTopicos)
+          await db.editalTopicos.bulkAdd(data.editalTopicos, { allKeys: true });
       },
     );
   }
@@ -515,6 +532,161 @@ class DBService {
   async clearAll() {
     await db.delete();
     await db.open();
+  }
+
+  // ========== EDITAIS (Novos) ==========
+
+  /**
+   * Obter todos os editais
+   * @returns {Promise<Array>} Array de editais
+   */
+  async getEditais() {
+    return await db.editais.toArray();
+  }
+
+  /**
+   * Adicionar edital
+   * @param {string} nome - Nome do edital (ex: TJ-SP)
+   * @returns {Promise<number>} ID do edital criado
+   */
+  async addEdital(nome) {
+    return await db.editais.add({
+      nome: nome.trim(),
+      createdAt: new Date(),
+    });
+  }
+
+  /**
+   * Atualizar edital
+   * @param {number} editalId - ID do edital
+   * @param {object} dados - Dados do edital (nome, etc)
+   */
+  async updateEdital(editalId, dados) {
+    return await db.editais.update(editalId, dados);
+  }
+
+  /**
+   * Deletar edital e suas matérias/tópicos
+   * @param {number} editalId - ID do edital
+   */
+  async deleteEdital(editalId) {
+    // Deletar todos os tópicos das matérias do edital
+    const materias = await db.editalMaterias
+      .where("editalId")
+      .equals(editalId)
+      .toArray();
+    for (const materia of materias) {
+      await db.editalTopicos
+        .where("editalMateriaId")
+        .equals(materia.id)
+        .delete();
+    }
+    // Deletar matérias do edital
+    await db.editalMaterias.where("editalId").equals(editalId).delete();
+    // Deletar edital
+    await db.editais.delete(editalId);
+  }
+
+  // ========== EDITAL MATERIAS ==========
+
+  /**
+   * Obter matérias de um edital
+   * @param {number} editalId - ID do edital
+   * @returns {Promise<Array>} Array de matérias
+   */
+  async getEditalMaterias(editalId) {
+    return await db.editalMaterias.where("editalId").equals(editalId).toArray();
+  }
+
+  /**
+   * Obter TODAS as matérias (para backup)
+   * @returns {Promise<Array>} Array de todas as matérias
+   */
+  async getAllEditalMaterias() {
+    return await db.editalMaterias.toArray();
+  }
+
+  /**
+   * Adicionar matéria a um edital
+   * @param {number} editalId - ID do edital
+   * @param {string} nome - Nome da matéria
+   * @returns {Promise<number>} ID da matéria criada
+   */
+  async addEditalMateria(editalId, nome) {
+    return await db.editalMaterias.add({
+      editalId,
+      nome: nome.trim(),
+      createdAt: new Date(),
+    });
+  }
+
+  /**
+   * Deletar matéria e seus tópicos
+   * @param {number} editalMateriaId - ID da matéria
+   */
+  async deleteEditalMateria(editalMateriaId) {
+    await db.editalTopicos
+      .where("editalMateriaId")
+      .equals(editalMateriaId)
+      .delete();
+    await db.editalMaterias.delete(editalMateriaId);
+  }
+
+  // ========== EDITAL TOPICOS ==========
+
+  /**
+   * Obter tópicos de uma matéria do edital
+   * @param {number} editalMateriaId - ID da matéria
+   * @returns {Promise<Array>} Array de tópicos
+   */
+  async getEditalTopicos(editalMateriaId) {
+    return await db.editalTopicos
+      .where("editalMateriaId")
+      .equals(editalMateriaId)
+      .toArray();
+  }
+
+  /**
+   * Obter TODOS os tópicos (para backup)
+   * @returns {Promise<Array>} Array de todos os tópicos
+   */
+  async getAllEditalTopicos() {
+    return await db.editalTopicos.toArray();
+  }
+
+  /**
+   * Adicionar tópico a uma matéria
+   * @param {number} editalMateriaId - ID da matéria
+   * @param {string} nome - Nome do tópico
+   * @returns {Promise<number>} ID do tópico criado
+   */
+  async addEditalTopico(editalMateriaId, nome) {
+    return await db.editalTopicos.add({
+      editalMateriaId,
+      nome: nome.trim(),
+      completed: false,
+      createdAt: new Date(),
+    });
+  }
+
+  /**
+   * Atualizar status de um tópico
+   * @param {number} topicoId - ID do tópico
+   * @param {boolean} completed - Se foi concluído
+   */
+  async updateEditalTopicoStatus(topicoId, completed) {
+    await db.editalTopicos.update(topicoId, {
+      completed,
+      updatedAt: new Date(),
+    });
+  }
+
+  /**
+   * Deletar tópico
+   * @param {number} topicoId - ID do tópico
+   */
+  async deleteEditalTopico(topicoId) {
+    await db.editalTopicos.delete(topicoId);
   }
 }
 

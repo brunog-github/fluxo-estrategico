@@ -43,6 +43,7 @@ import { initTimerScreenEvents } from "./events/timer-screen-events.js";
 import { initReportsScreenEvents } from "./events/reports-screen-events.js";
 import { initManualEntryEvents } from "./events/manual-entry-events.js";
 import { initFiltersEvents } from "./events/filters-events.js";
+import { setupEditaiVerticalizedEvents } from "./events/edital-verticalizado-events.js";
 import { initGlobalTooltip } from "./controllers/tooltip-controller.js"; // Caso seja função
 import { generateFakeData } from "./data/fake-data.js";
 
@@ -53,6 +54,7 @@ const VIEWS_CONFIG = [
   { id: "screen-config", url: "src/view/config.html" },
   { id: "screen-reports", url: "src/view/reports.html" },
   { id: "screen-achievements", url: "src/view/achievements.html" },
+  { id: "screen-edital", url: "src/view/edital-verticalizado.html" },
 ];
 
 class App {
@@ -247,6 +249,9 @@ class App {
 
     // Timer Events (passando Notes também)
     initTimerScreenEvents(s.screens, s.timer, s.notes);
+
+    // Edital Verticalizado Events
+    setupEditaiVerticalizedEvents(s.toast, s.confirm);
   }
 
   // Lógica de recuperação de sessão (F5 ou reabertura)

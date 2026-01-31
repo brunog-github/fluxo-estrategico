@@ -15,6 +15,7 @@ export class ScreenNavigator {
       "screen-config",
       "screen-reports",
       "screen-achievements",
+      "screen-edital",
     ];
 
     screens.forEach((id) => {
@@ -51,4 +52,3 @@ export class ScreenNavigator {
     this.goHome();
   }
 }
-

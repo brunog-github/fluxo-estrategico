@@ -11,6 +11,7 @@ export function initConfigScreenEvents(
       configUI.renderList();
       streak.loadRestDaysUI();
       await settings.renderCategories();
+      await settings.renderEditaisSummary();
       screens.switch("screen-config");
     });
 
@@ -63,4 +64,12 @@ export function initConfigScreenEvents(
   document
     .getElementById("btn-clear-config")
     .addEventListener("click", () => settings.clearConfig());
+
+  // Edital Verticalizado Button
+  const btnEdital = document.getElementById("btn-edital-verticalizado");
+  if (btnEdital) {
+    btnEdital.addEventListener("click", () => {
+      screens.switch("screen-edital");
+    });
+  }
 }

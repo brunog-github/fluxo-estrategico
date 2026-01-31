@@ -25,4 +25,14 @@ export function initReportsScreenEvents(
     .addEventListener("click", () => {
       screens.switch("screen-home");
     });
+
+  // Botão "Acessar Edital Verticalizado" na tela de relatórios
+  const btnEditalReports = document.getElementById(
+    "btn-edital-verticalizado-reports",
+  );
+  if (btnEditalReports) {
+    btnEditalReports.addEventListener("click", () => {
+      screens.switch("screen-edital");
+    });
+  }
 }

@@ -338,6 +338,9 @@ export class BackupSyncController {
         settings,
         theme,
         restDays,
+        editais,
+        editalMaterias,
+        editalTopicos,
       ] = await Promise.all([
         dbService.getCategories(),
         dbService.getSubjects(),
@@ -347,6 +350,9 @@ export class BackupSyncController {
         dbService.getAllSettings(),
         dbService.getTheme(),
         dbService.getRestDays(),
+        dbService.getEditais(),
+        dbService.getAllEditalMaterias(),
+        dbService.getAllEditalTopicos(),
       ]);
 
       // ✅ IMPORTANTE: Remover campos internos que NÃO devem ser inclusos no backup
@@ -367,6 +373,9 @@ export class BackupSyncController {
           notes: notes || [],
           achievements: achievements || [],
           settings: cleanSettings || {}, // ✅ SEM theme e restDays (já removidos)
+          editais: editais || [],
+          editalMaterias: editalMaterias || [],
+          editalTopicos: editalTopicos || [],
           // ❌ NÃO incluir theme e restDays aqui pois já estão em settings
         },
       };
@@ -458,6 +467,19 @@ export class BackupSyncController {
       // Fallback: se restDays não estiver em settings, usar valor separado (compatibilidade com backups antigos)
       if (data.restDays && !data.settings?.restDays) {
         await dbService.setRestDays(data.restDays);
+      }
+
+      // ✅ NOVO: Restaurar editais e seus dados relacionados
+      if (data.editais && data.editais.length > 0) {
+        await dbService.importAll({ editais: data.editais });
+      }
+
+      if (data.editalMaterias && data.editalMaterias.length > 0) {
+        await dbService.importAll({ editalMaterias: data.editalMaterias });
+      }
+
+      if (data.editalTopicos && data.editalTopicos.length > 0) {
+        await dbService.importAll({ editalTopicos: data.editalTopicos });
       }
     } catch (error) {
       console.error("Erro ao restaurar dados:", error);

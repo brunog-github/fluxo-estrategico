@@ -142,6 +142,54 @@
     Salvar Dias
   </button>
 </div>
+<!-- Edital Verticalizado Section -->
+<div
+  style="
+    background: var(--badge-bg);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  "
+>
+  <p
+    style="
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      align-items: center;
+      justify-content: space-between;
+      display: flex;
+      margin-top: 0;
+    "
+  >
+    <span
+      style="display: flex; align-items: center; gap: 5px; font-weight: bold"
+    >
+      📚 Edital Verticalizado
+      <span
+        class="tip-edital-icon"
+        data-tooltip="Acompanhe seu progresso nos editais"
+        data-tooltip-position="top"
+      >
+        ?
+      </span>
+    </span>
+    <button
+      id="btn-edital-verticalizado"
+      class="btn-sm"
+      title="Acessar Edital Verticalizado"
+      style="margin: 0; padding: 6px 12px; font-size: 12px"
+    >
+      Acessar
+    </button>
+  </p>
+  <div
+    id="editais-summary-container"
+    style="display: flex; flex-direction: column; gap: 10px"
+  >
+    <!-- Renderizado dinamicamente -->
+  </div>
+</div>
 
 <button
   id="btn-clear-config"

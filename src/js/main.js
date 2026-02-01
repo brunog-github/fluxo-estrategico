@@ -41,6 +41,7 @@ import { initCalendarEvents } from "./events/calendar-events.js";
 import { initFinishStudyEvents } from "./events/finish-study-events.js";
 import { initConfigScreenEvents } from "./events/config-screen-events.js";
 import { initTimerScreenEvents } from "./events/timer-screen-events.js";
+import { initNotesEvents } from "./events/notes-events.js";
 import { initReportsScreenEvents } from "./events/reports-screen-events.js";
 import { initManualEntryEvents } from "./events/manual-entry-events.js";
 import { initFiltersEvents } from "./events/filters-events.js";
@@ -260,6 +261,7 @@ class App {
     initReportsScreenEvents(s.reports, s.screens, s.lifetime, s.filters);
     initManualEntryEvents(s.manualEntry, s.lifetime);
     initFiltersEvents(s.filters);
+    initNotesEvents(s.notes);
 
     // Timer Events (passando Notes também)
     initTimerScreenEvents(s.screens, s.timer, s.notes);

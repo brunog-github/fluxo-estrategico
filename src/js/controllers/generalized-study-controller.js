@@ -332,6 +332,15 @@ export class GeneralizedStudyController {
       return;
     }
 
+    // Validar se o número de acertos não é maior que o número de questões
+    if (data.questions > 0 && data.correct > data.questions) {
+      this.toast.showToast(
+        "warning",
+        "O número de acertos não pode ser maior que o número total de questões.",
+      );
+      return;
+    }
+
     // Salvar no banco de dados
     this.saveQuickStudySession(data);
 

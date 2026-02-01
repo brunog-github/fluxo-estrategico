@@ -1,9 +1,4 @@
 import {
-  convertRestDaysToString,
-  convertStringToRestDays,
-} from "../utils/days-utils.js";
-
-import {
   buildBackupData,
   saveBackupToFile,
   restoreBackup,
@@ -11,12 +6,9 @@ import {
 } from "../utils/backup-utils.js";
 
 import {
-  CATEGORY_COLORS,
   getCategoryColor,
   getDefaultCategories,
-  isDefaultCategory,
   COLOR_PALETTE,
-  getCustomCategoryColors,
   setCustomCategoryColor,
   removeCustomCategoryColor,
 } from "../utils/category-colors.js";
@@ -52,6 +44,25 @@ export class SettingsController {
 
   getFixedCategories() {
     return getDefaultCategories();
+  }
+
+  resetPositionFloatingButton() {
+    const floatingData = localStorage.getItem("floatingButtonPosition");
+
+    if (!floatingData) {
+      this.toast.showToast(
+        "info",
+        "O botão flutuante já está na posição padrão.",
+      );
+      return;
+    }
+
+    localStorage.removeItem("floatingButtonPosition");
+    this.toast.showToast("success", "Posição do botão flutuante resetada!");
+
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
   }
 
   async getCustomCategories() {

@@ -65,6 +65,10 @@ export function initConfigScreenEvents(
     .getElementById("btn-clear-config")
     .addEventListener("click", () => settings.clearConfig());
 
+  document
+    .getElementById("btn-clear-floating")
+    .addEventListener("click", () => settings.resetPositionFloatingButton());
+
   // Edital Verticalizado Button
   const btnEdital = document.getElementById("btn-edital-verticalizado");
   if (btnEdital) {

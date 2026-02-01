@@ -7,6 +7,9 @@
   flex-direction: column;
   gap: 16px;
   max-width: 380px;
+  width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 
 .toast {
@@ -24,6 +27,9 @@
   justify-content: space-between;
   align-items: center;
   font-family: system-ui, sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  gap: 12px;
 }
 
 .toast.show {
@@ -180,5 +186,36 @@
   .confirm-buttons .btn {
     padding: 10px 16px;
     font-size: 0.9rem;
+  }
+}
+
+/* Mobile responsiveness para toast normal */
+@media (max-width: 480px) {
+  .toast-container {
+    max-width: calc(100vw - 24px);
+    top: 20px;
+    right: 12px;
+    left: auto;
+    margin-right: 15px;
+  }
+
+  .toast {
+    min-width: auto;
+    max-width: 100%;
+    width: 100%;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .toast span {
+    flex: 1;
+    word-break: break-word;
+    min-width: 0;
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    margin-left: 12px;
   }
 }

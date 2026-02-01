@@ -1,0 +1,496 @@
+/* ==========================================
+   FLOATING BUTTON - ESTUDO RÁPIDO
+   ========================================== */
+
+#generalized-study-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.floating-study-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), #00a89f);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(69, 164, 196, 0.4);
+  transition: all 0.3s ease;
+  font-size: 24px;
+}
+
+.floating-study-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(69, 164, 196, 0.6);
+}
+
+.floating-study-btn:active {
+  transform: scale(0.95);
+}
+
+.floating-study-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* ==========================================
+   MODAL - ESTUDO RÁPIDO
+   ========================================== */
+
+#quick-study-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.quick-study-modal-content {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.quick-study-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.quick-study-header h2 {
+  margin: 0;
+  flex: 1;
+  line-height: 1;
+}
+
+.btn-toggle-form {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--primary-color);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s ease;
+  border-radius: 4px;
+  flex-shrink: 0;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.btn-toggle-form:hover {
+  background: rgba(69, 164, 196, 0.1);
+}
+
+.btn-toggle-form.collapsed i {
+  transform: rotate(-180deg);
+}
+
+#form-quick-study {
+  overflow: hidden;
+  height: auto;
+  opacity: 1;
+  transition:
+    height 0.45s ease,
+    opacity 0.25s ease;
+}
+
+#form-quick-study.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.quick-study-modal-content h2 {
+  margin-top: 0;
+  color: var(--primary-color);
+  text-align: start;
+}
+
+.quick-study-timer-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(69, 164, 196, 0.08);
+  border-radius: 8px;
+  position: relative;
+}
+
+#quick-study-timer-display {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--primary-color);
+  font-variant-numeric: tabular-nums;
+  font-family: "Courier New", monospace;
+}
+
+/* Controles de play/pause quando formulário está colapsado */
+.quick-study-controls-collapsed {
+  display: none;
+  gap: 12px;
+  margin-top: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-quick-control {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-quick-control:hover {
+  background: #00a89f;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(69, 164, 196, 0.4);
+}
+
+.btn-quick-control:active {
+  transform: scale(0.95);
+}
+
+.btn-quick-control i {
+  pointer-events: none;
+}
+
+.quick-study-timer-section p {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin: 10px 0 0 0;
+}
+
+.quick-study-modal-content .form-group {
+  margin-bottom: 18px;
+}
+
+.quick-study-modal-content label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-study-modal-content input,
+.quick-study-modal-content select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.quick-study-modal-content input:focus,
+.quick-study-modal-content select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(69, 164, 196, 0.1);
+}
+
+.quick-study-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.quick-study-checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.quick-study-checkbox-group label {
+  margin: 0;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.quick-study-button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.quick-study-button-group button {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#btn-quick-study-finish {
+  background: var(--primary-color);
+  color: white;
+}
+
+#btn-quick-study-finish:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(69, 164, 196, 0.3);
+}
+
+#btn-quick-study-cancel {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+#btn-quick-study-cancel:hover {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+#btn-quick-study-pause {
+  background: rgba(69, 164, 196, 0.1);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+#btn-quick-study-pause:hover {
+  background: rgba(69, 164, 196, 0.15);
+}
+
+#btn-quick-study-pause.btn-outline {
+  opacity: 0.7;
+}
+
+.quick-study-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  text-align: justify;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  border-left: 3px solid var(--primary-color);
+}
+
+/* ==========================================
+   RESPONSIVO
+   ========================================== */
+
+@media (max-width: 768px) {
+  #generalized-study-container {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .floating-study-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .floating-study-btn svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .quick-study-modal-content {
+    padding: 20px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  #quick-study-timer-display {
+    font-size: 36px;
+  }
+
+  .quick-study-timer-section {
+    margin-bottom: 20px;
+    padding: 15px;
+  }
+
+  .quick-study-modal-content .form-group {
+    margin-bottom: 14px;
+  }
+
+  .quick-study-modal-content label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .quick-study-modal-content input,
+  .quick-study-modal-content select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .quick-study-button-group {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .quick-study-button-group button {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .quick-study-note {
+    font-size: 10px;
+    padding: 8px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  #generalized-study-container {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .floating-study-btn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .floating-study-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  #quick-study-modal {
+    padding: 30px;
+  }
+
+  .quick-study-modal-content {
+    padding: 16px;
+    max-width: 100%;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  #quick-study-timer-display {
+    font-size: 36px;
+  }
+
+  .quick-study-timer-section {
+    margin-bottom: 18px;
+    padding: 12px;
+  }
+
+  .quick-study-timer-section p {
+    font-size: 11px;
+    margin: 6px 0 0 0;
+  }
+
+  .quick-study-modal-content h2 {
+    font-size: 18px;
+  }
+
+  .quick-study-modal-content .form-group {
+    margin-bottom: 12px;
+  }
+
+  .quick-study-modal-content label {
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+
+  .quick-study-modal-content input,
+  .quick-study-modal-content select {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  .quick-study-checkbox-group {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .quick-study-checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .quick-study-checkbox-group label {
+    font-size: 11px;
+  }
+
+  .quick-study-button-group {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .quick-study-button-group button {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .quick-study-note {
+    font-size: 9px;
+    padding: 6px;
+    margin-top: 6px;
+  }
+}

@@ -14,6 +14,7 @@ import { ScreenNavigator } from "./controllers/screen-navigator-controller.js";
 import { SubjectsManager } from "./controllers/subjects-manager.js";
 import { StudySessionManager } from "./controllers/study-manager.js";
 import { TimerController } from "./controllers/timer-controller.js";
+import { GeneralizedStudyController } from "./controllers/generalized-study-controller.js";
 import { StreakController } from "./controllers/streak-controller.js";
 import { SettingsController } from "./controllers/settings-controller.js";
 import { ReportsController } from "./controllers/report-controller.js";
@@ -123,6 +124,14 @@ class App {
     const timer = new TimerController(subjects, screens, toast);
     timer.session = session; // Dependência circular resolvida
 
+    // Estudo Generalizado (Floating Button)
+    const generalizedStudy = new GeneralizedStudyController(
+      subjects,
+      null, // dbService será utilizado por padrão dentro do controlador
+      toast,
+      notes,
+    );
+
     // Controladores de Backup
     const backupSync = new BackupSyncController(toast, confirm);
     await backupSync.init();
@@ -158,6 +167,7 @@ class App {
       streak,
       session,
       timer,
+      generalizedStudy,
       settings,
       reports,
       manualEntry,
@@ -199,6 +209,10 @@ class App {
 
     // ✅ NOVO: Registrar UI no supabaseService para atualizar banner automaticamente
     supabaseService.setBackupUI(s.backupUI);
+
+    // Criar Floating Button de Estudo Rápido
+    s.generalizedStudy.ui.createFloatingButton();
+    s.generalizedStudy.initFloatingButton();
 
     // Ligações de callbacks
     s.screens.on("screen-home", async () => {

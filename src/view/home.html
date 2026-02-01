@@ -146,3 +146,103 @@
     Relatórios
   </button>
 </div>
+<!-- Container para Floating Button de Estudo Rápido -->
+<div id="generalized-study-container"></div>
+
+<!-- Modal de Estudo Rápido -->
+<div id="quick-study-modal">
+  <div class="quick-study-modal-content">
+    <div class="quick-study-header">
+      <h2>Estudo Rápido</h2>
+      <button
+        id="btn-toggle-form"
+        class="btn-toggle-form"
+        title="Expandir/Contraír formulário"
+      >
+        <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>
+
+    <div class="quick-study-timer-section">
+      <div id="quick-study-timer-display">00:00:00</div>
+      <p
+        id="quick-study-paused-display"
+        style="display: none; color: var(--text-secondary); font-weight: 600"
+      ></p>
+      <button id="btn-open-notes" style="margin: 10px auto; display: block">
+        Anotações
+      </button>
+      <div class="quick-study-controls-collapsed">
+        <button
+          id="btn-quick-study-play"
+          class="btn-quick-control"
+          title="Retomar estudo"
+        >
+          <i class="fas fa-play"></i>
+        </button>
+        <button
+          id="btn-quick-study-play-pause"
+          class="btn-quick-control"
+          title="Pausar estudo"
+        >
+          <i class="fas fa-pause"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="form-quick-study" class="hidden">
+      <div class="form-group">
+        <label for="quick-study-questions">Quantidade de questões:</label>
+        <input
+          type="number"
+          id="quick-study-questions"
+          placeholder="Ex: 10"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="quick-study-correct">Quantidade de acertos:</label>
+        <input
+          type="number"
+          id="quick-study-correct"
+          placeholder="Ex: 8"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="quick-study-category">Categoria de Estudo:</label>
+        <select id="quick-study-category">
+          <option value="">Selecione uma categoria...</option>
+        </select>
+      </div>
+
+      <div class="quick-study-checkbox-group">
+        <input type="checkbox" id="quick-study-no-subject-checkbox" />
+        <label for="quick-study-no-subject-checkbox">
+          Não associar a uma matéria
+        </label>
+      </div>
+
+      <div id="quick-study-subject-group" class="form-group">
+        <label for="quick-study-subject">Matéria:</label>
+        <select id="quick-study-subject">
+          <option value="">Sem matéria específica</option>
+        </select>
+      </div>
+
+      <div class="quick-study-note">
+        Nota: Você pode deixar os campos de questões e acertos vazios se não
+        quiser registrar esse dado. Também é possível fazer um estudo sem
+        associá-lo a uma matéria.
+      </div>
+
+      <div class="quick-study-button-group">
+        <button id="btn-quick-study-pause" class="btn">Pausar</button>
+        <button id="btn-quick-study-cancel" class="btn">Cancelar</button>
+        <button id="btn-quick-study-finish" class="btn">Finalizar</button>
+      </div>
+    </div>
+  </div>
+</div>

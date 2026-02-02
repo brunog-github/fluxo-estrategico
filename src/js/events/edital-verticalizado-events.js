@@ -3,6 +3,7 @@ import { EditaiVerticalizedController } from "../controllers/edital-verticalizad
 export function setupEditaiVerticalizedEvents(
   toastController,
   confirmToastController,
+  screenNavigator,
 ) {
   const controller = new EditaiVerticalizedController(
     toastController,
@@ -15,8 +16,22 @@ export function setupEditaiVerticalizedEvents(
   const backBtn = document.getElementById("btn-back-to-home-from-edital");
   if (backBtn) {
     backBtn.addEventListener("click", () => {
-      document.getElementById("screen-edital").classList.add("hidden");
-      document.getElementById("screen-home").classList.remove("hidden");
+      if (screenNavigator) {
+        screenNavigator.switch("screen-home");
+      } else {
+        document.getElementById("screen-edital").classList.add("hidden");
+        document.getElementById("screen-home").classList.remove("hidden");
+      }
+    });
+  }
+
+  // Botão Simulados Salvos
+  const btnSimuladosSalvos = document.getElementById("btn-simulados-salvos");
+  if (btnSimuladosSalvos) {
+    btnSimuladosSalvos.addEventListener("click", () => {
+      if (screenNavigator) {
+        screenNavigator.switch("screen-simulados-salvos");
+      }
     });
   }
 

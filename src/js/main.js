@@ -24,11 +24,13 @@ import { LifetimeController } from "./controllers/lifetime-controller.js";
 import { NotesController } from "./controllers/notes-controller.js";
 import { BackupSyncController } from "./controllers/backup-sync-controller.js";
 import { WeeklyGoalsController } from "./controllers/weekly-goals-controller.js";
+import { SimuladosSalvosController } from "./controllers/simulados-salvos-controller.js";
 
 // UIs
 import { ConfigUI } from "./ui/configUI.js";
 import { HomeUI } from "./ui/homeUI.js";
 import { BackupUI } from "./ui/backupUI.js";
+import { SimuladosSalvosUI } from "./ui/simulados-salvosUI.js";
 
 // Data & Utils
 import { ACHIEVEMENTS } from "./data/achievements.js";
@@ -46,6 +48,7 @@ import { initReportsScreenEvents } from "./events/reports-screen-events.js";
 import { initManualEntryEvents } from "./events/manual-entry-events.js";
 import { initFiltersEvents } from "./events/filters-events.js";
 import { setupEditaiVerticalizedEvents } from "./events/edital-verticalizado-events.js";
+import { setupSimuladosSalvosEvents } from "./events/simulados-salvos-events.js";
 import { initGlobalTooltip } from "./controllers/tooltip-controller.js"; // Caso seja função
 import { generateFakeData } from "./data/fake-data.js";
 
@@ -57,6 +60,7 @@ const VIEWS_CONFIG = [
   { id: "screen-reports", url: "src/view/reports.html" },
   { id: "screen-achievements", url: "src/view/achievements.html" },
   { id: "screen-edital", url: "src/view/edital-verticalizado.html" },
+  { id: "screen-simulados-salvos", url: "src/view/simulados-salvos.html" },
 ];
 
 class App {
@@ -148,6 +152,14 @@ class App {
     const configUI = new ConfigUI(subjects, toast);
     const homeUI = new HomeUI(subjects, screens);
     const backupUI = new BackupUI(confirm);
+
+    const simuladosSalvosController = new SimuladosSalvosController(
+      toast,
+      confirm,
+    );
+    const simuladosSalvosUI = new SimuladosSalvosUI();
+    simuladosSalvosUI.setController(simuladosSalvosController);
+
     const theme = new ThemeManager({
       toggleButtonId: "theme-toggle",
       onThemeChange: async () =>
@@ -177,6 +189,8 @@ class App {
       configUI,
       homeUI,
       backupUI,
+      simuladosSalvosUI,
+      simuladosSalvosController,
       theme,
     };
   }
@@ -234,6 +248,18 @@ class App {
     s.reports.setEditAction(async (itemToEdit) => {
       await s.manualEntry.openToEdit(itemToEdit);
     });
+
+    // Ação quando abre a tela de simulados salvos
+    s.screens.on("screen-simulados-salvos", async () => {
+      const editalIdSelector = document.getElementById("edital-selector");
+      const editalId = editalIdSelector
+        ? parseInt(editalIdSelector.value)
+        : null;
+
+      if (editalId) {
+        await s.simuladosSalvosUI.render(editalId);
+      }
+    });
   }
 
   // Inicializa os arquivos de Eventos (passando as dependências necessárias)
@@ -267,7 +293,10 @@ class App {
     initTimerScreenEvents(s.screens, s.timer, s.notes);
 
     // Edital Verticalizado Events
-    setupEditaiVerticalizedEvents(s.toast, s.confirm);
+    setupEditaiVerticalizedEvents(s.toast, s.confirm, s.screens);
+
+    // Simulados Salvos Events
+    setupSimuladosSalvosEvents(s.screens, s.simuladosSalvosUI);
   }
 
   // Lógica de recuperação de sessão (F5 ou reabertura)

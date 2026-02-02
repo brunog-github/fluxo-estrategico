@@ -16,6 +16,7 @@ export class ScreenNavigator {
       "screen-reports",
       "screen-achievements",
       "screen-edital",
+      "screen-simulados-salvos",
     ];
 
     screens.forEach((id) => {

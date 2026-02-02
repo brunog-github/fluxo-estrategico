@@ -7,6 +7,7 @@ export class SimuladoController {
     this.selectedEditalId = null;
     this.editalMaterias = [];
     this.disciplinasTemp = [];
+    this.listenersAdded = false; // Flag para evitar listeners duplicados
   }
 
   /**
@@ -393,6 +394,12 @@ export class SimuladoController {
    * Configura os event listeners do modal
    */
   setupEventListeners() {
+    // Evitar adicionar listeners duplicados
+    if (this.listenersAdded) {
+      return;
+    }
+    this.listenersAdded = true;
+
     const btnAbrirSimulado = document.getElementById("btn-adicionar-simulado");
     const btnFechar = document.getElementById("btn-fechar-simulado");
     const btnCancelar = document.getElementById("btnCancelarSimulado");

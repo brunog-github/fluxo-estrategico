@@ -1,0 +1,52 @@
+<div
+  class="nav-header"
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+  "
+>
+  <div style="display: flex; align-items: center; gap: 10px">
+    <button
+      id="btn-back-to-home-from-simulados"
+      class="btn-back"
+      title="Voltar para o Início"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
+    <h2 class="simulados-title">Simulados</h2>
+  </div>
+</div>
+
+<div class="simulados-container">
+  <!-- Lista de Simulados -->
+  <div class="simulados-list" id="simulados-list">
+    <!-- Renderizado dinamicamente -->
+  </div>
+</div>
+
+<!-- Modal de Detalhes do Simulado -->
+<div id="modal-detalhes-simulado" class="modal-detalhes-simulado hidden">
+  <div class="simulado-modal-container">
+    <div class="simulado-modal-header">
+      <h3 id="simulado-modal-title" class="simulado-modal-title"></h3>
+      <button class="modal-close-btn" id="btn-fechar-detalhes-simulado">
+        ✕
+      </button>
+    </div>
+
+    <div id="simulado-modal-content" class="simulado-modal-content">
+      <!-- Renderizado dinamicamente -->
+    </div>
+  </div>
+</div>

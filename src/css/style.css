@@ -17,6 +17,11 @@
   --needs-sync-color: #ff9100;
   --needs-sync-success-bg: rgba(76, 175, 80, 0.251);
   --needs-sync-success-color: #439a46;
+
+  --red-badge: #ef5350;
+  --green-badge: #66bb6a;
+  --yellow-badge: #fbc02d;
+  --bg-modal: rgba(0, 0, 0, 0.5);
 }
 
 /* --- TEMA ESCURO --- */
@@ -37,6 +42,11 @@
   --needs-sync-color: #ff9800;
   --needs-sync-success-bg: rgba(76, 175, 80, 0.12);
   --needs-sync-success-color: #4caf50;
+
+  --red-badge: #ef5350;
+  --green-badge: #66bb6a;
+  --yellow-badge: #fbc02d;
+  --bg-modal: rgba(0, 0, 0, 0.5);
 }
 
 body {

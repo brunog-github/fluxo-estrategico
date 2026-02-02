@@ -17,6 +17,7 @@ db.version(1).stores({
   editais: "++id", // editais verticalizados (ex: TJ-SP, OAB, etc)
   editalMaterias: "++id, editalId", // matérias de cada edital
   editalTopicos: "++id, editalMateriaId", // tópicos de cada matéria do edital
+  simulados: "++id, editalId", // simulados realizados vinculados a um edital
 });
 
 /**
@@ -687,6 +688,88 @@ class DBService {
    */
   async deleteEditalTopico(topicoId) {
     await db.editalTopicos.delete(topicoId);
+  }
+
+  // ========== SIMULADOS ==========
+
+  /**
+   * Obter todos os simulados de um edital
+   * @param {number} editalId - ID do edital
+   * @returns {Promise<Array>} Array de simulados
+   */
+  async getSimuladosByEdital(editalId) {
+    return await db.simulados.where("editalId").equals(editalId).toArray();
+  }
+
+  /**
+   * Obter todos os simulados (para backup)
+   * @returns {Promise<Array>} Array de todos os simulados
+   */
+  async getAllSimulados() {
+    return await db.simulados.toArray();
+  }
+
+  /**
+   * Adicionar simulado
+   * @param {number} editalId - ID do edital
+   * @param {string} data - Data do simulado (YYYY-MM-DD)
+   * @param {string} nome - Nome do simulado
+   * @param {string} banca - Banca do simulado
+   * @param {string} tempo - Tempo gasto (HH:MM:SS)
+   * @param {string} comentarios - Comentários do simulado
+   * @param {Array} disciplinas - Array com dados das disciplinas (id, nome, peso, total, certas)
+   * @param {Object} totais - Objeto com totais (questoes, certas, pontos, porcentagem)
+   * @returns {Promise<number>} ID do simulado criado
+   */
+  async addSimulado(
+    editalId,
+    data,
+    nome,
+    banca,
+    tempo,
+    comentarios,
+    disciplinas,
+    totais,
+  ) {
+    return await db.simulados.add({
+      editalId,
+      data: data,
+      nome: nome.trim(),
+      banca: banca.trim(),
+      tempo: tempo,
+      comentarios: comentarios.trim(),
+      disciplinas: disciplinas,
+      totais: totais,
+      createdAt: new Date(),
+    });
+  }
+
+  /**
+   * Atualizar simulado
+   * @param {number} simuladoId - ID do simulado
+   * @param {Object} dados - Dados a atualizar
+   */
+  async updateSimulado(simuladoId, dados) {
+    return await db.simulados.update(simuladoId, {
+      ...dados,
+      updatedAt: new Date(),
+    });
+  }
+
+  /**
+   * Deletar simulado
+   * @param {number} simuladoId - ID do simulado
+   */
+  async deleteSimulado(simuladoId) {
+    await db.simulados.delete(simuladoId);
+  }
+
+  /**
+   * Deletar todos os simulados de um edital
+   * @param {number} editalId - ID do edital
+   */
+  async deleteSimuladosByEdital(editalId) {
+    await db.simulados.where("editalId").equals(editalId).delete();
   }
 }
 

@@ -38,6 +38,13 @@
     margin-bottom: 15px;
   "
 >
+  <button
+    id="btn-adicionar-simulado"
+    class="btn btn-success"
+    style="display: none"
+  >
+    Simulado
+  </button>
   <button id="btn-adicionar-edital" class="btn btn-success">Adicionar</button>
 
   <div class="edital-selector-wrapper">
@@ -143,5 +150,132 @@
         <button type="submit" class="btn" style="flex: 1">Criar Edital</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal Simulado -->
+<div class="modal-overlay-simulado" id="modalOverlaySimulado">
+  <div class="modal-content" id="modalContentSimulado">
+    <div class="modal-header">
+      <h2>Novo Simulado</h2>
+      <i class="fas fa-times close-icon" id="btn-fechar-simulado"></i>
+    </div>
+
+    <div class="form-row" id="simuladoFormRow">
+      <div class="input-group">
+        <label>Data</label>
+        <input type="date" class="mat-input" id="dataSimulado" />
+      </div>
+      <div class="input-group">
+        <label>Nome</label>
+        <input
+          type="text"
+          class="mat-input"
+          placeholder="Nome do Simulado"
+          id="nomeSimulado"
+        />
+      </div>
+      <div class="input-group">
+        <label>Banca</label>
+        <input
+          type="text"
+          class="mat-input"
+          id="bancaSimulado"
+          placeholder="Ex: Vunesp"
+        />
+      </div>
+      <div class="input-group">
+        <label>Tempo Gasto</label>
+        <input
+          type="text"
+          class="mat-input"
+          id="tempoGasto"
+          placeholder="00:00:00"
+          maxlength="8"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="simulado-table">
+        <thead>
+          <tr>
+            <th class="th-left">Disciplina</th>
+            <th style="width: 60px">Peso</th>
+            <th style="width: 80px">
+              <i class="fas fa-edit header-icon"></i>
+            </th>
+            <th style="width: 80px">
+              <i class="fas fa-check header-icon icon-check"></i>
+            </th>
+            <th style="width: 80px">
+              <i class="fas fa-times header-icon icon-times"></i>
+            </th>
+            <th style="width: 80px">
+              <i class="fas fa-file-alt header-icon"></i>
+            </th>
+            <th style="width: 80px">
+              <i class="fas fa-percent header-icon"></i>
+            </th>
+            <th style="width: 40px"></th>
+          </tr>
+        </thead>
+        <tbody id="disciplinasBody"></tbody>
+      </table>
+    </div>
+
+    <div class="results-bar">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+        "
+      >
+        <span>&nbsp;</span>
+        <span class="results-label">RESULTADO:</span>
+      </div>
+
+      <div class="result-item-wrapper">
+        <span class="result-item-label">Total</span>
+        <div class="result-item result-total" id="totalQuestoes">0</div>
+      </div>
+      <div class="result-item-wrapper">
+        <span class="result-item-label">Certas</span>
+        <div class="result-item result-correct" id="totalCertas">0</div>
+      </div>
+      <div class="result-item-wrapper">
+        <span class="result-item-label">Erradas</span>
+        <div class="result-item result-wrong" id="totalErradas">0</div>
+      </div>
+      <div class="result-item-wrapper">
+        <span class="result-item-label">Pontos</span>
+        <div class="result-item result-points" id="totalPontos">0</div>
+      </div>
+      <div class="result-item-wrapper">
+        <span class="result-item-label">%</span>
+        <div class="result-item">
+          <span class="result-percent" id="totalPorcentagem">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comments-section">
+      <label>Comentários</label>
+      <textarea class="comments-input" id="comentarios"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <div class="right-buttons">
+        <button class="btn btn-outline" id="btnCancelarSimulado">
+          Cancelar
+        </button>
+        <button class="btn btn-solid active-save" id="btnSalvarSimulado">
+          Salvar
+        </button>
+      </div>
+    </div>
   </div>
 </div>

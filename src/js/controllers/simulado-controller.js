@@ -282,6 +282,18 @@ export class SimuladoController {
       );
       return;
     }
+    if (
+      !tempo ||
+      tempo === "00:00:00" ||
+      tempo.replace(/[:\d]/g, "") !== "" ||
+      tempo.replace(/:/g, "").replace(/0/g, "") === ""
+    ) {
+      this.toast.showToast(
+        "error",
+        "Por favor, insira um tempo de duração válido!",
+      );
+      return;
+    }
     if (this.disciplinasTemp.length === 0) {
       this.toast.showToast(
         "error",

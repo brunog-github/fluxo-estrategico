@@ -87,9 +87,6 @@ export class SimuladosSalvosController {
 
     if (!container) return;
 
-    // Resetar a flag de listeners quando renderizar novamente
-    this.listenersAdded = false;
-
     if (this.simulados.length === 0) {
       container.innerHTML = `
         <div class="simulados-empty-state">
@@ -193,86 +190,83 @@ export class SimuladosSalvosController {
   }
 
   setupEventListeners() {
-    // Evitar adicionar listeners duplicados
-    if (this.listenersAdded) {
-      return;
-    }
-    this.listenersAdded = true;
+    // Evitar adicionar listeners duplicados (apenas para os listeners globais)
+    if (!this.listenersAdded) {
+      this.listenersAdded = true;
 
-    // Seletor de edital
-    const selector = document.getElementById("simulados-edital-selector");
-    if (selector) {
-      selector.addEventListener("change", (e) => {
-        this.selectEdital(e.target.value);
-      });
-    }
-
-    // Botão de adicionar simulado
-    const btnAbrirSimulado = document.getElementById("btn-adicionar-simulado");
-    if (btnAbrirSimulado) {
-      btnAbrirSimulado.addEventListener("click", async () => {
-        if (!this.selectedEditalId) {
-          this.toast.showToast("error", "Selecione um edital primeiro!");
-          return;
-        }
-        await this.simuladoController.init(this.selectedEditalId);
-        this.simuladoController.abrirModal();
-      });
-    }
-
-    // Listener para quando um simulado é salvo
-    window.addEventListener("simuladoSalvo", async (e) => {
-      if (e.detail.editalId === this.selectedEditalId) {
-        await this.loadSimulados();
-        this.render();
+      // Seletor de edital
+      const selector = document.getElementById("simulados-edital-selector");
+      if (selector) {
+        selector.addEventListener("change", (e) => {
+          this.selectEdital(e.target.value);
+        });
       }
-    });
 
-    // Botão "Ver Detalhes" do card
-    document.querySelectorAll(".simulado-btn-details").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const simuladoId = parseInt(e.currentTarget.dataset.simuladoId);
-        this.openSimuladoDetails(simuladoId);
-      });
-    });
+      // Botão de adicionar simulado
+      const btnAbrirSimulado = document.getElementById(
+        "btn-adicionar-simulado",
+      );
+      if (btnAbrirSimulado) {
+        btnAbrirSimulado.addEventListener("click", async () => {
+          if (!this.selectedEditalId) {
+            this.toast.showToast("error", "Selecione um edital primeiro!");
+            return;
+          }
+          await this.simuladoController.init(this.selectedEditalId);
+          this.simuladoController.abrirModal();
+        });
+      }
 
-    // Botão "Editar" do card
-    document.querySelectorAll(".simulado-btn-edit").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const simuladoId = parseInt(e.currentTarget.dataset.simuladoId);
-        // TODO: Implementar funcionalidade de editar simulado
-        console.log("Editar simulado:", simuladoId);
-        this.toast.showToast(
-          "info",
-          "Funcionalidade de editar em desenvolvimento",
-        );
-      });
-    });
-
-    // Botão "Deletar" do card
-    document.querySelectorAll(".simulado-btn-delete").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const simuladoId = parseInt(e.currentTarget.dataset.simuladoId);
-        this.selectedSimuladoId = simuladoId;
-        this.deleteSimulado();
-      });
-    });
-
-    // Botão de fechar modal (X)
-    const btnFechar = document.getElementById("btn-fechar-detalhes-simulado");
-    if (btnFechar) {
-      btnFechar.addEventListener("click", () => this.closeSimuladoModal());
-    }
-
-    // Modal backdrop
-    const modal = document.getElementById("modal-detalhes-simulado");
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          this.closeSimuladoModal();
+      // Listener para quando um simulado é salvo
+      window.addEventListener("simuladoSalvo", async (e) => {
+        if (e.detail.editalId === this.selectedEditalId) {
+          await this.loadSimulados();
+          this.render();
         }
       });
+
+      // Botão de fechar modal (X)
+      const btnFechar = document.getElementById("btn-fechar-detalhes-simulado");
+      if (btnFechar) {
+        btnFechar.addEventListener("click", () => this.closeSimuladoModal());
+      }
+
+      // Modal backdrop
+      const modal = document.getElementById("modal-detalhes-simulado");
+      if (modal) {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) {
+            this.closeSimuladoModal();
+          }
+        });
+      }
+
+      // Event delegation para os botões dos cards (um único listener no container)
+      const container = document.getElementById("simulados-list");
+      if (container) {
+        container.addEventListener("click", (e) => {
+          const detailsBtn = e.target.closest(".simulado-btn-details");
+          const editBtn = e.target.closest(".simulado-btn-edit");
+          const deleteBtn = e.target.closest(".simulado-btn-delete");
+
+          if (detailsBtn) {
+            const simuladoId = parseInt(detailsBtn.dataset.simuladoId);
+            this.openSimuladoDetails(simuladoId);
+          } else if (editBtn) {
+            const simuladoId = parseInt(editBtn.dataset.simuladoId);
+            console.log("Editar simulado:", simuladoId);
+            this.toast.showToast(
+              "info",
+              "Funcionalidade de editar em desenvolvimento",
+            );
+          } else if (deleteBtn) {
+            e.stopPropagation();
+            const simuladoId = parseInt(deleteBtn.dataset.simuladoId);
+            this.selectedSimuladoId = simuladoId;
+            this.deleteSimulado();
+          }
+        });
+      }
     }
   }
 

@@ -238,7 +238,6 @@
 .results-bar {
   background-color: var(--primary-light);
   border-radius: 5px;
-  padding: 15px 20px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -280,6 +279,13 @@
   font-size: 14px;
 }
 
+.results-items {
+  display: flex;
+  background-color: var(--table-stripe);
+  padding: 10px;
+  border-radius: 10px;
+}
+
 /* Result Item Wrapper */
 .result-item-wrapper {
   display: flex;
@@ -300,6 +306,9 @@
 .comments-section {
   margin-top: 30px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 .comments-section label {
   font-size: 12px;
@@ -307,7 +316,6 @@
   text-transform: uppercase;
 }
 .comments-input {
-  width: 100%;
   border: none;
   border-bottom: 2px solid var(--primary-color);
   background-color: var(--input-bg);
@@ -318,6 +326,8 @@
   font-family: inherit;
   color: var(--text-color);
   border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
 }
 
 /* Footer Buttons */
@@ -405,8 +415,13 @@
     margin-bottom: 10px;
   }
 
-  .result-item-wrapper {
+  .results-items {
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
+  }
+
+  .result-item-wrapper {
     padding: 10px;
     background-color: var(--badge-bg);
     border-radius: 4px;

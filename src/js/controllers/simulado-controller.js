@@ -97,8 +97,7 @@ export class SimuladoController {
           <input type="text" class="table-input input-wrong" value="${erradas}" readonly>
         </td>
         <td align="center" style="color: var(--text-color);">
-          <span class="badge);">
-          ${pontos}
+          <span> ${pontos} </span>
         </td>
         <td align="center">
           <span class="badge-percent ${badgeClass}">${percent}</span>

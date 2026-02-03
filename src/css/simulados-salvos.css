@@ -393,7 +393,6 @@
 
 .detail-group span {
   color: var(--text-color);
-  background: var(--input-bg);
   display: flex;
   align-items: center;
 }
@@ -406,6 +405,7 @@
   color: var(--text-color);
   justify-content: center;
   border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
 }
 
 .detail-text {

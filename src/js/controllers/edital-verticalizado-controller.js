@@ -1,6 +1,5 @@
 import { dbService } from "../services/db/db-service.js";
 import { EditaisSummaryUI } from "../ui/editais-summaryUI.js";
-import { SimuladoController } from "./simulado-controller.js";
 
 export class EditaiVerticalizedController {
   constructor(toast, confirmToast) {
@@ -12,7 +11,6 @@ export class EditaiVerticalizedController {
     this.editalTopicos = {};
     this.expandedMaterias = new Set();
     this.materiaColors = {};
-    this.simuladoController = new SimuladoController(toast);
   }
 
   async init() {
@@ -24,10 +22,6 @@ export class EditaiVerticalizedController {
     this.renderSelector();
     this.render();
     this.setupEventListeners();
-    this.simuladoController.setupEventListeners();
-
-    // Tornar simuladoController acessível globalmente para eventos
-    window.simuladoController = this.simuladoController;
   }
 
   async loadEditais() {
@@ -72,7 +66,6 @@ export class EditaiVerticalizedController {
     const selector = document.getElementById("edital-selector");
     const deleteBtn = document.getElementById("btn-deletar-edital");
     const editBtn = document.getElementById("btn-editar-edital");
-    const btnSimulado = document.getElementById("btn-adicionar-simulado");
 
     if (!selector) return;
 
@@ -84,12 +77,10 @@ export class EditaiVerticalizedController {
       selector.value = this.selectedEditalId;
       deleteBtn.disabled = false;
       if (editBtn) editBtn.style.display = "flex";
-      if (btnSimulado) btnSimulado.style.display = "inline-block";
     } else {
       selector.value = "";
       deleteBtn.disabled = true;
       if (editBtn) editBtn.style.display = "none";
-      if (btnSimulado) btnSimulado.style.display = "none";
     }
   }
 
@@ -457,30 +448,11 @@ export class EditaiVerticalizedController {
 
   setupEventListeners() {
     const selector = document.getElementById("edital-selector");
-    const btnAbrirSimulado = document.getElementById("btn-adicionar-simulado");
 
     if (selector) {
       selector.addEventListener("change", (e) => {
         this.selectEdital(e.target.value);
       });
     }
-
-    if (btnAbrirSimulado) {
-      btnAbrirSimulado.addEventListener("click", async () => {
-        if (!this.selectedEditalId) {
-          this.toast.show("Selecione um edital primeiro!", "error");
-          return;
-        }
-        await this.simuladoController.init(this.selectedEditalId);
-        this.simuladoController.abrirModal();
-      });
-    }
-
-    // Listener para quando um simulado é salvo
-    window.addEventListener("simuladoSalvo", (e) => {
-      if (e.detail.editalId === this.selectedEditalId) {
-        // Opcionalmente, podemos atualizar algo na UI aqui
-      }
-    });
   }
 }

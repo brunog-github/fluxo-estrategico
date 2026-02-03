@@ -251,14 +251,7 @@ class App {
 
     // Ação quando abre a tela de simulados salvos
     s.screens.on("screen-simulados-salvos", async () => {
-      const editalIdSelector = document.getElementById("edital-selector");
-      const editalId = editalIdSelector
-        ? parseInt(editalIdSelector.value)
-        : null;
-
-      if (editalId) {
-        await s.simuladosSalvosUI.render(editalId);
-      }
+      await s.simuladosSalvosUI.render();
     });
   }
 

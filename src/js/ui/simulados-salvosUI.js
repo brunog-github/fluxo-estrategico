@@ -7,7 +7,7 @@ export class SimuladosSalvosUI {
     this.controller = controller;
   }
 
-  async render(editalId) {
+  async render(editalId = null) {
     if (!this.controller) {
       console.error("SimuladosSalvosUI: Controller não foi setado!");
       return;

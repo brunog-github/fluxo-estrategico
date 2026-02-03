@@ -399,7 +399,6 @@ export class SimuladoController {
     }
     this.listenersAdded = true;
 
-    const btnAbrirSimulado = document.getElementById("btn-adicionar-simulado");
     const btnFechar = document.getElementById("btn-fechar-simulado");
     const btnCancelar = document.getElementById("btnCancelarSimulado");
     const btnSalvar = document.getElementById("btnSalvarSimulado");
@@ -407,12 +406,6 @@ export class SimuladoController {
 
     // Setup listener para validação de tempo
     this.setupTempoListener();
-
-    if (btnAbrirSimulado) {
-      btnAbrirSimulado.addEventListener("click", () => {
-        this.abrirModal();
-      });
-    }
 
     if (btnFechar) {
       btnFechar.addEventListener("click", () => {

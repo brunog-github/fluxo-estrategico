@@ -28,6 +28,34 @@
   </div>
 </div>
 
+<div
+  class="simulados-header-actions"
+  style="
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: end;
+    margin-bottom: 15px;
+  "
+>
+  <button
+    id="btn-adicionar-simulado"
+    class="btn btn-success"
+    style="display: none"
+  >
+    Novo Simulado
+  </button>
+
+  <div class="edital-selector-wrapper">
+    <div class="edital-selector-container">
+      <select id="simulados-edital-selector" class="edital-selector">
+        <option value="">Selecione um edital...</option>
+      </select>
+      <i class="fa-solid fa-chevron-down edital-selector-arrow"></i>
+    </div>
+  </div>
+</div>
+
 <div class="simulados-container">
   <!-- Lista de Simulados -->
   <div class="simulados-list" id="simulados-list">

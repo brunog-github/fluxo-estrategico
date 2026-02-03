@@ -1,20 +1,72 @@
 import { dbService } from "../services/db/db-service.js";
+import { SimuladoController } from "./simulado-controller.js";
 
 export class SimuladosSalvosController {
   constructor(toast, confirm) {
     this.toast = toast;
     this.confirm = confirm;
     this.simulados = [];
+    this.editais = [];
     this.selectedEditalId = null;
     this.selectedSimuladoId = null;
     this.listenersAdded = false; // Flag para evitar listeners duplicados
+    this.simuladoController = new SimuladoController(toast);
+
+    // Tornar simuladoController acessível globalmente para eventos
+    window.simuladoController = this.simuladoController;
   }
 
   async init(editalId) {
-    this.selectedEditalId = editalId;
+    await this.loadEditais();
+
+    if (editalId) {
+      this.selectedEditalId = editalId;
+    } else if (this.editais.length > 0 && !this.selectedEditalId) {
+      this.selectedEditalId = this.editais[0].id;
+    }
+
     await this.loadSimulados();
+    this.renderSelector();
     this.render();
     this.setupEventListeners();
+    this.simuladoController.setupEventListeners();
+  }
+
+  async loadEditais() {
+    this.editais = await dbService.getEditais();
+  }
+
+  renderSelector() {
+    const selector = document.getElementById("simulados-edital-selector");
+    const btnSimulado = document.getElementById("btn-adicionar-simulado");
+
+    if (!selector) return;
+
+    selector.innerHTML =
+      this.editais.length > 0
+        ? this.editais
+            .map(
+              (edital) =>
+                `<option value="${edital.id}">${edital.nome}</option>`,
+            )
+            .join("")
+        : '<option value="">Nenhum edital cadastrado</option>';
+
+    if (this.selectedEditalId) {
+      selector.value = this.selectedEditalId;
+      if (btnSimulado) btnSimulado.style.display = "inline-block";
+    } else {
+      selector.value = "";
+      if (btnSimulado) btnSimulado.style.display = "none";
+    }
+  }
+
+  selectEdital(editalId) {
+    this.selectedEditalId = parseInt(editalId);
+    this.loadSimulados().then(() => {
+      this.render();
+      this.renderSelector();
+    });
   }
 
   async loadSimulados() {
@@ -146,6 +198,35 @@ export class SimuladosSalvosController {
       return;
     }
     this.listenersAdded = true;
+
+    // Seletor de edital
+    const selector = document.getElementById("simulados-edital-selector");
+    if (selector) {
+      selector.addEventListener("change", (e) => {
+        this.selectEdital(e.target.value);
+      });
+    }
+
+    // Botão de adicionar simulado
+    const btnAbrirSimulado = document.getElementById("btn-adicionar-simulado");
+    if (btnAbrirSimulado) {
+      btnAbrirSimulado.addEventListener("click", async () => {
+        if (!this.selectedEditalId) {
+          this.toast.showToast("error", "Selecione um edital primeiro!");
+          return;
+        }
+        await this.simuladoController.init(this.selectedEditalId);
+        this.simuladoController.abrirModal();
+      });
+    }
+
+    // Listener para quando um simulado é salvo
+    window.addEventListener("simuladoSalvo", async (e) => {
+      if (e.detail.editalId === this.selectedEditalId) {
+        await this.loadSimulados();
+        this.render();
+      }
+    });
 
     // Botão "Ver Detalhes" do card
     document.querySelectorAll(".simulado-btn-details").forEach((btn) => {

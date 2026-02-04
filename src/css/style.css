@@ -353,6 +353,12 @@ body {
   }
 }
 
+@media screen and (orientation: landscape) and (max-width: 900px) {
+  .app-container {
+    width: 90%;
+  }
+}
+
 /* Estados do botão */
 .sync-btn.synced {
   background: var(--needs-sync-success-bg);

@@ -35,4 +35,12 @@ export function initReportsScreenEvents(
       screens.switch("screen-edital");
     });
   }
+
+  // Botão "Ver Simulados" na tela de relatórios
+  const btnVerSimulados = document.getElementById("btn-ver-simulados");
+  if (btnVerSimulados) {
+    btnVerSimulados.addEventListener("click", () => {
+      screens.switch("screen-simulados-salvos");
+    });
+  }
 }

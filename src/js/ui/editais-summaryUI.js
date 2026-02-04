@@ -21,6 +21,7 @@ export class EditaisSummaryUI {
 
       for (const edital of editais) {
         const materias = await dbService.getEditalMaterias(edital.id);
+        const simulados = await dbService.getSimuladosByEdital(edital.id);
 
         if (materias.length === 0) {
           continue;
@@ -35,10 +36,20 @@ export class EditaisSummaryUI {
           completedTopicos += topicos.filter((t) => t.completed).length;
         }
 
+        const totalSimulados = simulados.length;
+
         const percentage =
           totalTopicos === 0
             ? 0
             : Math.round((completedTopicos / totalTopicos) * 100);
+
+        // Formatar texto do resumo
+        const simuladosText =
+          totalSimulados === 1 ? "1 simulado" : `${totalSimulados} simulados`;
+        const topicosText =
+          completedTopicos === 1
+            ? "1 tópico concluído"
+            : `${completedTopicos} tópicos concluídos`;
 
         html += `
           <div style="
@@ -61,7 +72,7 @@ export class EditaisSummaryUI {
                   font-size: 11px;
                   color: var(--text-secondary);
                 ">
-                  ${completedTopicos} de ${totalTopicos} tópicos concluídos
+                  ${simuladosText} e ${topicosText}
                 </span>
                 <div style="display: flex; align-items: center; gap: 8px">
                   <div style="

@@ -43,8 +43,8 @@ export class StreakController {
   // ----------------------------------------------------
   //   LÓGICA PRINCIPAL DO STREAK
   // ----------------------------------------------------
-  async calculateCurrentStreak(history) {
-    if (!history.length) return 0;
+  async calculateCurrentStreak(history, simulados = []) {
+    if (!history.length && !simulados.length) return 0;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -57,6 +57,14 @@ export class StreakController {
       const dayKeyStr = dateObj.toISOString().split("T")[0]; // "YYYY-MM-DD"
 
       const minutes = timeToMinutes(item.duration);
+      dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
+    });
+
+    // Adicionar minutos dos simulados
+    simulados.forEach((simulado) => {
+      if (!simulado.tempo || !simulado.data) return;
+      const dayKeyStr = simulado.data; // Já está no formato "YYYY-MM-DD"
+      const minutes = timeToMinutes(simulado.tempo);
       dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
     });
 
@@ -103,30 +111,50 @@ export class StreakController {
     this.ui.clear();
 
     const history = await dbService.getHistory();
+    const simulados = await dbService.getAllSimulados();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Descobrir data inicial real
+    // 1. Descobrir data inicial real (considerando histórico e simulados)
     let startDate = new Date();
+    const allDates = [];
+
     if (history.length > 0) {
-      const timestamps = history.map((h) => parseDateStr(h.date).getTime());
-      startDate = new Date(Math.min(...timestamps));
+      history.forEach((h) => allDates.push(parseDateStr(h.date).getTime()));
+    }
+    if (simulados.length > 0) {
+      simulados.forEach((s) => {
+        if (s.data) {
+          allDates.push(new Date(s.data + "T00:00:00").getTime());
+        }
+      });
+    }
+
+    if (allDates.length > 0) {
+      startDate = new Date(Math.min(...allDates));
     }
     startDate.setHours(0, 0, 0, 0);
 
-    const streak = await this.calculateCurrentStreak(history);
-    const bestStreak = await this.calculateBestStreak(history);
+    const streak = await this.calculateCurrentStreak(history, simulados);
+    const bestStreak = await this.calculateBestStreak(history, simulados);
 
     this.ui.updateStreakDisplay(streak, bestStreak);
 
-    // Contar dias únicos no histórico para determinar quantos dias renderizar
+    // Contar dias únicos no histórico e simulados para determinar quantos dias renderizar
     const uniqueDays = new Set();
     history.forEach((item) => {
       const dateObj = parseDateStr(item.date);
       dateObj.setHours(0, 0, 0, 0);
       const dateKey = dateObj.getTime();
       uniqueDays.add(dateKey);
+    });
+    simulados.forEach((s) => {
+      if (s.data) {
+        const dateObj = new Date(s.data + "T00:00:00");
+        dateObj.setHours(0, 0, 0, 0);
+        uniqueDays.add(dateObj.getTime());
+      }
     });
 
     // Renderizar no mínimo 31 dias, ou todos os dias do histórico se for maior
@@ -137,7 +165,7 @@ export class StreakController {
       day.setDate(today.getDate() - i);
       day.setHours(0, 0, 0, 0);
 
-      const minutes = getMinutesStudiedOnDate(day, history);
+      const minutes = this._getMinutesStudiedOnDate(day, history, simulados);
       const isRest = this.restDays.includes(day.getDay());
       const dateStr = day.toLocaleDateString("pt-BR").slice(0, 5);
       const isToday = i === 0;
@@ -179,6 +207,33 @@ export class StreakController {
 
     this.ui.scrollToEnd();
   }
+
+  // ----------------------------------------------------
+  //  HELPER: Calcular minutos estudados em uma data específica
+  // ----------------------------------------------------
+  _getMinutesStudiedOnDate(dateObj, history, simulados) {
+    const dateStr = dateObj.toLocaleDateString("pt-BR");
+    const dayKeyStr = dateObj.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    let total = 0;
+
+    // Somar minutos do histórico
+    history.forEach((item) => {
+      const itemDateStr = item.date.split(" às ")[0];
+      if (itemDateStr === dateStr) {
+        total += timeToMinutes(item.duration);
+      }
+    });
+
+    // Somar minutos dos simulados
+    simulados.forEach((simulado) => {
+      if (!simulado.tempo || !simulado.data) return;
+      if (simulado.data === dayKeyStr) {
+        total += timeToMinutes(simulado.tempo);
+      }
+    });
+
+    return total;
+  }
   // ----------------------------------------------------
   //  MAIOR STREAK DA VIDA (recorde)
   // Lógica:
@@ -187,8 +242,8 @@ export class StreakController {
   // 3. Se dia de descanso: não quebra (continua)
   // 4. Se não estudou (< 20 min e não é rest day): reseta para 0
   // ----------------------------------------------------
-  async calculateBestStreak(history) {
-    if (!history.length) return 0;
+  async calculateBestStreak(history, simulados = []) {
+    if (!history.length && !simulados.length) return 0;
 
     // 1. Criar mapa: data (string "YYYY-MM-DD") => minutos totais do dia
     const dailyMinutes = {};
@@ -200,6 +255,14 @@ export class StreakController {
 
       // Converter "HH:MM:SS" para minutos
       const minutes = timeToMinutes(item.duration);
+      dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
+    });
+
+    // Adicionar minutos dos simulados
+    simulados.forEach((simulado) => {
+      if (!simulado.tempo || !simulado.data) return;
+      const dayKeyStr = simulado.data; // Já está no formato "YYYY-MM-DD"
+      const minutes = timeToMinutes(simulado.tempo);
       dailyMinutes[dayKeyStr] = (dailyMinutes[dayKeyStr] || 0) + minutes;
     });
 

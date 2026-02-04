@@ -56,7 +56,12 @@ export class WeeklyGoalsController {
       weekEnd.setDate(weekEnd.getDate() + 6);
       weekEnd.setHours(23, 59, 59, 999);
 
+      // Formato YYYY-MM-DD para comparar com simulados
+      const weekStartStr = weekStart.toISOString().split("T")[0];
+      const weekEndStr = weekEnd.toISOString().split("T")[0];
+
       const allHistory = await dbService.getHistory();
+      const allSimulados = await dbService.getAllSimulados();
 
       // Filtrar histórico da semana atual (segunda a domingo)
       const weeklyHistory = allHistory.filter((entry) => {
@@ -65,8 +70,18 @@ export class WeeklyGoalsController {
         return entryDate >= weekStart && entryDate <= weekEnd;
       });
 
+      // Filtrar simulados da semana atual
+      const weeklySimulados = allSimulados.filter((simulado) => {
+        if (!simulado.data) return false;
+        return simulado.data >= weekStartStr && simulado.data <= weekEndStr;
+      });
+
       // Calcular totais
-      const totalDuration = this.calculateTotalDuration(weeklyHistory);
+      const historyDuration = this.calculateTotalDuration(weeklyHistory);
+      const simuladosDuration =
+        this.calculateSimuladosDuration(weeklySimulados);
+      const totalDuration = historyDuration + simuladosDuration;
+
       const totalQuestions = weeklyHistory.reduce((sum, entry) => {
         return sum + (parseInt(entry.questions) || 0);
       }, 0);
@@ -120,6 +135,20 @@ export class WeeklyGoalsController {
       const [hours, minutes, seconds] = (entry.duration || "0:0:0")
         .split(":")
         .map(Number);
+      const entryMinutes = hours * 60 + minutes + (seconds >= 30 ? 1 : 0);
+      return totalMinutes + entryMinutes;
+    }, 0);
+  }
+
+  /**
+   * Calcular duração total dos simulados em minutos
+   * @param {Array} simulados
+   * @returns {number} Total em minutos
+   */
+  calculateSimuladosDuration(simulados) {
+    return simulados.reduce((totalMinutes, simulado) => {
+      if (!simulado.tempo) return totalMinutes;
+      const [hours, minutes, seconds] = simulado.tempo.split(":").map(Number);
       const entryMinutes = hours * 60 + minutes + (seconds >= 30 ? 1 : 0);
       return totalMinutes + entryMinutes;
     }, 0);

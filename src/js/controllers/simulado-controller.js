@@ -8,6 +8,8 @@ export class SimuladoController {
     this.editalMaterias = [];
     this.disciplinasTemp = [];
     this.listenersAdded = false; // Flag para evitar listeners duplicados
+    this.modoEdicao = false; // Flag para controlar modo edição
+    this.simuladoEditandoId = null; // ID do simulado sendo editado
   }
 
   /**
@@ -16,6 +18,29 @@ export class SimuladoController {
    */
   async init(editalId) {
     this.selectedEditalId = editalId;
+
+    // Resetar modo de edição para garantir que é um novo simulado
+    this.modoEdicao = false;
+    this.simuladoEditandoId = null;
+
+    // Restaurar título do modal para o padrão
+    const modalTitle = document.querySelector(
+      "#modalContentSimulado .modal-header h2",
+    );
+    if (modalTitle) {
+      modalTitle.textContent = "Novo Simulado";
+    }
+
+    // Limpar os campos do formulário
+    const nomeInput = document.getElementById("nomeSimulado");
+    const bancaInput = document.getElementById("bancaSimulado");
+    const tempoInput = document.getElementById("tempoGasto");
+    const comentariosInput = document.getElementById("comentarios");
+
+    if (nomeInput) nomeInput.value = "";
+    if (bancaInput) bancaInput.value = "";
+    if (tempoInput) tempoInput.value = "";
+    if (comentariosInput) comentariosInput.value = "";
 
     if (!editalId) {
       this.toast.showToast("error", "Selecione um edital primeiro!");
@@ -38,6 +63,62 @@ export class SimuladoController {
     this.renderTable();
     this.calculateTotals();
     this.setCurrentDate();
+  }
+
+  /**
+   * Inicializa o modal em modo de edição com os dados do simulado existente
+   * @param {number} editalId - ID do edital
+   * @param {Object} simulado - Dados do simulado a ser editado
+   */
+  async initParaEdicao(editalId, simulado) {
+    this.selectedEditalId = editalId;
+    this.modoEdicao = true;
+    this.simuladoEditandoId = simulado.id;
+
+    // Carregar as matérias do edital para referência
+    this.editalMaterias = await dbService.getEditalMaterias(editalId);
+
+    // Usar as disciplinas do simulado salvo
+    this.disciplinasTemp = simulado.disciplinas.map((d) => ({
+      id: d.id,
+      nome: d.nome,
+      peso: d.peso,
+      total: d.total,
+      certas: d.certas,
+    }));
+
+    // Atualizar título do modal
+    const modalTitle = document.querySelector(
+      "#modalContentSimulado .modal-header h2",
+    );
+    if (modalTitle) {
+      modalTitle.textContent = "Editar Simulado";
+    }
+
+    // Preencher os campos do formulário
+    const dataInput = document.getElementById("dataSimulado");
+    const nomeInput = document.getElementById("nomeSimulado");
+    const bancaInput = document.getElementById("bancaSimulado");
+    const tempoInput = document.getElementById("tempoGasto");
+    const comentariosInput = document.getElementById("comentarios");
+
+    if (dataInput) {
+      dataInput.value = simulado.data;
+      // Define o máximo como hoje (impede datas futuras)
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoje.getDate()).padStart(2, "0");
+      dataInput.max = `${ano}-${mes}-${dia}`;
+    }
+    if (nomeInput) nomeInput.value = simulado.nome || "";
+    if (bancaInput) bancaInput.value = simulado.banca || "";
+    if (tempoInput) tempoInput.value = simulado.tempo || "";
+    if (comentariosInput) comentariosInput.value = simulado.comentarios || "";
+
+    // Renderizar a tabela e calcular totais
+    this.renderTable();
+    this.calculateTotals();
   }
 
   /**
@@ -103,7 +184,7 @@ export class SimuladoController {
           <span class="badge-percent ${badgeClass}">${percent}</span>
         </td>
         <td align="center">
-          <button class="btn-delete" onclick="window.simuladoController?.removerDisciplina(${index})">
+          <button class="btn-delete btn-delete-disciplina" data-idx="${index}">
             <i class="fas fa-trash-alt"></i>
           </button>
         </td>
@@ -315,19 +396,33 @@ export class SimuladoController {
     };
 
     try {
-      // Salvar no banco de dados
-      await dbService.addSimulado(
-        this.selectedEditalId,
-        data,
-        nome,
-        banca,
-        tempo,
-        comentarios,
-        this.disciplinasTemp,
-        totais,
-      );
+      if (this.modoEdicao && this.simuladoEditandoId) {
+        // Atualizar simulado existente
+        await dbService.updateSimulado(this.simuladoEditandoId, {
+          data,
+          nome: nome.trim(),
+          banca: banca.trim(),
+          tempo,
+          comentarios: comentarios.trim(),
+          disciplinas: this.disciplinasTemp,
+          totais,
+        });
+        this.toast.showToast("success", "Simulado atualizado com sucesso! 🎉");
+      } else {
+        // Salvar novo simulado no banco de dados
+        await dbService.addSimulado(
+          this.selectedEditalId,
+          data,
+          nome,
+          banca,
+          tempo,
+          comentarios,
+          this.disciplinasTemp,
+          totais,
+        );
+        this.toast.showToast("success", "Simulado salvo com sucesso! 🎉");
+      }
 
-      this.toast.showToast("success", "Simulado salvo com sucesso! 🎉");
       this.fecharModal();
       this.limparFormulario();
 
@@ -339,7 +434,12 @@ export class SimuladoController {
       );
     } catch (error) {
       console.error("Erro ao salvar simulado:", error);
-      this.toast.showToast("error", "Erro ao salvar simulado!");
+      this.toast.showToast(
+        "error",
+        this.modoEdicao
+          ? "Erro ao atualizar simulado!"
+          : "Erro ao salvar simulado!",
+      );
     }
   }
 
@@ -354,6 +454,18 @@ export class SimuladoController {
     document.getElementById("comentarios").value = "";
     this.disciplinasTemp = [];
     document.getElementById("disciplinasBody").innerHTML = "";
+
+    // Resetar modo de edição
+    this.modoEdicao = false;
+    this.simuladoEditandoId = null;
+
+    // Restaurar título do modal para o padrão
+    const modalTitle = document.querySelector(
+      "#modalContentSimulado .modal-header h2",
+    );
+    if (modalTitle) {
+      modalTitle.textContent = "Novo Simulado";
+    }
   }
 
   /**
@@ -442,6 +554,18 @@ export class SimuladoController {
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
           this.fecharModal();
+        }
+      });
+    }
+
+    // Event delegation para botões de deletar disciplina na tabela
+    const tbody = document.getElementById("disciplinasBody");
+    if (tbody) {
+      tbody.addEventListener("click", (e) => {
+        const deleteBtn = e.target.closest(".btn-delete-disciplina");
+        if (deleteBtn) {
+          const index = parseInt(deleteBtn.dataset.idx);
+          this.removerDisciplina(index);
         }
       });
     }

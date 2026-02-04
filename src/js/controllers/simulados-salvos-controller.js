@@ -254,11 +254,7 @@ export class SimuladosSalvosController {
             this.openSimuladoDetails(simuladoId);
           } else if (editBtn) {
             const simuladoId = parseInt(editBtn.dataset.simuladoId);
-            console.log("Editar simulado:", simuladoId);
-            this.toast.showToast(
-              "info",
-              "Funcionalidade de editar em desenvolvimento",
-            );
+            this.editarSimulado(simuladoId);
           } else if (deleteBtn) {
             e.stopPropagation();
             const simuladoId = parseInt(deleteBtn.dataset.simuladoId);
@@ -296,6 +292,26 @@ export class SimuladosSalvosController {
     if (modal) {
       modal.classList.remove("hidden");
     }
+  }
+
+  /**
+   * Abre o modal para editar um simulado existente
+   * @param {number} simuladoId - ID do simulado a ser editado
+   */
+  async editarSimulado(simuladoId) {
+    const simulado = this.simulados.find((s) => s.id === simuladoId);
+
+    if (!simulado) {
+      this.toast.showToast("error", "Simulado não encontrado!");
+      return;
+    }
+
+    // Inicializar o modal em modo de edição com os dados do simulado
+    await this.simuladoController.initParaEdicao(
+      this.selectedEditalId,
+      simulado,
+    );
+    this.simuladoController.abrirModal();
   }
 
   renderModalContent(simulado) {

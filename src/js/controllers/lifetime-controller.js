@@ -9,15 +9,15 @@ export class LifetimeController {
 
   async update() {
     const history = await dbService.getHistory();
+    const simulados = await dbService.getAllSimulados();
 
-    if (!history.length) {
+    if (!history.length && !simulados.length) {
       this.ui.reset();
       return;
     }
 
-    const stats = computeLifetimeStats(history);
+    const stats = computeLifetimeStats(history, simulados);
 
     this.ui.update(stats);
   }
 }
-

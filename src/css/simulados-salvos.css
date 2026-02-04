@@ -766,12 +766,11 @@
   }
 
   .disciplina-stats {
-    gap: 16px;
+    gap: 3px;
     justify-content: flex-start;
-    width: 100%;
   }
 
   .stat-block {
-    min-width: 70px;
+    min-width: 60px;
   }
 }

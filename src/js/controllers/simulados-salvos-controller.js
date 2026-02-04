@@ -411,6 +411,10 @@ export class SimuladosSalvosController {
               <span class="disciplina-name">${disciplina.nome}</span>
               <div class="disciplina-stats">
                 <div class="stat-block">
+                  <span class="stat-label">Peso</span>
+                  <span class="stat-value">${disciplina.peso}</span>
+                </div>
+                <div class="stat-block">
                   <span class="stat-label">Acertos</span>
                   <span class="stat-value">${disciplina.certas}/${disciplina.total}</span>
                 </div>

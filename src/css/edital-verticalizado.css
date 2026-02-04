@@ -38,7 +38,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  min-width: 200px;
+  /* min-width: 200px; */
 }
 
 .edital-selector-container {

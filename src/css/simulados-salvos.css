@@ -16,6 +16,14 @@
   padding: 20px;
 }
 
+.simulados-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: end;
+  margin-bottom: 15px;
+}
+
 /* ========================================
    Lista de Simulados
    ======================================== */
@@ -621,6 +629,7 @@
   justify-content: center;
   gap: 8px;
   width: fit-content;
+  box-shadow: 0 4px 6px var(--shadow-color);
 }
 
 .btn-info-simulado {
@@ -679,6 +688,10 @@
   .simulados-container {
     padding: 15px;
     gap: 15px;
+  }
+
+  .simulados-header-actions {
+    flex-direction: column;
   }
 
   .simulado-card {

@@ -37,6 +37,7 @@ export async function buildBackupData() {
       editais: await dbService.getEditais(),
       editalMaterias: await dbService.getAllEditalMaterias(),
       editalTopicos: await dbService.getAllEditalTopicos(),
+      simulados: await dbService.getAllSimulados(),
     },
   };
 }
@@ -151,5 +152,10 @@ export async function restoreBackup(backup) {
   // Importa tópicos do edital
   if (backup.data.editalTopicos && backup.data.editalTopicos.length > 0) {
     await dbService.importAll({ editalTopicos: backup.data.editalTopicos });
+  }
+
+  // Importa simulados
+  if (backup.data.simulados && backup.data.simulados.length > 0) {
+    await dbService.importAll({ simulados: backup.data.simulados });
   }
 }

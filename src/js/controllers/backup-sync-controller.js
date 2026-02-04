@@ -341,6 +341,7 @@ export class BackupSyncController {
         editais,
         editalMaterias,
         editalTopicos,
+        simulados,
       ] = await Promise.all([
         dbService.getCategories(),
         dbService.getSubjects(),
@@ -353,6 +354,7 @@ export class BackupSyncController {
         dbService.getEditais(),
         dbService.getAllEditalMaterias(),
         dbService.getAllEditalTopicos(),
+        dbService.getAllSimulados(),
       ]);
 
       // ✅ IMPORTANTE: Remover campos internos que NÃO devem ser inclusos no backup
@@ -376,6 +378,7 @@ export class BackupSyncController {
           editais: editais || [],
           editalMaterias: editalMaterias || [],
           editalTopicos: editalTopicos || [],
+          simulados: simulados || [],
           // ❌ NÃO incluir theme e restDays aqui pois já estão em settings
         },
       };
@@ -480,6 +483,11 @@ export class BackupSyncController {
 
       if (data.editalTopicos && data.editalTopicos.length > 0) {
         await dbService.importAll({ editalTopicos: data.editalTopicos });
+      }
+
+      // ✅ NOVO: Restaurar simulados
+      if (data.simulados && data.simulados.length > 0) {
+        await dbService.importAll({ simulados: data.simulados });
       }
     } catch (error) {
       console.error("Erro ao restaurar dados:", error);

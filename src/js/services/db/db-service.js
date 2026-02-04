@@ -484,6 +484,7 @@ class DBService {
         db.editais,
         db.editalMaterias,
         db.editalTopicos,
+        db.simulados,
       ],
       async () => {
         if (data.settings)
@@ -505,6 +506,8 @@ class DBService {
           });
         if (data.editalTopicos)
           await db.editalTopicos.bulkAdd(data.editalTopicos, { allKeys: true });
+        if (data.simulados)
+          await db.simulados.bulkAdd(data.simulados, { allKeys: true });
       },
     );
   }

@@ -112,13 +112,9 @@ export class SimuladosSalvosController {
     card.className = "simulado-card";
     card.id = `simulado-${simulado.id}`;
 
-    // Formatar data
-    const dataObj = new Date(simulado.data);
-    const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    // Formatar data (evitar problema de timezone)
+    const [year, month, day] = simulado.data.split("-");
+    const dataFormatada = `${day}/${month}/${year}`;
 
     // Calcular badge de performance
     const porcentagem = simulado.totais.porcentagem || 0;

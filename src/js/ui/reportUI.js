@@ -517,7 +517,7 @@ export class ReportsUI {
     }
   }
 
-  async renderDetailedView(history, allNotes = []) {
+  async renderDetailedView(history, simulados = []) {
     const tbody = document.getElementById("detailed-subjects-body");
     if (!tbody) return;
 
@@ -532,7 +532,6 @@ export class ReportsUI {
           totalTime: 0, // em minutos
           totalQuestions: 0,
           totalCorrect: 0,
-          totalNotes: 0,
         };
       }
 
@@ -547,17 +546,31 @@ export class ReportsUI {
       subjectStats[subject].totalCorrect += parseInt(item.correct) || 0;
     });
 
-    // Contar notas por disciplina
-    allNotes.forEach((note) => {
-      history.forEach((item) => {
-        if (item.id === note.recordId) {
-          const subject = item.subject || "Sem disciplina";
-          if (subjectStats[subject]) {
-            subjectStats[subject].totalNotes++;
-          }
+    // Processar simulados - todos agrupados como "Simulados"
+    if (simulados && simulados.length > 0) {
+      subjectStats["Simulados"] = {
+        subject: "Simulados",
+        totalTime: 0,
+        totalQuestions: 0,
+        totalCorrect: 0,
+      };
+
+      simulados.forEach((simulado) => {
+        // Converter tempo "HH:MM:SS" para minutos
+        if (simulado.tempo) {
+          const minutes = timeToMinutes(simulado.tempo);
+          subjectStats["Simulados"].totalTime += minutes;
+        }
+
+        // Somar questões e acertos dos totais do simulado
+        if (simulado.totais) {
+          subjectStats["Simulados"].totalQuestions +=
+            parseInt(simulado.totais.questoes) || 0;
+          subjectStats["Simulados"].totalCorrect +=
+            parseInt(simulado.totais.certas) || 0;
         }
       });
-    });
+    }
 
     // Converter para array e ordenar
     const stats = Object.values(subjectStats).sort((a, b) =>

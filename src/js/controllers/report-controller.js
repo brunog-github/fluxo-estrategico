@@ -38,8 +38,8 @@ export class ReportsController {
 
     // Renderizar dados detalhados
     const history = await dbService.getHistory();
-    const allNotes = await dbService.getNotes();
-    await this.ui.renderDetailedView(history, allNotes);
+    const simulados = await dbService.getAllSimulados();
+    await this.ui.renderDetailedView(history, simulados);
 
     this.screens.switch("screen-reports");
   }

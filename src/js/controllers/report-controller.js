@@ -95,15 +95,18 @@ export class ReportsController {
 
   async updateCharts() {
     const history = await dbService.getHistory();
-    if (!history.length) return;
+    const simulados = await dbService.getAllSimulados();
+
+    if (!history.length && !simulados.length) return;
 
     this.charts.destroy();
     this.charts.allHistory = history; // guardar histórico completo
+    this.charts.allSimulados = simulados; // guardar simulados para filtros
 
     // Usar requestAnimationFrame para não bloquear a UI
     await new Promise((resolve) => {
       requestAnimationFrame(async () => {
-        this.charts.updateTotalDisplay(history);
+        this.charts.updateTotalDisplay(history, simulados);
 
         const stats = this.charts.buildStats(history);
         const labels = Object.keys(stats);
@@ -127,10 +130,26 @@ export class ReportsController {
           .getContext("2d");
         this.charts.buildPerformanceChart(ctx1, perfLabels, perfC, perfW);
 
-        // time chart
+        // time chart - incluir simulados
+        const timeLabels = [...labels];
         const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));
+
+        // Calcular tempo total dos simulados
+        if (simulados.length > 0) {
+          let totalSimuladosMinutes = 0;
+          simulados.forEach((s) => {
+            if (s.tempo) {
+              const [hh, mm, ss] = s.tempo.split(":").map(Number);
+              totalSimuladosMinutes += hh * 60 + mm + ss / 60;
+            }
+          });
+          const simuladosHours = (totalSimuladosMinutes / 60).toFixed(2);
+          timeLabels.push("SIMULADOS");
+          timeHours.push(simuladosHours);
+        }
+
         const ctx2 = document.getElementById("chart-time").getContext("2d");
-        this.charts.buildTimeChart(ctx2, labels, timeHours);
+        this.charts.buildTimeChart(ctx2, timeLabels, timeHours);
 
         // Setup filtros
         this.setupTimeFilterButtons();

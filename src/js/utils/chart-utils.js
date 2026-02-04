@@ -61,11 +61,19 @@ export class ReportsCharts {
   }
 
   // --- NOVO MÉTODO: Atualiza o texto de tempo total ---
-  updateTotalDisplay(history) {
-    const totalMinutes = history.reduce(
+  updateTotalDisplay(history, simulados = []) {
+    let totalMinutes = history.reduce(
       (acc, item) => acc + timeToMinutes(item.duration),
       0,
     );
+
+    // Adicionar tempo dos simulados
+    simulados.forEach((s) => {
+      if (s.tempo) {
+        const [hh, mm, ss] = s.tempo.split(":").map(Number);
+        totalMinutes += hh * 60 + mm + ss / 60;
+      }
+    });
 
     const h = Math.floor(totalMinutes / 60);
     const m = Math.floor(totalMinutes % 60);
@@ -251,22 +259,68 @@ export class ReportsCharts {
   }
 
   updateTimeChartFilter(filter) {
-    if (!this.allHistory.length) return;
+    if (
+      !this.allHistory.length &&
+      (!this.allSimulados || !this.allSimulados.length)
+    )
+      return;
 
     this.currentTimeFilter = filter;
-    const filtered = this.filterHistoryByPeriod(this.allHistory, filter);
+    const filtered = this.filterHistoryByPeriod(this.allHistory || [], filter);
+    const filteredSimulados = this.filterSimuladosByPeriod(
+      this.allSimulados || [],
+      filter,
+    );
 
     // ATUALIZA O TEXTO DO TOTAL AQUI
-    this.updateTotalDisplay(filtered);
+    this.updateTotalDisplay(filtered, filteredSimulados);
 
     const stats = this.buildStats(filtered);
     const labels = Object.keys(stats);
     const timeHours = labels.map((l) => (stats[l].time / 60).toFixed(2));
+
+    // Adicionar simulados ao gráfico
+    if (filteredSimulados.length > 0) {
+      let totalSimuladosMinutes = 0;
+      filteredSimulados.forEach((s) => {
+        if (s.tempo) {
+          const [hh, mm, ss] = s.tempo.split(":").map(Number);
+          totalSimuladosMinutes += hh * 60 + mm + ss / 60;
+        }
+      });
+      const simuladosHours = (totalSimuladosMinutes / 60).toFixed(2);
+      labels.push("SIMULADOS");
+      timeHours.push(simuladosHours);
+    }
 
     if (this.timeChart) {
       this.timeChart.data.labels = labels;
       this.timeChart.data.datasets[0].data = timeHours;
       this.timeChart.update();
     }
+  }
+
+  filterSimuladosByPeriod(simulados, filter) {
+    if (filter === "all") return simulados;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return simulados.filter((s) => {
+      const itemDate = new Date(s.data);
+
+      if (filter === "today") {
+        return itemDate >= today;
+      } else if (filter === "week") {
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return itemDate >= weekAgo;
+      } else if (filter === "month") {
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return itemDate >= monthAgo;
+      }
+      return true;
+    });
   }
 }

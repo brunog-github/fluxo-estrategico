@@ -82,9 +82,15 @@ export class WeeklyGoalsController {
         this.calculateSimuladosDuration(weeklySimulados);
       const totalDuration = historyDuration + simuladosDuration;
 
-      const totalQuestions = weeklyHistory.reduce((sum, entry) => {
+      let totalQuestions = weeklyHistory.reduce((sum, entry) => {
         return sum + (parseInt(entry.questions) || 0);
       }, 0);
+
+      const simuladosQuestions = weeklySimulados.reduce((sum, simulado) => {
+        return sum + (parseInt(simulado.totais.questoes) || 0);
+      }, 0);
+
+      totalQuestions += simuladosQuestions;
 
       // Calcular percentuais
       const durationGoal = this.parseGoalDuration(this.currentGoals.duration);

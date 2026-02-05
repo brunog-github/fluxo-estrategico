@@ -12,6 +12,11 @@ export class SimuladosSalvosController {
     this.listenersAdded = false; // Flag para evitar listeners duplicados
     this.simuladoController = new SimuladoController(toast);
 
+    // Paginação
+    this.itemsPerPage = 3;
+    this.currentPage = 1;
+    this.totalPages = 1;
+
     // Tornar simuladoController acessível globalmente para eventos
     window.simuladoController = this.simuladoController;
   }
@@ -63,6 +68,7 @@ export class SimuladosSalvosController {
 
   selectEdital(editalId) {
     this.selectedEditalId = parseInt(editalId);
+    this.currentPage = 1; // Reset para primeira página ao trocar edital
     this.loadSimulados().then(() => {
       this.render();
       this.renderSelector();
@@ -96,15 +102,120 @@ export class SimuladosSalvosController {
           </p>
         </div>
       `;
+      this._removePaginationControls();
       return;
+    }
+
+    // Calcular paginação
+    this.totalPages = Math.ceil(this.simulados.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
     }
 
     container.innerHTML = "";
 
-    this.simulados.forEach((simulado) => {
+    // Renderizar apenas os simulados da página atual
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    const simuladosPagina = this.simulados.slice(start, end);
+
+    simuladosPagina.forEach((simulado) => {
       const card = this.createSimuladoCard(simulado);
       container.appendChild(card);
     });
+
+    // Adicionar controles de paginação
+    this._addPaginationControls();
+  }
+
+  _addPaginationControls() {
+    // Remover controles existentes
+    this._removePaginationControls();
+
+    const container = document.getElementById("simulados-list");
+    if (!container) return;
+
+    // Criar container de paginação
+    const paginationContainer = document.createElement("div");
+    paginationContainer.className = "simulados-pagination";
+
+    // Informação de resultados
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.simulados.length,
+    );
+
+    const resultInfo = document.createElement("span");
+    resultInfo.className = "pagination-result-info";
+    resultInfo.textContent = `Exibindo ${start} a ${end} de ${this.simulados.length} simulados.`;
+    paginationContainer.appendChild(resultInfo);
+
+    // Se tem apenas 1 página, não mostra botões
+    if (this.totalPages <= 1) {
+      container.after(paginationContainer);
+      return;
+    }
+
+    // Criar wrapper para os botões
+    const paginationWrapper = document.createElement("div");
+    paginationWrapper.className = "pagination-wrapper";
+
+    // Botão Anterior
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "‹";
+    prevBtn.className = "pagination-btn pagination-prev";
+    prevBtn.disabled = this.currentPage === 1;
+    prevBtn.addEventListener("click", () => {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    });
+    paginationWrapper.appendChild(prevBtn);
+
+    // Botões de página
+    const maxVisible = window.innerWidth < 480 ? 3 : 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(this.totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.textContent = i;
+      pageBtn.className = `pagination-btn ${i === this.currentPage ? "active" : ""}`;
+      pageBtn.addEventListener("click", () => {
+        this.currentPage = i;
+        this.render();
+      });
+      paginationWrapper.appendChild(pageBtn);
+    }
+
+    // Botão Próximo
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "›";
+    nextBtn.className = "pagination-btn pagination-next";
+    nextBtn.disabled = this.currentPage === this.totalPages;
+    nextBtn.addEventListener("click", () => {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.render();
+      }
+    });
+    paginationWrapper.appendChild(nextBtn);
+
+    paginationContainer.appendChild(paginationWrapper);
+    container.after(paginationContainer);
+  }
+
+  _removePaginationControls() {
+    const existingPagination = document.querySelector(".simulados-pagination");
+    if (existingPagination) {
+      existingPagination.remove();
+    }
   }
 
   createSimuladoCard(simulado) {

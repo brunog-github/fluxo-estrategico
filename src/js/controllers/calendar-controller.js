@@ -41,6 +41,7 @@ export class CalendarController {
 
     // Storage
     const history = await dbService.getHistory();
+    const simulados = await dbService.getAllSimulados();
     const restDays = (await dbService.getRestDays()) || [];
 
     // Somas de minutos por dia
@@ -62,7 +63,23 @@ export class CalendarController {
       if (dateInt > maxHistoryInt) maxHistoryInt = dateInt;
     });
 
-    if (history.length === 0) minDateInt = 0;
+    // Adicionar simulados ao dailyTotals
+    simulados.forEach((simulado) => {
+      if (!simulado.data || !simulado.tempo) return;
+
+      // Converter "YYYY-MM-DD" para "DD/MM/YYYY"
+      const [y, m, d] = simulado.data.split("-");
+      const dateOnly = `${d}/${m}/${y}`;
+      const mins = timeToMinutes(simulado.tempo);
+
+      dailyTotals[dateOnly] = (dailyTotals[dateOnly] || 0) + mins;
+
+      const dateInt = dateStrToInt(dateOnly);
+      if (dateInt < minDateInt) minDateInt = dateInt;
+      if (dateInt > maxHistoryInt) maxHistoryInt = dateInt;
+    });
+
+    if (history.length === 0 && simulados.length === 0) minDateInt = 0;
 
     // Datas estudadas
     const studiedSet = new Set();

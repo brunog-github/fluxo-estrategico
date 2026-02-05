@@ -570,7 +570,7 @@ class DBService {
   }
 
   /**
-   * Deletar edital e suas matérias/tópicos
+   * Deletar edital e suas matérias/tópicos/simulados
    * @param {number} editalId - ID do edital
    */
   async deleteEdital(editalId) {
@@ -587,6 +587,8 @@ class DBService {
     }
     // Deletar matérias do edital
     await db.editalMaterias.where("editalId").equals(editalId).delete();
+    // Deletar simulados do edital
+    await db.simulados.where("editalId").equals(editalId).delete();
     // Deletar edital
     await db.editais.delete(editalId);
   }

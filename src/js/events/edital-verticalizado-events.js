@@ -203,7 +203,7 @@ export function setupEditaiVerticalizedEvents(
       )?.textContent;
 
       confirmToastController.confirm(
-        `Tem certeza que deseja deletar o edital "${editalNome}"? Isso deletará todas as matérias e tópicos.`,
+        `Tem certeza que deseja deletar o edital "${editalNome}"? Isso deletará todas as matérias, tópicos e simulados.`,
         async () => {
           await controller.deleteEdital(controller.selectedEditalId);
         },

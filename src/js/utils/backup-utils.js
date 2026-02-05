@@ -139,6 +139,9 @@ export async function restoreBackup(backup) {
     await dbService.setLastBackupDate(backup.data.lastBackupDate);
   }
 
+  // Limpa editais e simulados existentes antes de importar
+  await dbService.clearEditais();
+
   // Importa editais
   if (backup.data.editais && backup.data.editais.length > 0) {
     await dbService.importAll({ editais: backup.data.editais });

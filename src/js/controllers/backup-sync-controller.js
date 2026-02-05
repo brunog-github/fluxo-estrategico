@@ -472,7 +472,10 @@ export class BackupSyncController {
         await dbService.setRestDays(data.restDays);
       }
 
-      // ✅ NOVO: Restaurar editais e seus dados relacionados
+      // ✅ Limpar editais e simulados existentes antes de restaurar
+      await dbService.clearEditais();
+
+      // ✅ Restaurar editais e seus dados relacionados
       if (data.editais && data.editais.length > 0) {
         await dbService.importAll({ editais: data.editais });
       }
@@ -485,7 +488,7 @@ export class BackupSyncController {
         await dbService.importAll({ editalTopicos: data.editalTopicos });
       }
 
-      // ✅ NOVO: Restaurar simulados
+      // ✅ Restaurar simulados
       if (data.simulados && data.simulados.length > 0) {
         await dbService.importAll({ simulados: data.simulados });
       }

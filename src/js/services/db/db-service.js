@@ -776,6 +776,23 @@ class DBService {
   async deleteSimuladosByEdital(editalId) {
     await db.simulados.where("editalId").equals(editalId).delete();
   }
+
+  /**
+   * Limpar todos os simulados
+   */
+  async clearSimulados() {
+    await db.simulados.clear();
+  }
+
+  /**
+   * Limpar todos os editais e dados relacionados (matérias, tópicos, simulados)
+   */
+  async clearEditais() {
+    await db.editalTopicos.clear();
+    await db.editalMaterias.clear();
+    await db.simulados.clear();
+    await db.editais.clear();
+  }
 }
 
 // Exportar como classe e como instância singleton

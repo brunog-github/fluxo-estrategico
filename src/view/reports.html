@@ -139,14 +139,14 @@
       "
     >
       <button
-        class="btn-time-filter"
+        class="btn-time-filter active"
         data-filter="today"
         style="
           padding: 6px 12px;
           border-radius: 20px;
           border: 1px solid var(--primary-color);
-          background: transparent;
-          color: var(--primary-color);
+          background: var(--primary-color);
+          color: white;
           cursor: pointer;
           font-size: 12px;
           font-weight: 500;
@@ -187,14 +187,14 @@
         Mês
       </button>
       <button
-        class="btn-time-filter active"
+        class="btn-time-filter"
         data-filter="all"
         style="
           padding: 6px 12px;
           border-radius: 20px;
           border: 1px solid var(--primary-color);
-          background: var(--primary-color);
-          color: white;
+          background: transparent;
+          color: var(--primary-color);
           cursor: pointer;
           font-size: 12px;
           font-weight: 500;
@@ -230,6 +230,18 @@
       "
       id="chart-time-container"
     >
+      <div
+        id="chart-time-placeholder"
+        style="
+          display: none;
+          text-align: center;
+          color: var(--text-color);
+          font-size: 1.1rem;
+          padding: 40px 20px;
+        "
+      >
+        Você ainda não estudou hoje 😞
+      </div>
       <canvas id="chart-time"></canvas>
     </div>
   </div>

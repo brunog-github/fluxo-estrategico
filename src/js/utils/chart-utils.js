@@ -4,7 +4,7 @@ export class ReportsCharts {
   constructor() {
     this.performanceChart = null;
     this.timeChart = null;
-    this.currentTimeFilter = "all"; // filtro ativo atualmente
+    this.currentTimeFilter = "today"; // filtro ativo atualmente
     this.allHistory = []; // guardar histórico completo
   }
 
@@ -291,6 +291,31 @@ export class ReportsCharts {
       const simuladosHours = (totalSimuladosMinutes / 60).toFixed(2);
       labels.push("SIMULADOS");
       timeHours.push(simuladosHours);
+    }
+
+    // Mostrar/ocultar placeholder e gráfico
+    const placeholder = document.getElementById("chart-time-placeholder");
+    const canvas = document.getElementById("chart-time");
+    const hasData = labels.length > 0;
+
+    if (placeholder && canvas) {
+      if (hasData) {
+        placeholder.style.display = "none";
+        canvas.style.display = "block";
+      } else {
+        placeholder.style.display = "block";
+        canvas.style.display = "none";
+        // Atualizar mensagem do placeholder baseado no filtro
+        if (filter === "today") {
+          placeholder.textContent = "Você ainda não estudou hoje 😞";
+        } else if (filter === "week") {
+          placeholder.textContent = "Nenhum estudo registrado esta semana 😞";
+        } else if (filter === "month") {
+          placeholder.textContent = "Nenhum estudo registrado este mês 😞";
+        } else {
+          placeholder.textContent = "Nenhum registro de estudo encontrado 😞";
+        }
+      }
     }
 
     if (this.timeChart) {

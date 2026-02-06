@@ -108,7 +108,8 @@ export class StreakController {
   //  RENDERIZAÇÃO COMPLETA
   // ----------------------------------------------------
   async render() {
-    this.ui.clear();
+    // Mostra placeholder enquanto carrega
+    this.ui.showLoading();
 
     const history = await dbService.getHistory();
     const simulados = await dbService.getAllSimulados();
@@ -116,7 +117,10 @@ export class StreakController {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Descobrir data inicial real (considerando histórico e simulados)
+    // 1. Pré-calcular mapa de minutos por dia (performance: evita O(n) por dia)
+    const dailyMinutesMap = this._buildDailyMinutesMap(history, simulados);
+
+    // 2. Descobrir data inicial real (considerando histórico e simulados)
     let startDate = new Date();
     const allDates = [];
 
@@ -142,30 +146,21 @@ export class StreakController {
     this.ui.updateStreakDisplay(streak, bestStreak);
 
     // Contar dias únicos no histórico e simulados para determinar quantos dias renderizar
-    const uniqueDays = new Set();
-    history.forEach((item) => {
-      const dateObj = parseDateStr(item.date);
-      dateObj.setHours(0, 0, 0, 0);
-      const dateKey = dateObj.getTime();
-      uniqueDays.add(dateKey);
-    });
-    simulados.forEach((s) => {
-      if (s.data) {
-        const dateObj = new Date(s.data + "T00:00:00");
-        dateObj.setHours(0, 0, 0, 0);
-        uniqueDays.add(dateObj.getTime());
-      }
-    });
+    const uniqueDays = new Set(Object.keys(dailyMinutesMap));
 
     // Renderizar no mínimo 31 dias, ou todos os dias do histórico se for maior
     const daysToShow = Math.max(uniqueDays.size, 31);
+
+    // Pré-calcular todos os dados dos dots
+    const dotsData = [];
 
     for (let i = daysToShow - 1; i >= 0; i--) {
       const day = new Date(today);
       day.setDate(today.getDate() - i);
       day.setHours(0, 0, 0, 0);
 
-      const minutes = this._getMinutesStudiedOnDate(day, history, simulados);
+      const dayKey = day.toISOString().split("T")[0]; // "YYYY-MM-DD"
+      const minutes = dailyMinutesMap[dayKey] || 0;
       const isRest = this.restDays.includes(day.getDay());
       const dateStr = day.toLocaleDateString("pt-BR").slice(0, 5);
       const isToday = i === 0;
@@ -197,7 +192,7 @@ export class StreakController {
         tooltip = `${dateStr} - Não estudou`;
       }
 
-      this.ui.addDot({
+      dotsData.push({
         label,
         className,
         tooltip,
@@ -205,11 +200,40 @@ export class StreakController {
       });
     }
 
+    // Passa todos os dados de uma vez para virtual scrolling
+    this.ui.setDotsData(dotsData);
+
     this.ui.scrollToEnd();
   }
 
   // ----------------------------------------------------
-  //  HELPER: Calcular minutos estudados em uma data específica
+  //  HELPER: Construir mapa de minutos por dia (uma única vez)
+  // ----------------------------------------------------
+  _buildDailyMinutesMap(history, simulados) {
+    const dailyMinutes = {};
+
+    // Processar histórico
+    history.forEach((item) => {
+      const dateObj = parseDateStr(item.date);
+      dateObj.setHours(0, 0, 0, 0);
+      const dayKey = dateObj.toISOString().split("T")[0]; // "YYYY-MM-DD"
+      const minutes = timeToMinutes(item.duration);
+      dailyMinutes[dayKey] = (dailyMinutes[dayKey] || 0) + minutes;
+    });
+
+    // Processar simulados
+    simulados.forEach((simulado) => {
+      if (!simulado.tempo || !simulado.data) return;
+      const dayKey = simulado.data; // Já está no formato "YYYY-MM-DD"
+      const minutes = timeToMinutes(simulado.tempo);
+      dailyMinutes[dayKey] = (dailyMinutes[dayKey] || 0) + minutes;
+    });
+
+    return dailyMinutes;
+  }
+
+  // ----------------------------------------------------
+  //  HELPER: Calcular minutos estudados em uma data específica (legado)
   // ----------------------------------------------------
   _getMinutesStudiedOnDate(dateObj, history, simulados) {
     const dateStr = dateObj.toLocaleDateString("pt-BR");

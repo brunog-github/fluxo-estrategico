@@ -162,7 +162,13 @@ export class StreakController {
       const dayKey = day.toISOString().split("T")[0]; // "YYYY-MM-DD"
       const minutes = dailyMinutesMap[dayKey] || 0;
       const isRest = this.restDays.includes(day.getDay());
-      const dateStr = day.toLocaleDateString("pt-BR").slice(0, 5);
+
+      // Se ano diferente do atual, mostra "DD/MM/YY", senão "DD/MM"
+      const isCurrentYear = day.getFullYear() === today.getFullYear();
+      const dateStr = isCurrentYear
+        ? day.toLocaleDateString("pt-BR").slice(0, 5) // "DD/MM"
+        : `${day.toLocaleDateString("pt-BR").slice(0, 5)}/${String(day.getFullYear()).slice(-2)}`; // "DD/MM/YY"
+
       const isToday = i === 0;
 
       let tooltip = "";

@@ -105,8 +105,102 @@
   style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px"
 >
   <div id="chart-subjects" class="cycle-card chart-scroll-container">
-    <h4>Desempenho por Matéria</h4>
-    <canvas id="chart-performance"></canvas>
+    <h4 style="text-transform: uppercase">Desempenho</h4>
+
+    <!-- Filtros de período para performance -->
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      "
+    >
+      <button
+        class="btn-performance-filter active"
+        data-filter="today"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: var(--primary-color);
+          color: white;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Hoje
+      </button>
+      <button
+        class="btn-performance-filter"
+        data-filter="week"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Semana
+      </button>
+      <button
+        class="btn-performance-filter"
+        data-filter="month"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Mês
+      </button>
+      <button
+        class="btn-performance-filter"
+        data-filter="all"
+        style="
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--primary-color);
+          background: transparent;
+          color: var(--primary-color);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+        "
+      >
+        Total
+      </button>
+    </div>
+
+    <div
+      id="chart-performance-container"
+      style="position: relative; width: 100%"
+    >
+      <div
+        id="chart-performance-placeholder"
+        style="
+          display: none;
+          text-align: center;
+          color: var(--text-color);
+          font-size: 1.1rem;
+          padding: 40px 20px;
+        "
+      >
+        Você ainda não resolveu questões hoje 😞
+      </div>
+      <canvas id="chart-performance"></canvas>
+    </div>
   </div>
 
   <div
@@ -126,7 +220,7 @@
   </div>
 
   <div class="cycle-card">
-    <h4>Tempo Total por Matéria (Horas)</h4>
+    <h4 style="text-transform: uppercase">Tempo de Estudo</h4>
 
     <!-- Filtros de período -->
     <div

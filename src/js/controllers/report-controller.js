@@ -153,6 +153,7 @@ export class ReportsController {
 
         // Setup filtros
         this.setupTimeFilterButtons();
+        this.setupPerformanceFilterButtons();
 
         // theme
         const isDark =
@@ -216,6 +217,60 @@ export class ReportsController {
 
     // Aplicar filtro "today" por padrão
     this.charts.updateTimeChartFilter("today");
+  }
+
+  resetPerformanceFilterButtons() {
+    const buttons = document.querySelectorAll(".btn-performance-filter");
+    buttons.forEach((btn) => {
+      if (btn.dataset.filter === "today") {
+        btn.style.background = "var(--primary-color)";
+        btn.style.color = "white";
+        btn.classList.add("active");
+      } else {
+        btn.style.background = "transparent";
+        btn.style.color = "var(--primary-color)";
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  setupPerformanceFilterButtons() {
+    // Reset buttons to default state ("today")
+    this.resetPerformanceFilterButtons();
+
+    const buttons = document.querySelectorAll(".btn-performance-filter");
+    buttons.forEach((btn) => {
+      // Remove old listeners by cloning the button
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+    });
+
+    // Re-query after cloning
+    const freshButtons = document.querySelectorAll(".btn-performance-filter");
+    freshButtons.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const filter = e.target.dataset.filter;
+
+        // Atualizar UI dos botões
+        freshButtons.forEach((b) => {
+          if (b.dataset.filter === filter) {
+            b.style.background = "var(--primary-color)";
+            b.style.color = "white";
+            b.classList.add("active");
+          } else {
+            b.style.background = "transparent";
+            b.style.color = "var(--primary-color)";
+            b.classList.remove("active");
+          }
+        });
+
+        // Atualizar gráfico
+        this.charts.updatePerformanceChartFilter(filter);
+      });
+    });
+
+    // Aplicar filtro "today" por padrão
+    this.charts.updatePerformanceChartFilter("today");
   }
 
   async updateSummary(filtered = null, filters = null) {

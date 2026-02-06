@@ -5,6 +5,7 @@ export class ReportsCharts {
     this.performanceChart = null;
     this.timeChart = null;
     this.currentTimeFilter = "today"; // filtro ativo atualmente
+    this.currentPerformanceFilter = "today"; // filtro ativo para performance
     this.allHistory = []; // guardar histórico completo
   }
 
@@ -91,6 +92,13 @@ export class ReportsCharts {
       label.replace(/DIREITO/g, "D."),
     );
 
+    // Ajustar altura do container com base no número de labels
+    const container = document.getElementById("chart-performance-container");
+    if (container) {
+      const minHeight = Math.max(300, labels.length * 35);
+      container.style.minHeight = `${minHeight}px`;
+    }
+
     this.performanceChart = new Chart(ctx, {
       type: "bar",
       data: {
@@ -111,6 +119,7 @@ export class ReportsCharts {
       options: {
         indexAxis: "y",
         responsive: true,
+        maintainAspectRatio: false,
         animation: {
           duration: 0,
         },
@@ -256,6 +265,92 @@ export class ReportsCharts {
     };
 
     apply(this.performanceChart);
+  }
+
+  updatePerformanceChartFilter(filter) {
+    if (!this.allHistory.length) {
+      // Mostrar placeholder mesmo sem dados
+      const placeholder = document.getElementById(
+        "chart-performance-placeholder",
+      );
+      const canvas = document.getElementById("chart-performance");
+      if (placeholder && canvas) {
+        placeholder.style.display = "block";
+        canvas.style.display = "none";
+        if (filter === "today") {
+          placeholder.textContent = "Você ainda não resolveu questões hoje 😞";
+        } else if (filter === "week") {
+          placeholder.textContent = "Nenhuma questão resolvida esta semana 😞";
+        } else if (filter === "month") {
+          placeholder.textContent = "Nenhuma questão resolvida este mês 😞";
+        } else {
+          placeholder.textContent = "Nenhum registro de questões encontrado 😞";
+        }
+      }
+      return;
+    }
+
+    this.currentPerformanceFilter = filter;
+    const filtered = this.filterHistoryByPeriod(this.allHistory || [], filter);
+
+    const stats = this.buildStats(filtered);
+    const labels = [];
+    const correct = [];
+    const wrong = [];
+
+    Object.keys(stats).forEach((l) => {
+      const s = stats[l];
+      if (s.correct + s.wrong > 0) {
+        labels.push(l);
+        correct.push(s.correct);
+        wrong.push(s.wrong);
+      }
+    });
+
+    // Mostrar/ocultar placeholder e gráfico
+    const placeholder = document.getElementById(
+      "chart-performance-placeholder",
+    );
+    const canvas = document.getElementById("chart-performance");
+    const hasData = labels.length > 0;
+
+    if (placeholder && canvas) {
+      if (hasData) {
+        placeholder.style.display = "none";
+        canvas.style.display = "block";
+      } else {
+        placeholder.style.display = "block";
+        canvas.style.display = "none";
+        if (filter === "today") {
+          placeholder.textContent = "Você ainda não resolveu questões hoje 😞";
+        } else if (filter === "week") {
+          placeholder.textContent = "Nenhuma questão resolvida esta semana 😞";
+        } else if (filter === "month") {
+          placeholder.textContent = "Nenhuma questão resolvida este mês 😞";
+        } else {
+          placeholder.textContent = "Nenhum registro de questões encontrado 😞";
+        }
+      }
+    }
+
+    // Abreviar "Direito" para "D."
+    const abbreviatedLabels = labels.map((label) =>
+      label.replace(/DIREITO/g, "D."),
+    );
+
+    // Ajustar altura do container com base no número de labels
+    const container = document.getElementById("chart-performance-container");
+    if (container && hasData) {
+      const minHeight = Math.max(300, labels.length * 35);
+      container.style.minHeight = `${minHeight}px`;
+    }
+
+    if (this.performanceChart) {
+      this.performanceChart.data.labels = abbreviatedLabels;
+      this.performanceChart.data.datasets[0].data = correct;
+      this.performanceChart.data.datasets[1].data = wrong;
+      this.performanceChart.update();
+    }
   }
 
   updateTimeChartFilter(filter) {

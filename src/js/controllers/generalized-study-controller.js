@@ -8,6 +8,7 @@ export class GeneralizedStudyController {
     this.db = db || dbService;
     this.toast = toast;
     this.notesController = notes;
+    this.backupSync = null; // Será configurado via setter
 
     this.ui = new GeneralizedStudyUI();
 
@@ -396,6 +397,11 @@ export class GeneralizedStudyController {
       // Salvar no banco de dados usando o método correto
       if (this.db && this.db.addHistoryEntry) {
         await this.db.addHistoryEntry(entry);
+      }
+
+      // ✅ Verificar sincronização de backup após salvar
+      if (this.backupSync) {
+        await this.backupSync.checkSyncStatus();
       }
     } catch (error) {
       console.error("Erro ao salvar sessão rápida:", error);

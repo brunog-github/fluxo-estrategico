@@ -228,6 +228,7 @@ class App {
     // Criar Floating Button de Estudo Rápido
     s.generalizedStudy.ui.createFloatingButton();
     s.generalizedStudy.initFloatingButton();
+    s.generalizedStudy.backupSync = s.backupSync; // Injetar referência do backupSync
 
     // Ligações de callbacks
     s.screens.on("screen-home", async () => {

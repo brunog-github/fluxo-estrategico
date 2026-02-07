@@ -246,7 +246,10 @@ export class SimuladosSalvosController {
           <h3 class="simulado-card-title">${simulado.nome}</h3>
           <p class="simulado-card-subtitle">${simulado.banca || "Sem banca"}</p>
         </div>
-        <span class="simulado-card-date">${dataFormatada}</span>
+        <div class="simulado-header-right">
+          <span class="simulado-card-date">${dataFormatada}</span>
+          ${simulado.tempo ? `<span class="simulado-card-duration"><i class="fa-regular fa-clock"></i> ${simulado.tempo}</span>` : ""}
+        </div>
       </div>
 
       <div class="simulado-card-stats">
@@ -422,7 +425,9 @@ export class SimuladosSalvosController {
   }
 
   renderModalContent(simulado) {
-    const dataObj = new Date(simulado.data);
+    // Evitar problema de timezone: extrair componentes da data diretamente
+    const [year, month, day] = simulado.data.split("-");
+    const dataObj = new Date(year, month - 1, day); // month é 0-indexed
     const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
       year: "numeric",
       month: "long",

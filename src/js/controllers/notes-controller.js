@@ -10,6 +10,7 @@ export class NotesController {
     this.currentLinkedId = null;
     this.quill = null;
     this.tempContent = localStorage.getItem("currentSessionNoteDraft") || ""; // Guarda o texto enquanto o timer roda
+    this.originalContent = ""; // Conteúdo original ao abrir (para detectar alterações)
 
     this.initQuill();
     this.attachEvents();
@@ -92,10 +93,14 @@ export class NotesController {
 
       // 2. VERIFICAÇÃO CRUCIAL:
       // Se existe um currentLinkedId, significa que estamos editando pelo Histórico.
-      // Então TEMOS que salvar no IndexedDB agora mesmo.
+      // Só salva se o conteúdo foi alterado.
       if (this.currentLinkedId) {
-        await this.saveFinalNote(this.currentLinkedId);
-        this.currentLinkedId = null; // Limpa o ID após salvar
+        const currentContent = this.tempContent;
+        if (currentContent !== this.originalContent) {
+          await this.saveFinalNote(this.currentLinkedId);
+        }
+        this.currentLinkedId = null; // Limpa o ID após fechar
+        this.originalContent = ""; // Limpa o conteúdo original
       } else {
         localStorage.setItem("currentSessionNoteDraft", this.tempContent);
       }
@@ -126,8 +131,10 @@ export class NotesController {
     if (this.quill) {
       if (foundNote) {
         this.tempContent = foundNote.content;
+        this.originalContent = foundNote.content; // Guarda original para comparar
       } else {
         this.tempContent = ""; // Limpa para nova nota
+        this.originalContent = ""; // Nota nova, original é vazio
       }
     }
 
@@ -147,6 +154,7 @@ export class NotesController {
   reset() {
     this.tempContent = "";
     this.currentLinkedId = null;
+    this.originalContent = "";
 
     // 3. Limpa o rascunho do localStorage
     localStorage.removeItem("currentSessionNoteDraft");

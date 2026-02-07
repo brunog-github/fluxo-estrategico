@@ -18,6 +18,7 @@ export function initReportsScreenEvents(
       await reports.show();
       await lifetime.update();
       await filterController.init();
+      await filterController.clearFilters(); // Resetar filtros ao entrar na tela
     });
 
   document

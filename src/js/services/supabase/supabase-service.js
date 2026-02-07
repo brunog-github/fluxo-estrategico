@@ -284,6 +284,9 @@ export class SupabaseService {
     }
 
     try {
+      // ✅ Deletar backup existente antes de fazer upload do novo
+      await this._deleteExistingBackup();
+
       const timestamp = new Date().toISOString();
       const fileName = `${this.user.id}/backup-${Date.now()}.gz`;
 
@@ -346,9 +349,6 @@ export class SupabaseService {
       localStorage.removeItem("newer_backup_available");
       localStorage.removeItem("newer_backup_info");
 
-      // ✅ IMPORTANTE: Manter apenas os 3 backups mais recentes
-      await this._deleteOldBackups();
-
       return { success: true, fileName };
     } catch (error) {
       console.error("Erro ao fazer upload do backup:", error);
@@ -357,32 +357,30 @@ export class SupabaseService {
   }
 
   /**
-   * Deletar backups antigos mantendo apenas os 3 mais recentes
+   * Deletar backup existente do usuário (manter apenas 1 backup por usuário)
    */
-  async _deleteOldBackups() {
+  async _deleteExistingBackup() {
     try {
-      const MAX_BACKUPS = 3;
-
-      // Obter todos os backups do usuário, ordenados por data
+      // Obter todos os backups do usuário
       const { data: backups, error: queryError } = await supabaseClient
         .from("backup_metadata")
-        .select("id, file_name, synced_at")
-        .eq("user_id", this.user.id)
-        .order("synced_at", { ascending: false });
+        .select("id, file_name")
+        .eq("user_id", this.user.id);
 
       if (queryError) {
-        console.error("[CLEANUP] Erro ao obter histórico:", queryError);
+        console.error(
+          "[CLEANUP] Erro ao obter backups existentes:",
+          queryError,
+        );
         return;
       }
 
-      if (!backups || backups.length <= MAX_BACKUPS) {
+      if (!backups || backups.length === 0) {
         return;
       }
 
-      // Backups a deletar (do índice MAX_BACKUPS em diante)
-      const backupsToDelete = backups.slice(MAX_BACKUPS);
-
-      for (const backup of backupsToDelete) {
+      // Deletar todos os backups existentes do usuário
+      for (const backup of backups) {
         try {
           // Deletar arquivo do Storage
           const { error: storageError } = await supabaseClient.storage
@@ -391,7 +389,6 @@ export class SupabaseService {
 
           if (storageError) {
             console.error(`[CLEANUP] Erro ao deletar arquivo:`, storageError);
-            continue;
           }
 
           // Deletar registro do banco de dados
@@ -402,14 +399,13 @@ export class SupabaseService {
 
           if (dbError) {
             console.error(`[CLEANUP] Erro ao deletar metadados:`, dbError);
-            continue;
           }
         } catch (error) {
           console.error(`[CLEANUP] Erro ao processar exclusão:`, error);
         }
       }
     } catch (error) {
-      console.error("[CLEANUP] Erro ao deletar backups antigos:", error);
+      console.error("[CLEANUP] Erro ao deletar backup existente:", error);
     }
   }
 

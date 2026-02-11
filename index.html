@@ -129,32 +129,8 @@
             Responda às perguntas de segurança para remover o PIN
           </p>
 
-          <div class="pin-recovery-question">
-            <label>1. Qual o nome do seu primeiro animal de estimação?</label>
-            <input
-              type="text"
-              id="pin-recovery-answer-1"
-              placeholder="Sua resposta..."
-              autocomplete="off"
-            />
-          </div>
-          <div class="pin-recovery-question">
-            <label>2. Em qual cidade você nasceu?</label>
-            <input
-              type="text"
-              id="pin-recovery-answer-2"
-              placeholder="Sua resposta..."
-              autocomplete="off"
-            />
-          </div>
-          <div class="pin-recovery-question">
-            <label>3. Qual é o nome do seu melhor amigo de infância?</label>
-            <input
-              type="text"
-              id="pin-recovery-answer-3"
-              placeholder="Sua resposta..."
-              autocomplete="off"
-            />
+          <div id="pin-recovery-questions-container">
+            <!-- Renderizado dinamicamente pelo PinController -->
           </div>
 
           <p id="pin-recovery-error" class="pin-lock-error-msg"></p>

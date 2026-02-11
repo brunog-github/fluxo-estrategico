@@ -402,6 +402,23 @@
   color: var(--text-secondary);
 }
 
+.pin-config-question-group select.pin-config-select {
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 13px;
+  width: 100%;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.pin-config-question-group select.pin-config-select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
 .pin-config-question-group input {
   padding: 9px 12px;
   border: 1px solid var(--border-color);

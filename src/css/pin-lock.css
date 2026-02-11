@@ -291,7 +291,8 @@
 }
 
 /* Corpo colapsável */
-.pin-config-body {
+.pin-config-body,
+.collapsible-body {
   max-height: 800px;
   overflow: hidden;
   transition:
@@ -300,9 +301,21 @@
   opacity: 1;
 }
 
-.pin-config-body.collapsed {
+.pin-config-body.collapsed,
+.collapsible-body.collapsed {
   max-height: 0;
   opacity: 0;
+}
+
+/* Seta genérica de colapsar */
+.collapsible-arrow {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.collapsible-arrow.rotated {
+  transform: rotate(180deg);
 }
 
 .pin-config-header span {

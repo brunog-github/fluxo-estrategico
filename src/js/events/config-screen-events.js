@@ -79,6 +79,16 @@ export function initConfigScreenEvents(
     arrow.classList.toggle("rotated");
   });
 
+  // Backup - Colapsar/Expandir
+  document
+    .getElementById("backup-section-toggle")
+    .addEventListener("click", () => {
+      const body = document.getElementById("backup-section-body");
+      const arrow = document.getElementById("backup-section-arrow");
+      body.classList.toggle("collapsed");
+      arrow.classList.toggle("rotated");
+    });
+
   document
     .getElementById("btn-save-pin")
     .addEventListener("click", async () => await pin.savePin());

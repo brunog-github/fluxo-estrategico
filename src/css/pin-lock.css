@@ -152,7 +152,6 @@
 }
 
 .pin-lock-forgot {
-  margin-top: 15px;
   font-size: 13px;
   color: var(--primary-color);
   cursor: pointer;
@@ -260,12 +259,50 @@
   display: flex;
   font-size: 17px;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 0;
   color: var(--text-color);
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 10px;
+  border-bottom: none;
+  padding-bottom: 0;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: margin-bottom 0.3s;
+}
+
+.pin-config-header:hover {
+  opacity: 0.8;
+}
+
+.pin-config-section:has(.pin-config-body:not(.collapsed)) .pin-config-header {
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.pin-config-arrow {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: transform 0.3s ease;
+}
+
+.pin-config-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* Corpo colapsável */
+.pin-config-body {
+  max-height: 800px;
+  overflow: hidden;
+  transition:
+    max-height 0.4s ease,
+    opacity 0.3s ease;
+  opacity: 1;
+}
+
+.pin-config-body.collapsed {
+  max-height: 0;
+  opacity: 0;
 }
 
 .pin-config-header span {

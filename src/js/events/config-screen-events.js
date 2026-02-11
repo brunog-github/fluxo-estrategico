@@ -72,6 +72,13 @@ export function initConfigScreenEvents(
     .addEventListener("click", () => settings.resetPositionFloatingButton());
 
   // PIN de Bloqueio
+  document.getElementById("pin-config-toggle").addEventListener("click", () => {
+    const body = document.getElementById("pin-config-body");
+    const arrow = document.getElementById("pin-config-arrow");
+    body.classList.toggle("collapsed");
+    arrow.classList.toggle("rotated");
+  });
+
   document
     .getElementById("btn-save-pin")
     .addEventListener("click", async () => await pin.savePin());

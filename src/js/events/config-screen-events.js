@@ -4,6 +4,7 @@ export function initConfigScreenEvents(
   streak,
   subjects,
   settings,
+  pin,
 ) {
   document
     .getElementById("btn-to-screen-config")
@@ -12,6 +13,7 @@ export function initConfigScreenEvents(
       streak.loadRestDaysUI();
       await settings.renderCategories();
       await settings.renderEditaisSummary();
+      await pin.loadConfigUI();
       screens.switch("screen-config");
     });
 
@@ -68,6 +70,18 @@ export function initConfigScreenEvents(
   document
     .getElementById("btn-clear-floating")
     .addEventListener("click", () => settings.resetPositionFloatingButton());
+
+  // PIN de Bloqueio
+  document
+    .getElementById("btn-save-pin")
+    .addEventListener("click", async () => await pin.savePin());
+
+  document.getElementById("btn-remove-pin").addEventListener("click", () => {
+    settings.confirm.confirm(
+      "Tem certeza que deseja remover o PIN de acesso?",
+      async () => await pin.removePin(),
+    );
+  });
 
   // Edital Verticalizado Button
   const btnEdital = document.getElementById("btn-edital-verticalizado");

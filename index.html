@@ -52,6 +52,7 @@
     <link rel="stylesheet" href="src/css/simulado-modal.css" />
     <link rel="stylesheet" href="src/css/simulados-salvos.css" />
     <link rel="stylesheet" href="src/css/generalized-study.css" />
+    <link rel="stylesheet" href="src/css/pin-lock.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
     <link
@@ -74,6 +75,105 @@
   </head>
 
   <body>
+    <!-- PIN Lock Overlay -->
+    <div id="pin-lock-overlay" class="pin-lock-overlay hidden">
+      <!-- Tela de entrada do PIN -->
+      <div id="pin-lock-card" class="pin-lock-card">
+        <div class="pin-lock-icon">🔒</div>
+        <h2 class="pin-lock-title">Acesso Protegido</h2>
+        <p class="pin-lock-subtitle">
+          Digite seu PIN de 4 dígitos para continuar
+        </p>
+        <div class="pin-input-container" id="pin-input-container">
+          <input
+            type="tel"
+            maxlength="1"
+            inputmode="numeric"
+            pattern="[0-9]"
+            autocomplete="off"
+          />
+          <input
+            type="tel"
+            maxlength="1"
+            inputmode="numeric"
+            pattern="[0-9]"
+            autocomplete="off"
+          />
+          <input
+            type="tel"
+            maxlength="1"
+            inputmode="numeric"
+            pattern="[0-9]"
+            autocomplete="off"
+          />
+          <input
+            type="tel"
+            maxlength="1"
+            inputmode="numeric"
+            pattern="[0-9]"
+            autocomplete="off"
+          />
+        </div>
+        <button id="btn-pin-unlock" class="pin-lock-btn">Desbloquear</button>
+        <p id="pin-lock-error" class="pin-lock-error-msg"></p>
+        <button id="btn-pin-forgot" class="pin-lock-forgot">
+          Esqueci meu PIN
+        </button>
+      </div>
+
+      <!-- Tela de recuperação -->
+      <div id="pin-recovery-card" class="pin-lock-card" style="display: none">
+        <div class="pin-recovery-container">
+          <h2 class="pin-recovery-title">Recuperar PIN</h2>
+          <p class="pin-recovery-subtitle">
+            Responda às perguntas de segurança para remover o PIN
+          </p>
+
+          <div class="pin-recovery-question">
+            <label>1. Qual o nome do seu primeiro animal de estimação?</label>
+            <input
+              type="text"
+              id="pin-recovery-answer-1"
+              placeholder="Sua resposta..."
+              autocomplete="off"
+            />
+          </div>
+          <div class="pin-recovery-question">
+            <label>2. Em qual cidade você nasceu?</label>
+            <input
+              type="text"
+              id="pin-recovery-answer-2"
+              placeholder="Sua resposta..."
+              autocomplete="off"
+            />
+          </div>
+          <div class="pin-recovery-question">
+            <label>3. Qual é o nome do seu melhor amigo de infância?</label>
+            <input
+              type="text"
+              id="pin-recovery-answer-3"
+              placeholder="Sua resposta..."
+              autocomplete="off"
+            />
+          </div>
+
+          <p id="pin-recovery-error" class="pin-lock-error-msg"></p>
+
+          <div class="pin-recovery-actions">
+            <button id="btn-pin-recovery-back" class="pin-recovery-btn-back">
+              Voltar
+            </button>
+            <button
+              id="btn-pin-recovery-confirm"
+              class="pin-recovery-btn-confirm"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="app-container">
       <div id="screen-home"></div>
 

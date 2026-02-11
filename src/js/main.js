@@ -17,6 +17,7 @@ import { TimerController } from "./controllers/timer-controller.js";
 import { GeneralizedStudyController } from "./controllers/generalized-study-controller.js";
 import { StreakController } from "./controllers/streak-controller.js";
 import { SettingsController } from "./controllers/settings-controller.js";
+import { PinController } from "./controllers/pin-controller.js";
 import { ReportsController } from "./controllers/report-controller.js";
 import { ManualEntryController } from "./controllers/manual-entry-controller.js";
 import { HistoryFilterController } from "./controllers/history-filter-controller.js";
@@ -98,6 +99,9 @@ class App {
 
       // Passo 4: Restaurar Estado (Timer ou Home)
       await this._handleInitialState();
+
+      // Passo 5: Verificar PIN de bloqueio
+      await this.services.pin.checkAndLock();
     } catch (error) {
       console.error("Erro fatal ao iniciar aplicação:", error);
     }
@@ -144,6 +148,7 @@ class App {
     // Controladores de Telas
     const settings = new SettingsController(toast, confirm);
     await settings.init();
+    const pin = new PinController(toast);
     const reports = new ReportsController(toast, confirm, screens);
     const manualEntry = new ManualEntryController(toast, reports);
     const filters = new HistoryFilterController(reports);
@@ -182,6 +187,7 @@ class App {
       timer,
       generalizedStudy,
       settings,
+      pin,
       reports,
       manualEntry,
       backupSync,
@@ -277,6 +283,7 @@ class App {
       s.streak,
       s.subjects,
       s.settings,
+      s.pin,
     );
     initReportsScreenEvents(s.reports, s.screens, s.lifetime, s.filters);
     initManualEntryEvents(s.manualEntry, s.lifetime);

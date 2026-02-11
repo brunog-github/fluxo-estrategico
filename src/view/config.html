@@ -191,6 +191,97 @@
   </div>
 </div>
 
+<!-- Seção PIN de Bloqueio -->
+<div class="pin-config-section">
+  <div class="pin-config-header">
+    <span>🔐 PIN de Acesso</span>
+    <span id="pin-config-status" class="pin-config-status inactive"
+      >Desativado</span
+    >
+  </div>
+
+  <p class="pin-config-description">
+    Defina um PIN de 4 dígitos para proteger o acesso ao aplicativo. Se ativado,
+    será exigido sempre que abrir o site.
+  </p>
+
+  <div class="pin-config-form">
+    <div class="pin-config-field">
+      <label>PIN (4 dígitos)</label>
+      <div class="pin-config-input-row">
+        <input
+          type="password"
+          id="pin-config-input"
+          maxlength="4"
+          placeholder="••••"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="off"
+        />
+      </div>
+    </div>
+
+    <div class="pin-config-field">
+      <label>Confirmar PIN</label>
+      <input
+        type="password"
+        id="pin-config-confirm"
+        maxlength="4"
+        placeholder="••••"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="off"
+      />
+    </div>
+
+    <p class="pin-config-questions-title">🔑 Perguntas de Recuperação</p>
+    <p style="font-size: 12px; color: var(--text-secondary); margin-top: -5px">
+      Defina respostas para recuperar o PIN caso esqueça.
+    </p>
+
+    <div class="pin-config-question-group">
+      <span class="pin-question-label"
+        >1. Qual o nome do seu primeiro animal de estimação?</span
+      >
+      <input
+        type="text"
+        id="pin-recovery-q1"
+        placeholder="Sua resposta..."
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="pin-config-question-group">
+      <span class="pin-question-label">2. Em qual cidade você nasceu?</span>
+      <input
+        type="text"
+        id="pin-recovery-q2"
+        placeholder="Sua resposta..."
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="pin-config-question-group">
+      <span class="pin-question-label"
+        >3. Qual é o nome do seu melhor amigo de infância?</span
+      >
+      <input
+        type="text"
+        id="pin-recovery-q3"
+        placeholder="Sua resposta..."
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="pin-config-actions">
+      <button id="btn-save-pin" class="pin-btn-save">Salvar PIN</button>
+      <button id="btn-remove-pin" class="pin-btn-remove" style="display: none">
+        Remover PIN
+      </button>
+    </div>
+  </div>
+</div>
+
 <div style="display: flex; gap: 10px; margin-bottom: 20px">
   <button
     id="btn-clear-config"

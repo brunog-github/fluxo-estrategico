@@ -11,6 +11,7 @@ export class ManualEntryController {
   constructor(toast, reportsController) {
     this.toast = toast;
     this.reports = reportsController; // para atualizar tabelas e charts
+    this.filterController = null; // referência ao controlador de filtros
     this.ui = new ManualEntryUI();
     this.editingId = null;
 
@@ -221,9 +222,16 @@ export class ManualEntryController {
     }
 
     if (this.reports) {
-      await this.reports.renderHistory();
       await this.reports.updateCharts();
-      await this.reports.updateSummary();
+
+      // Re-aplicar filtros ativos (ou renderizar sem filtro se não houver)
+      if (this.filterController) {
+        await this.filterController.init();
+        await this.filterController.applyFilters();
+      } else {
+        await this.reports.renderHistory();
+        await this.reports.updateSummary();
+      }
     }
 
     this.close();

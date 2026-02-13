@@ -152,6 +152,7 @@ class App {
     const reports = new ReportsController(toast, confirm, screens);
     const manualEntry = new ManualEntryController(toast, reports);
     const filters = new HistoryFilterController(reports);
+    manualEntry.filterController = filters;
 
     // UIs
     const configUI = new ConfigUI(subjects, toast);

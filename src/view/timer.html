@@ -40,10 +40,16 @@
 >
   Tempo pausado: 00:00:00
 </small>
-<!--📝  -->
-<button id="btn-open-notes" style="margin: 10px auto; display: block">
-  📝 Anotações
-</button>
+<div style="width: 100%; justify-items: center; margin-bottom: 10px">
+  <button
+    id="btn-open-notes"
+    class="btn-manual-notes-toggle"
+    style="width: fit-content"
+  >
+    <i class="fa-regular fa-sticky-note"></i>
+    <span id="manual-notes-toggle-label">Adicionar anotação</span>
+  </button>
+</div>
 
 <button id="btn-study-pause" class="btn screen-timer">Pausar</button>
 <button

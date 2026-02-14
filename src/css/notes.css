@@ -2,7 +2,7 @@
   z-index: 2000;
 }
 
-#btn-open-notes {
+/* .btn-open-notes {
   background-color: transparent;
   color: var(--text-color);
   box-shadow: none;
@@ -11,11 +11,11 @@
   border-bottom: 3px solid var(--border-color);
 }
 
-#btn-open-notes:hover {
+.btn-open-notes:hover {
   border-color: var(--primary-color);
   transform: translateY(-1px);
   transition: border-color 0.2s ease-in-out;
-}
+} */
 
 /* Container principal do modal */
 .notes-modal-container {

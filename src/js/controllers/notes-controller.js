@@ -9,8 +9,10 @@ export class NotesController {
 
     this.currentLinkedId = null;
     this.quill = null;
-    this.tempContent = localStorage.getItem("currentSessionNoteDraft") || ""; // Guarda o texto enquanto o timer roda
-    this.originalContent = ""; // Conteúdo original ao abrir (para detectar alterações)
+    this.tempContent = localStorage.getItem("currentSessionNoteDraft") || "";
+    this.originalContent = "";
+    this._manualEntryMode = false; // Quando true, handleClose NÃO salva no DB
+    this._onManualClose = null; // Callback chamado ao fechar em modo manual entry
 
     this.initQuill();
     this.attachEvents();
@@ -91,7 +93,18 @@ export class NotesController {
         this.tempContent = this.quill.root.innerHTML;
       }
 
-      // 2. VERIFICAÇÃO CRUCIAL:
+      // 2. Se está em modo manual entry, apenas guarda em memória (não salva no DB)
+      if (this._manualEntryMode) {
+        // Notifica o ManualEntryController que o modal fechou (para atualizar UI)
+        if (this._onManualClose) {
+          const text = this.quill ? this.quill.getText().trim() : "";
+          this._onManualClose(!!text);
+        }
+        this.modal.classList.add("hidden");
+        return;
+      }
+
+      // 3. VERIFICAÇÃO CRUCIAL:
       // Se existe um currentLinkedId, significa que estamos editando pelo Histórico.
       // Só salva se o conteúdo foi alterado.
       if (this.currentLinkedId) {
@@ -99,13 +112,13 @@ export class NotesController {
         if (currentContent !== this.originalContent) {
           await this.saveFinalNote(this.currentLinkedId);
         }
-        this.currentLinkedId = null; // Limpa o ID após fechar
-        this.originalContent = ""; // Limpa o conteúdo original
+        this.currentLinkedId = null;
+        this.originalContent = "";
       } else {
         localStorage.setItem("currentSessionNoteDraft", this.tempContent);
       }
 
-      // 3. Fecha o modal
+      // 4. Fecha o modal
       this.modal.classList.add("hidden");
     }
   }

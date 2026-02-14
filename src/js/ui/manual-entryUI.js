@@ -14,6 +14,12 @@ export class ManualEntryUI {
     this.chipYesterday = document.getElementById("chip-yesterday");
     this.chipOther = document.getElementById("chip-other");
 
+    // notes button
+    this.btnToggleNotes = document.getElementById("btn-toggle-manual-notes");
+    this.notesToggleLabel = document.getElementById(
+      "manual-notes-toggle-label",
+    );
+
     // fecha modal ao clicar no fundo
     window.addEventListener("click", (event) => {
       if (event.target === this.modal) {
@@ -83,7 +89,7 @@ export class ManualEntryUI {
 
   setChipSelection(option) {
     [this.chipToday, this.chipYesterday, this.chipOther].forEach((btn) =>
-      btn.classList.remove("selected")
+      btn.classList.remove("selected"),
     );
 
     if (option === "today") this.chipToday.classList.add("selected");
@@ -93,5 +99,26 @@ export class ManualEntryUI {
 
   showDateInput(show) {
     this.dateInput.style.display = show ? "block" : "none";
+  }
+
+  // --- Notes button label ---
+
+  updateNotesLabel(hasNotes) {
+    if (this.notesToggleLabel) {
+      this.notesToggleLabel.textContent = hasNotes
+        ? "Editar anotação"
+        : "Adicionar anotação";
+    }
+    if (this.btnToggleNotes) {
+      if (hasNotes) {
+        this.btnToggleNotes.classList.add("active");
+      } else {
+        this.btnToggleNotes.classList.remove("active");
+      }
+    }
+  }
+
+  resetNotes() {
+    this.updateNotesLabel(false);
   }
 }

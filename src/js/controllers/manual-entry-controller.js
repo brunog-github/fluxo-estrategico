@@ -12,10 +12,15 @@ export class ManualEntryController {
     this.toast = toast;
     this.reports = reportsController; // para atualizar tabelas e charts
     this.filterController = null; // referência ao controlador de filtros
+    this.notesController = null; // referência ao controlador de notas (Quill)
     this.ui = new ManualEntryUI();
     this.editingId = null;
+    this._pendingNoteLinkedId = null; // ID temporário para vincular nota ao salvar
+    this._hasUnsavedNote = false; // Flag para saber se o usuário editou notas
 
     this.attachInputMask();
+    this._initNotesButton();
+    this._initClickOutsideCleanup();
   }
 
   async getAllCategories() {
@@ -62,12 +67,15 @@ export class ManualEntryController {
   // ------------------------
   async open() {
     this.editingId = null;
+    this._pendingNoteLinkedId = null;
+    this._hasUnsavedNote = false;
     this.ui.setTitle("Registrar Estudo");
 
     const subjects = await this.getCombinedSubjects();
     const todayISO = toLocalISO(new Date());
 
     this.ui.resetFields(todayISO);
+    this.ui.resetNotes();
     this.ui.setSubjectsList(subjects);
     await this.loadCategorySelect();
     this.setDateOption("today");
@@ -115,14 +123,85 @@ export class ManualEntryController {
       this.ui.dateInput.value = dateISO; // Garante que o valor vá para o input
     }
 
+    // Carregar nota existente para este registro
+    await this._loadExistingNote(item.id);
+
     this.ui.open();
+  }
+
+  // Inicializa o botão de notas para abrir o modal Quill
+  _initNotesButton() {
+    if (this.ui.btnToggleNotes) {
+      this.ui.btnToggleNotes.addEventListener("click", () => {
+        this._openNotesModal();
+      });
+    }
+  }
+
+  // Abre o modal de notas (Quill) vinculado ao registro atual
+  async _openNotesModal() {
+    if (!this.notesController) return;
+
+    const linkedId =
+      this.editingId ||
+      this._pendingNoteLinkedId ||
+      (this._pendingNoteLinkedId = Date.now());
+    this._pendingNoteLinkedId = linkedId;
+    this._hasUnsavedNote = true;
+
+    // Ativa modo manual entry para que o handleClose não salve automaticamente
+    this.notesController._manualEntryMode = true;
+
+    // Callback para atualizar o botão quando o modal de notas fechar
+    this.notesController._onManualClose = (hasContent) => {
+      this.ui.updateNotesLabel(hasContent);
+    };
+
+    // Se já abriu notas para este mesmo linkedId, reabre preservando o conteúdo
+    if (this.notesController.currentLinkedId == linkedId) {
+      this.notesController.open();
+    } else {
+      await this.notesController.openLinkedNote(linkedId);
+    }
+  }
+
+  // Limpa estado de notas se o usuário fechar o modal-manual-entry clicando fora
+  _initClickOutsideCleanup() {
+    window.addEventListener("click", (event) => {
+      if (event.target === this.ui.modal) {
+        this._cleanupNotesState();
+        this._pendingNoteLinkedId = null;
+        this._hasUnsavedNote = false;
+      }
+    });
+  }
+
+  // Carrega nota existente para o modo edição
+  async _loadExistingNote(linkedId) {
+    const allNotes = await dbService.getNotes();
+    const note = allNotes.find((n) => n.linkedId == linkedId);
+    this.ui.updateNotesLabel(!!note);
   }
 
   // ------------------------
   // FECHAR MODAL
   // ------------------------
   close() {
+    this._cleanupNotesState();
+    this._pendingNoteLinkedId = null;
+    this._hasUnsavedNote = false;
     this.ui.close();
+  }
+
+  // Limpa o estado de notas no NotesController
+  _cleanupNotesState() {
+    if (this.notesController) {
+      this.notesController._manualEntryMode = false;
+      this.notesController._onManualClose = null;
+      this.notesController.currentLinkedId = null;
+      this.notesController.tempContent = "";
+      this.notesController.originalContent = "";
+    }
   }
 
   // Obtém matérias do Ciclo + Matérias que já existem no Histórico
@@ -204,11 +283,20 @@ export class ManualEntryController {
       };
 
       await dbService.updateHistoryEntry(this.editingId, entryData);
+
+      // Salvar nota via NotesController (conteúdo que ficou em memória)
+      if (this._hasUnsavedNote && this.notesController) {
+        await this.notesController.saveFinalNote(this.editingId);
+      }
+
       this.toast.showToast("success", "Registro atualizado com sucesso!");
       this.editingId = null;
     } else {
       // MODO CRIAÇÃO: Novo registro
+      // Usa o ID pendente (se o usuário abriu notas) ou gera um novo
+      const entryId = this._pendingNoteLinkedId || Date.now();
       const entry = {
+        id: entryId,
         date: `${formattedDate} às ${data.entryTime}`,
         subject: data.subject,
         duration: data.time,
@@ -218,8 +306,19 @@ export class ManualEntryController {
       };
 
       await dbService.addHistoryEntry(entry);
+
+      // Salvar nota via NotesController (conteúdo que ficou em memória)
+      if (this._hasUnsavedNote && this.notesController) {
+        await this.notesController.saveFinalNote(entryId);
+      }
+
       this.toast.showToast("success", "Estudo registrado!");
     }
+
+    // Limpar estado de notas
+    this._pendingNoteLinkedId = null;
+    this._hasUnsavedNote = false;
+    this._cleanupNotesState();
 
     if (this.reports) {
       await this.reports.updateCharts();

@@ -183,3 +183,62 @@
   border-color: var(--primary-color) !important;
   box-shadow: 0 4px 12px var(--shadow-color);
 }
+
+/* Botão toggle de anotações */
+.btn-manual-notes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.btn-manual-notes-toggle:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--bg-color);
+}
+
+.btn-manual-notes-toggle.active {
+  border-style: solid;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--bg-color);
+}
+
+/* Área de anotações */
+.manual-notes-area {
+  margin-top: 10px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.manual-notes-area.hidden {
+  display: none;
+}
+
+.manual-notes-textarea {
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

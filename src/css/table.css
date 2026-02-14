@@ -1,6 +1,6 @@
 /* Tabelas e Relatórios */
 .table-container {
-  max-height: 300px;
+  max-height: 600px;
   overflow-y: auto;
   overflow-x: auto;
   margin-bottom: 20px;

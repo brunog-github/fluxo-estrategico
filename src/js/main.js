@@ -153,6 +153,7 @@ class App {
     const manualEntry = new ManualEntryController(toast, reports);
     const filters = new HistoryFilterController(reports);
     manualEntry.filterController = filters;
+    manualEntry.notesController = notes;
 
     // UIs
     const configUI = new ConfigUI(subjects, toast);

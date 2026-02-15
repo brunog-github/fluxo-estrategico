@@ -147,8 +147,12 @@
   color: #ef5350;
   font-size: 13px;
   margin-top: 12px;
-  min-height: 20px;
+  min-height: 0;
   font-weight: 500;
+}
+
+.pin-lock-error-msg:empty {
+  display: none;
 }
 
 .pin-lock-forgot {
@@ -163,6 +167,31 @@
 
 .pin-lock-forgot:hover {
   opacity: 0.8;
+}
+
+/* ============================================
+   PIN PAUSE - Pausar verificação
+   ============================================ */
+
+.pin-pause-row {
+  margin-top: 12px;
+}
+
+.pin-pause-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.pin-pause-select:focus {
+  border-color: var(--primary-color);
+  outline: none;
 }
 
 /* ============================================
@@ -428,6 +457,21 @@
 
 .pin-btn-remove:hover {
   background: rgba(239, 83, 80, 0.1);
+}
+
+.pin-btn-remove-pause {
+  background: transparent;
+  border: 1px solid #ffa726;
+  color: #ffa726;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pin-btn-remove-pause:hover {
+  background: rgba(255, 167, 38, 0.1);
 }
 
 /* Questions separator */

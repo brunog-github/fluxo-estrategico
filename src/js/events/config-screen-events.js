@@ -100,6 +100,10 @@ export function initConfigScreenEvents(
     );
   });
 
+  document.getElementById("btn-remove-pause").addEventListener("click", () => {
+    pin.removePause();
+  });
+
   // Edital Verticalizado Button
   const btnEdital = document.getElementById("btn-edital-verticalizado");
   if (btnEdital) {

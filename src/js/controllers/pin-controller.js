@@ -61,10 +61,64 @@ export class PinController {
       return;
     }
 
+    // Verificar se há pausa ativa
+    if (this._isPaused()) {
+      this._hideOverlay();
+      return;
+    }
+
     // Tem PIN → bloquear
     this.isLocked = true;
     this._showOverlay();
     this._setupLockEvents();
+  }
+
+  // ==============================
+  // Pausa da verificação
+  // ==============================
+
+  /**
+   * Verifica se a pausa está ativa.
+   */
+  _isPaused() {
+    const pauseUntil = localStorage.getItem("pinPauseUntil");
+    if (!pauseUntil) return false;
+    return Date.now() < parseInt(pauseUntil, 10);
+  }
+
+  /**
+   * Define a pausa por X minutos.
+   */
+  _setPause(minutes) {
+    const until = Date.now() + minutes * 60 * 1000;
+    localStorage.setItem("pinPauseUntil", until.toString());
+  }
+
+  /**
+   * Remove a pausa ativa e atualiza a UI de config.
+   */
+  removePause() {
+    localStorage.removeItem("pinPauseUntil");
+    this._updatePauseButton();
+    if (this.toast)
+      this.toast.showToast("success", "Pausa removida com sucesso!");
+  }
+
+  /**
+   * Atualiza a visibilidade do botão "Remover Pausa" na tela de config.
+   */
+  _updatePauseButton() {
+    const btn = document.getElementById("btn-remove-pause");
+    if (!btn) return;
+    if (this._isPaused()) {
+      const remaining = parseInt(localStorage.getItem("pinPauseUntil"), 10);
+      const mins = Math.ceil((remaining - Date.now()) / 60000);
+      btn.style.display = "block";
+      btn.title = `Pausa ativa — ${mins} min restante${mins !== 1 ? "s" : ""}`;
+    } else {
+      btn.style.display = "none";
+      btn.title = "";
+    }
   }
 
   // ==============================
@@ -91,6 +145,9 @@ export class PinController {
       overlay.classList.add("hidden");
     }
     this.isLocked = false;
+    // Resetar select de pausa
+    const pauseSelect = document.getElementById("pin-pause-select");
+    if (pauseSelect) pauseSelect.value = "0";
   }
 
   // ==============================
@@ -198,8 +255,13 @@ export class PinController {
     const errorMsg = document.getElementById("pin-lock-error");
 
     if (enteredHash === storedHash) {
-      // PIN correto
+      // PIN correto → aplicar pausa se selecionada e desbloquear
       errorMsg.textContent = "";
+      const pauseSelect = document.getElementById("pin-pause-select");
+      const pauseMinutes = parseInt(pauseSelect?.value || "0", 10);
+      if (pauseMinutes > 0) {
+        this._setPause(pauseMinutes);
+      }
       this._hideOverlay();
     } else {
       // PIN incorreto
@@ -335,6 +397,9 @@ export class PinController {
       if (pinInput) pinInput.placeholder = "••••";
       if (pinConfirm) pinConfirm.placeholder = "••••";
     }
+
+    // Atualizar botão de pausa
+    this._updatePauseButton();
 
     // Limpar campos
     if (pinInput) pinInput.value = "";

@@ -116,6 +116,23 @@
         </div>
         <button id="btn-pin-unlock" class="pin-lock-btn">Desbloquear</button>
         <p id="pin-lock-error" class="pin-lock-error-msg"></p>
+
+        <!-- Pausar verificação -->
+        <div class="pin-pause-row">
+          <select
+            id="pin-pause-select"
+            class="pin-pause-select"
+            style="margin: 10px 0px"
+          >
+            <option value="0">Sem pausa</option>
+            <option value="5">Pausar por 5 min</option>
+            <option value="15">Pausar por 15 min</option>
+            <option value="30">Pausar por 30 min</option>
+            <option value="60">Pausar por 1 hora</option>
+            <option value="180">Pausar por 3 horas</option>
+          </select>
+        </div>
+
         <button id="btn-pin-forgot" class="pin-lock-forgot">
           Esqueci meu PIN
         </button>

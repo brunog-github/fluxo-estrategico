@@ -464,7 +464,7 @@ export class BackupUI {
                 color: var(--text-secondary);
                 font-size: 18px;
                 padding: 4px;
-              ">👁</button>
+              "><i class="fa-regular fa-eye"></i></button>
             </div>
 
             <button id="signin-btn" class="backup-modal-btn backup-modal-btn-primary" style="
@@ -570,7 +570,7 @@ export class BackupUI {
                 color: var(--text-secondary);
                 font-size: 18px;
                 padding: 4px;
-              ">👁</button>
+              "><i class="fa-regular fa-eye"></i></button>
             </div>
 
             <div id="pw-requirements" class="pw-requirements" style="display: none;">
@@ -787,7 +787,9 @@ export class BackupUI {
       loginTogglePw.addEventListener("click", () => {
         const isPassword = loginPasswordInput.type === "password";
         loginPasswordInput.type = isPassword ? "text" : "password";
-        loginTogglePw.textContent = isPassword ? "🙈" : "👁";
+        loginTogglePw.innerHTML = isPassword
+          ? '<i class="fa-regular fa-eye-slash"></i>'
+          : '<i class="fa-regular fa-eye"></i>';
       });
 
       signInBtn.addEventListener("click", async () => {
@@ -865,7 +867,9 @@ export class BackupUI {
         const isPassword = signupPasswordInput.type === "password";
         signupPasswordInput.type = isPassword ? "text" : "password";
         signupConfirmInput.type = isPassword ? "text" : "password";
-        signupTogglePw.textContent = isPassword ? "🙈" : "👁";
+        signupTogglePw.innerHTML = isPassword
+          ? '<i class="fa-regular fa-eye-slash"></i>'
+          : '<i class="fa-regular fa-eye"></i>';
       });
 
       const checkPasswordRequirements = (password) => {
@@ -1152,7 +1156,7 @@ export class BackupUI {
             color: var(--text-secondary, #888);
             font-size: 18px;
             padding: 4px;
-          ">👁</button>
+          "><i class="fa-regular fa-eye"></i></button>
         </div>
 
         <div id="reset-pw-requirements" class="pw-requirements" style="display: none;">
@@ -1216,7 +1220,9 @@ export class BackupUI {
       const isPassword = newPwInput.type === "password";
       newPwInput.type = isPassword ? "text" : "password";
       confirmPwInput.type = isPassword ? "text" : "password";
-      togglePw.textContent = isPassword ? "🙈" : "👁";
+      togglePw.innerHTML = isPassword
+        ? '<i class="fa-regular fa-eye-slash"></i>'
+        : '<i class="fa-regular fa-eye"></i>';
     });
 
     // Verificar requisitos de senha

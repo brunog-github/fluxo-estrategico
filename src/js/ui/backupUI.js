@@ -1080,6 +1080,245 @@ export class BackupUI {
   }
 
   /**
+   * Mostrar modal de redefinição de senha (chamado quando o usuário clica no link de reset no email)
+   */
+  showPasswordResetModal() {
+    // Remover modal anterior se existir
+    const existingModal = document.getElementById("modal-password-reset");
+    if (existingModal) existingModal.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "modal-password-reset";
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    `;
+
+    overlay.innerHTML = `
+      <div class="password-reset-modal" style="
+        background: var(--card-bg, #fff);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 420px;
+        width: 90%;
+        color: var(--text-color, #333);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        animation: fadeIn 0.3s ease-out;
+      ">
+        <h2 style="margin: 0 0 8px 0; text-align: center;">🔑 Redefinir Senha</h2>
+        <p style="
+          text-align: center;
+          color: var(--text-secondary, #888);
+          margin-bottom: 20px;
+          font-size: 14px;
+        ">
+          Defina sua nova senha abaixo
+        </p>
+
+        <div style="margin-bottom: 8px; position: relative;">
+          <input
+            id="reset-new-pw"
+            type="password"
+            placeholder="Nova senha"
+            autocomplete="new-password"
+            style="
+              width: 100%;
+              padding: 12px;
+              padding-right: 44px;
+              border: 1px solid var(--border-color, #ddd);
+              border-radius: 6px;
+              background: var(--input-bg, #f9f9f9);
+              color: var(--text-color, #333);
+              box-sizing: border-box;
+              font-size: 14px;
+            "
+          />
+          <button id="reset-toggle-pw" type="button" style="
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary, #888);
+            font-size: 18px;
+            padding: 4px;
+          ">👁</button>
+        </div>
+
+        <div id="reset-pw-requirements" class="pw-requirements" style="display: none;">
+          <span id="reset-req-length" class="pw-req">✗ Mínimo 6 caracteres</span>
+          <span id="reset-req-lower" class="pw-req">✗ Letra minúscula</span>
+          <span id="reset-req-upper" class="pw-req">✗ Letra maiúscula</span>
+          <span id="reset-req-digit" class="pw-req">✗ Número</span>
+          <span id="reset-req-symbol" class="pw-req">✗ Símbolo (!@#$...)</span>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <input
+            id="reset-confirm-pw"
+            type="password"
+            placeholder="Confirme a nova senha"
+            autocomplete="new-password"
+            style="
+              width: 100%;
+              padding: 12px;
+              border: 1px solid var(--border-color, #ddd);
+              border-radius: 6px;
+              background: var(--input-bg, #f9f9f9);
+              color: var(--text-color, #333);
+              box-sizing: border-box;
+              font-size: 14px;
+            "
+          />
+          <small id="reset-match-msg" style="display: none; margin-top: 4px; font-size: 12px;"></small>
+        </div>
+
+        <button id="reset-save-btn" style="
+          width: 100%;
+          padding: 12px;
+          background: var(--primary-color, #4a90d9);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 15px;
+          transition: background 0.3s ease;
+          margin-bottom: 10px;
+        ">
+          Salvar Nova Senha
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Elementos
+    const newPwInput = overlay.querySelector("#reset-new-pw");
+    const confirmPwInput = overlay.querySelector("#reset-confirm-pw");
+    const saveBtn = overlay.querySelector("#reset-save-btn");
+    const togglePw = overlay.querySelector("#reset-toggle-pw");
+    const pwReqs = overlay.querySelector("#reset-pw-requirements");
+    const matchMsg = overlay.querySelector("#reset-match-msg");
+
+    // Toggle visibilidade
+    togglePw.addEventListener("click", () => {
+      const isPassword = newPwInput.type === "password";
+      newPwInput.type = isPassword ? "text" : "password";
+      confirmPwInput.type = isPassword ? "text" : "password";
+      togglePw.textContent = isPassword ? "🙈" : "👁";
+    });
+
+    // Verificar requisitos de senha
+    const checkReqs = (password) => {
+      const reqs = {
+        length: password.length >= 6,
+        lower: /[a-z]/.test(password),
+        upper: /[A-Z]/.test(password),
+        digit: /[0-9]/.test(password),
+        symbol: /[^a-zA-Z0-9]/.test(password),
+      };
+      const updateReq = (id, ok) => {
+        const el = overlay.querySelector(`#reset-req-${id}`);
+        if (el) {
+          el.classList.toggle("met", ok);
+          el.textContent = (ok ? "✓ " : "✗ ") + el.textContent.substring(2);
+        }
+      };
+      updateReq("length", reqs.length);
+      updateReq("lower", reqs.lower);
+      updateReq("upper", reqs.upper);
+      updateReq("digit", reqs.digit);
+      updateReq("symbol", reqs.symbol);
+      return (
+        reqs.length && reqs.lower && reqs.upper && reqs.digit && reqs.symbol
+      );
+    };
+
+    newPwInput.addEventListener("input", () => {
+      const pw = newPwInput.value;
+      pwReqs.style.display = pw.length > 0 ? "flex" : "none";
+      checkReqs(pw);
+      if (confirmPwInput.value.length > 0) {
+        const match = newPwInput.value === confirmPwInput.value;
+        matchMsg.style.display = "block";
+        matchMsg.textContent = match
+          ? "✓ Senhas coincidem"
+          : "✗ Senhas não coincidem";
+        matchMsg.style.color = match ? "#4caf50" : "#f44336";
+      }
+    });
+
+    confirmPwInput.addEventListener("input", () => {
+      const match = newPwInput.value === confirmPwInput.value;
+      matchMsg.style.display = "block";
+      matchMsg.textContent = match
+        ? "✓ Senhas coincidem"
+        : "✗ Senhas não coincidem";
+      matchMsg.style.color = match ? "#4caf50" : "#f44336";
+    });
+
+    // Salvar nova senha
+    saveBtn.addEventListener("click", async () => {
+      const newPw = newPwInput.value;
+      if (!checkReqs(newPw)) {
+        this.toast.showToast(
+          "warning",
+          "A senha não cumpre todos os requisitos",
+        );
+        return;
+      }
+      if (newPw !== confirmPwInput.value) {
+        this.toast.showToast("warning", "As senhas não coincidem");
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Salvando...";
+
+      const result = await supabaseService.updatePassword(newPw);
+
+      if (result.success) {
+        this.toast.showToast("success", "Senha redefinida com sucesso!", 3000);
+        supabaseService.isPasswordRecovery = false;
+        overlay.remove();
+        // Limpar hash da URL (tokens do Supabase)
+        if (window.location.hash) {
+          history.replaceState(null, "", window.location.pathname);
+        }
+      } else {
+        this.toast.showToast(
+          "error",
+          result.error || "Erro ao redefinir senha",
+        );
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Salvar Nova Senha";
+      }
+    });
+
+    // Enter nos inputs
+    newPwInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") confirmPwInput.focus();
+    });
+    confirmPwInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") saveBtn.click();
+    });
+
+    // Focar no input
+    setTimeout(() => newPwInput.focus(), 100);
+  }
+
+  /**
    * Renderizar panel de backup na tela de configurações
    */
   async renderBackupPanel(container, controller) {

@@ -33,6 +33,7 @@ export class SupabaseService {
     this.newerBackupInfo = null; // ✅ Informações do backup mais recente
     this.checkingForNewerBackup = false; // ✅ Flag para rastrear se a checagem está em progresso
     this.backupUI = null; // ✅ Referência ao UI para atualizar banner automaticamente
+    this.isPasswordRecovery = false; // ✅ Flag para detectar fluxo de redefinição de senha
   }
 
   /**
@@ -42,6 +43,13 @@ export class SupabaseService {
   async init() {
     if (!window.supabase) {
       return false;
+    }
+
+    // ✅ Detectar fluxo de redefinição de senha pela URL ANTES do createClient
+    // (createClient com detectSessionInUrl consome e limpa o hash)
+    const rawHash = window.location.hash;
+    if (rawHash && rawHash.includes("type=recovery")) {
+      this.isPasswordRecovery = true;
     }
 
     // ✅ SEGURANÇA: Usar sessionStorage (não localStorage)
@@ -72,8 +80,18 @@ export class SupabaseService {
       }
     });
 
-    // ✅ NOVO: Escutar mudanças de estado de autenticação (expirações, refresh token inválido)
+    // ✅ Escutar mudanças de estado de autenticação (expirações, refresh token inválido)
     supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        // ✅ Usuário clicou no link de redefinição de senha
+        this.isPasswordRecovery = true;
+        this.session = session;
+        this.user = session?.user || null;
+        if (this.backupUI) {
+          this.backupUI.showPasswordResetModal();
+        }
+        return;
+      }
       if (event === "SIGNED_OUT" || (event === "TOKEN_REFRESHED" && !session)) {
         // Sessão expirou ou foi revogada
         this.user = null;
@@ -93,6 +111,10 @@ export class SupabaseService {
    */
   setBackupUI(backupUI) {
     this.backupUI = backupUI;
+    // Se já detectou recovery antes de registrar a UI, mostrar modal agora
+    if (this.isPasswordRecovery) {
+      this.backupUI.showPasswordResetModal();
+    }
   }
 
   /**

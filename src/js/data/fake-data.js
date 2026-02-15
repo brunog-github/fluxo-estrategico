@@ -13,6 +13,11 @@ export async function generateFakeData() {
     "Inglês",
     "Redação",
     "Direito Penal",
+    "AFO",
+    "Direito Tributário",
+    "Direito Penal do Inimigo",
+    "Direito Processual Civil",
+    "Direito Processual Penal",
   ];
 
   const categories = [

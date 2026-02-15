@@ -158,7 +158,7 @@ class App {
     // UIs
     const configUI = new ConfigUI(subjects, toast);
     const homeUI = new HomeUI(subjects, screens);
-    const backupUI = new BackupUI(confirm);
+    const backupUI = new BackupUI(confirm, toast);
 
     const simuladosSalvosController = new SimuladosSalvosController(
       toast,

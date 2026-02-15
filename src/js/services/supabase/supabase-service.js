@@ -174,6 +174,171 @@ export class SupabaseService {
   }
 
   /**
+   * Criar conta com email e senha
+   * ✅ Se o usuário já existe (ex: criou via magic link), define a senha via updateUser
+   */
+  async signUpWithPassword(email, password) {
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        // Se o erro indica que o usuário já existe, tentar definir senha
+        // (caso do magic link onde a conta existe mas sem senha)
+        if (
+          error.message?.includes("already registered") ||
+          error.message?.includes("already been registered") ||
+          error.message?.includes("User already registered")
+        ) {
+          return {
+            success: false,
+            alreadyExists: true,
+            error:
+              'Este email já está cadastrado. Use "Entrar" ou "Esqueci a senha" para definir uma senha.',
+          };
+        }
+        throw error;
+      }
+
+      // Supabase pode exigir confirmação de email
+      if (
+        data.user &&
+        data.user.identities &&
+        data.user.identities.length === 0
+      ) {
+        return {
+          success: false,
+          alreadyExists: true,
+          error:
+            'Este email já está cadastrado. Use "Entrar" ou "Esqueci a senha" para definir uma senha.',
+        };
+      }
+
+      if (data.session) {
+        this.session = data.session;
+        this.user = data.user;
+
+        const publicUserData = {
+          id: data.user.id,
+          email: data.user.email,
+          createdAt: data.user.created_at,
+          emailVerified: data.user.email_confirmed_at ? true : false,
+        };
+
+        localStorage.setItem("user_profile", JSON.stringify(publicUserData));
+        localStorage.setItem("user_authenticated", "true");
+
+        return {
+          success: true,
+          message: "Conta criada e login realizado com sucesso!",
+        };
+      }
+
+      // Se não retornou sessão, provavelmente precisa confirmar email
+      return {
+        success: true,
+        needsConfirmation: true,
+        message: "Conta criada! Verifique seu email para confirmar o cadastro.",
+      };
+    } catch (error) {
+      console.error("Erro ao criar conta:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Enviar email de redefinição de senha
+   */
+  async resetPasswordForEmail(email) {
+    try {
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname,
+      });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        message:
+          "Email de redefinição enviado! Verifique sua caixa de entrada.",
+      };
+    } catch (error) {
+      console.error("Erro ao enviar redefinição de senha:", error);
+      let errorMsg = error.message;
+      if (errorMsg.includes("rate limit")) {
+        errorMsg = "Muitas tentativas. Aguarde antes de tentar novamente.";
+      }
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Alterar senha do usuário autenticado
+   */
+  async updatePassword(newPassword) {
+    try {
+      const { error } = await supabaseClient.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+
+      return { success: true, message: "Senha alterada com sucesso!" };
+    } catch (error) {
+      console.error("Erro ao alterar senha:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Login com email e senha
+   */
+  async signInWithPassword(email, password) {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        this.session = data.session;
+        this.user = data.user;
+
+        const publicUserData = {
+          id: data.user.id,
+          email: data.user.email,
+          createdAt: data.user.created_at,
+          emailVerified: data.user.email_confirmed_at ? true : false,
+        };
+
+        localStorage.setItem("user_profile", JSON.stringify(publicUserData));
+        localStorage.setItem("user_authenticated", "true");
+
+        return { success: true, message: "Login realizado com sucesso!" };
+      }
+
+      return {
+        success: false,
+        error: "Falha ao autenticar. Verifique suas credenciais.",
+      };
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      let errorMsg = error.message;
+      if (errorMsg.includes("Invalid login credentials")) {
+        errorMsg = "Email ou senha incorretos.";
+      } else if (errorMsg.includes("Email not confirmed")) {
+        errorMsg =
+          "Email ainda não confirmado. Verifique sua caixa de entrada.";
+      }
+      return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
    * Verificar sessão e restaurar se existir
    * ✅ SEGURANÇA: Armazena apenas dados públicos, nunca tokens
    */

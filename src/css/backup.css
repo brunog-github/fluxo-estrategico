@@ -165,6 +165,100 @@
 }
 
 /* ===== ESTILOS DO MODAL DE BACKUP ===== */
+
+/* ===== ABAS DE AUTENTICAÇÃO ===== */
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-color, #ddd);
+  margin-bottom: 20px;
+  gap: 0;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary, #888);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: -2px;
+}
+
+.auth-tab:hover {
+  color: var(--text-color, #333);
+  background: var(--badge-bg, rgba(0, 0, 0, 0.03));
+}
+
+.auth-tab.active {
+  color: var(--primary-color, #2196f3);
+  border-bottom-color: var(--primary-color, #2196f3);
+  font-weight: 600;
+}
+
+.auth-tab-content {
+  display: none;
+}
+
+.auth-tab-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botão Signup outline */
+.backup-modal-container #signup-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.backup-modal-container #signup-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ===== REQUISITOS DE SENHA ===== */
+.pw-requirements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: var(--badge-bg, rgba(0, 0, 0, 0.03));
+  border-radius: 6px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.pw-req {
+  font-size: 11px;
+  color: #f44336;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.pw-req.met {
+  color: #4caf50;
+}
+
+/* Botão Alterar Senha */
+.backup-modal-container #change-pw-btn:hover {
+  background: var(--badge-bg, rgba(0, 0, 0, 0.05));
+  transform: translateY(-1px);
+}
+
 #modal-backup {
   position: fixed;
   top: 0;
@@ -203,21 +297,24 @@
 
 /* Botão Primary (Sincronizar/Enviar) */
 .backup-modal-container #sync-now-btn,
-.backup-modal-container #send-magic-link-btn {
+.backup-modal-container #send-magic-link-btn,
+.backup-modal-container #signin-btn {
   background: var(--primary-color);
   color: white;
   border: none;
 }
 
 .backup-modal-container #sync-now-btn:hover:not(:disabled),
-.backup-modal-container #send-magic-link-btn:hover:not(:disabled) {
+.backup-modal-container #send-magic-link-btn:hover:not(:disabled),
+.backup-modal-container #signin-btn:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .backup-modal-container #sync-now-btn:active:not(:disabled),
-.backup-modal-container #send-magic-link-btn:active:not(:disabled) {
+.backup-modal-container #send-magic-link-btn:active:not(:disabled),
+.backup-modal-container #signin-btn:active:not(:disabled) {
   transform: translateY(0);
 }
 

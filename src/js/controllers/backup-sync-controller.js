@@ -6,7 +6,7 @@ export class BackupSyncController {
   constructor(toast, confirmToast) {
     this.toast = toast;
     this.confirm = confirmToast;
-    this.ui = new BackupUI(confirmToast);
+    this.ui = new BackupUI(confirmToast, toast);
     this.isSyncing = false;
     this.syncCheckInterval = null;
     this.backupContainer = null; // Container para re-renderizar após logout
@@ -80,6 +80,90 @@ export class BackupSyncController {
   async sendMagicLink(email) {
     // Redirecionar para novo método
     return this.sendOTP(email);
+  }
+
+  /**
+   * Criar conta com email e senha
+   */
+  async signUp(email, password) {
+    try {
+      const result = await supabaseService.signUpWithPassword(email, password);
+
+      if (result.success) {
+        this.toast.showToast("success", result.message, 5000);
+      } else {
+        this.toast.showToast("error", result.error || "Erro ao criar conta");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Erro ao criar conta:", error);
+      this.toast.showToast("error", "Erro ao criar conta");
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Login com email e senha
+   */
+  async signIn(email, password) {
+    try {
+      const result = await supabaseService.signInWithPassword(email, password);
+
+      if (result.success) {
+        this.toast.showToast("success", result.message, 3000);
+      } else {
+        this.toast.showToast("error", result.error || "Erro ao fazer login");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      this.toast.showToast("error", "Erro ao fazer login");
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Enviar email de redefinição de senha
+   */
+  async resetPassword(email) {
+    try {
+      const result = await supabaseService.resetPasswordForEmail(email);
+
+      if (result.success) {
+        this.toast.showToast("success", result.message, 8000);
+      } else {
+        this.toast.showToast("error", result.error || "Erro ao enviar email");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Erro ao redefinir senha:", error);
+      this.toast.showToast("error", "Erro ao enviar email de redefinição");
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Alterar senha do usuário logado
+   */
+  async changePassword(newPassword) {
+    try {
+      const result = await supabaseService.updatePassword(newPassword);
+
+      if (result.success) {
+        this.toast.showToast("success", result.message, 3000);
+      } else {
+        this.toast.showToast("error", result.error || "Erro ao alterar senha");
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Erro ao alterar senha:", error);
+      this.toast.showToast("error", "Erro ao alterar senha");
+      return { success: false, error: error.message };
+    }
   }
 
   /**

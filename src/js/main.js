@@ -72,7 +72,7 @@ class App {
   // Ponto de entrada
   async start() {
     try {
-      new DevToolsProtection({
+      /* new DevToolsProtection({
         debug: false, // Mude para false em produção real
         blockKeyboard: true,
         clearConsole: true,
@@ -83,7 +83,7 @@ class App {
           console.warn("🚨 DevTools detectado!", info);
         },
       });
-
+ */
       // Passo 1: Migrar dados do localStorage se necessário
       await migrateFromLocalStorage();
 

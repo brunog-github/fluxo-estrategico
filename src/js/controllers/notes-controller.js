@@ -21,6 +21,30 @@ export class NotesController {
   initQuill() {
     // Inicializa o Quill apenas uma vez
     if (!this.quill && window.Quill) {
+      // Registra fontes personalizadas no Quill
+      const Font = Quill.import("formats/font");
+      Font.whitelist = [
+        false, // Sans Serif (padrão)
+        "serif",
+        "monospace",
+        "arial",
+        "times-new-roman",
+        "georgia",
+        "verdana",
+        "trebuchet-ms",
+        "courier-new",
+        "comic-sans-ms",
+        "impact",
+        "tahoma",
+        "roboto",
+        "open-sans",
+        "lato",
+        "montserrat",
+        "poppins",
+        "nunito",
+      ];
+      Quill.register(Font, true);
+
       const toolbarOptions = [
         ["bold", "italic", "underline", "strike"],
         ["blockquote", "code-block"],
@@ -36,7 +60,30 @@ export class NotesController {
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
         [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-        [{ font: [] }],
+        [
+          {
+            font: [
+              false,
+              "serif",
+              "monospace",
+              "arial",
+              "times-new-roman",
+              "georgia",
+              "verdana",
+              "trebuchet-ms",
+              "courier-new",
+              "comic-sans-ms",
+              "impact",
+              "tahoma",
+              "roboto",
+              "open-sans",
+              "lato",
+              "montserrat",
+              "poppins",
+              "nunito",
+            ],
+          },
+        ],
         [{ align: [] }],
 
         ["clean"], // remove formatting button

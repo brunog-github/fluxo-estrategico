@@ -49,8 +49,8 @@
   border-bottom-right-radius: 8px;
 
   /* --- AQUI ESTÁ O AJUSTE DE TAMANHO --- */
-  height: 400px !important; /* Altura fixa maior */
-  /* Se preferir que cresça conforme digita, use: min-height: 300px; */
+  /* Responsivo: 350px em notebooks ~14", cresce até 700px em monitores 22"+ */
+  height: clamp(350px, 45vh, 700px) !important;
 }
 
 /* O Texto digitado em si */

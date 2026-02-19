@@ -2053,7 +2053,7 @@ export class BackupUI {
         ">
           <h3 style="margin-top: 0; color: #f57c00;">⚠️ Sobrescrever dados na nuvem?</h3>
           <p style="margin: 15px 0; color: var(--text-secondary);">
-            Você fez alterações que vão sobrescrever o backup mais antigo na nuvem.
+            Confirme se você quer substituir os dados da nuvem com os dados locais mesmo os da nuvem sendo mais recentes.
           </p>
           <p style="color: var(--text-secondary); font-size: 13px; margin: 15px 0;">
             Certifique-se de que realmente deseja sincronizar esses dados.

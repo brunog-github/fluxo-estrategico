@@ -175,8 +175,6 @@ export class NotesController {
     // Restaura o conteúdo temporário se houver
     if (this.quill) {
       this.quill.root.innerHTML = this.tempContent;
-      // Pequeno delay para focar corretamente
-      setTimeout(() => this.quill.focus(), 100);
     }
   }
 

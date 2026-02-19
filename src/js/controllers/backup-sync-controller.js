@@ -215,6 +215,8 @@ export class BackupSyncController {
     try {
       // ✅ NOVO: Verificar se há backup mais recente no Supabase
       const newerBackupStatus = supabaseService.getNewerBackupStatus();
+      let userDeclinedRestore = false;
+
       if (newerBackupStatus.available) {
         // Há backup mais recente - perguntar se quer restaurar
         const wantRestore = await this.ui.showRestoreConfirmation(
@@ -259,7 +261,8 @@ export class BackupSyncController {
 
           return;
         } else {
-          // Usuário não quis restaurar, mas continua com sincronização
+          // Usuário não quis restaurar — marcar para exigir confirmação de sobrescrita
+          userDeclinedRestore = true;
         }
       }
 
@@ -270,8 +273,11 @@ export class BackupSyncController {
       const hasLocalChanges =
         await supabaseService.hasLocalChanges(backupDataForHash);
 
-      // Se há mudanças locais e havia backup mais recente, avisar
-      if (hasLocalChanges && newerBackupStatus.available) {
+      // Se o usuário recusou restaurar (servidor tem backup mais recente) OU há mudanças locais com backup mais recente, confirmar sobrescrita
+      if (
+        userDeclinedRestore ||
+        (hasLocalChanges && newerBackupStatus.available)
+      ) {
         const confirmed = await this.ui.showOverwriteConfirmation();
         if (!confirmed) {
           this.ui.setSyncButtonState("needsSync");
@@ -280,14 +286,17 @@ export class BackupSyncController {
         }
       }
 
-      // Verificar se há alterações (comparar apenas dados reais)
-      const hasChanges = await supabaseService.hasChanges(backupDataForHash);
+      // Se o usuário confirmou sobrescrita, forçar o upload mesmo sem mudanças detectadas
+      if (!userDeclinedRestore) {
+        // Verificar se há alterações (comparar apenas dados reais)
+        const hasChanges = await supabaseService.hasChanges(backupDataForHash);
 
-      if (!hasChanges) {
-        this.toast.showToast("info", "Seu backup já está sincronizado");
-        this.ui.setSyncButtonState("synced");
-        this.isSyncing = false;
-        return;
+        if (!hasChanges) {
+          this.toast.showToast("info", "Seu backup já está sincronizado");
+          this.ui.setSyncButtonState("synced");
+          this.isSyncing = false;
+          return;
+        }
       }
 
       // Fazer upload do backup (com exportDate)

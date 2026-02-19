@@ -349,3 +349,38 @@
     display: block;
   }
 }
+
+/* --- TABLET EM MODO RETRATO --- */
+@media (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
+  .notes-modal-container {
+    width: 90% !important;
+    max-width: 700px !important;
+    padding: 25px !important;
+    height: 85vh;
+    overflow: hidden;
+  }
+
+  #quill-editor-container {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .ql-toolbar {
+    flex-shrink: 0;
+  }
+
+  .ql-container {
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .manual-actions-row {
+    flex-shrink: 0;
+  }
+}

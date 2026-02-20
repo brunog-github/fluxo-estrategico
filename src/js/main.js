@@ -119,7 +119,7 @@ class App {
     const subjects = new SubjectsManager(toast);
     await subjects.init();
     const achievements = new AchievementsController(ACHIEVEMENTS);
-    const notes = new NotesController(); // Instancia o NotesController
+    const notes = new NotesController(toast); // Instancia o NotesController
     const weeklyGoals = new WeeklyGoalsController(toast);
 
     // Core da Aplicação

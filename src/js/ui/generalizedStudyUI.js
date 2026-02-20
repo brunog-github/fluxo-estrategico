@@ -260,7 +260,7 @@ export class GeneralizedStudyUI {
   }
 
   // Mostrar modal de estudo rápido
-  showQuickStudyModal(elapsedSeconds) {
+  showQuickStudyModal(elapsedSeconds, restoreMode = false) {
     const modal = document.getElementById("quick-study-modal");
     if (!modal) return;
 
@@ -276,19 +276,26 @@ export class GeneralizedStudyUI {
 
     document.getElementById("quick-study-timer-display").innerText =
       formattedTime;
-    document.getElementById("quick-study-questions").value = "";
-    document.getElementById("quick-study-correct").value = "";
-    document.getElementById("quick-study-category").value = "";
-    document.getElementById("quick-study-subject").value = "";
-    document.getElementById("quick-study-no-subject-checkbox").checked = false;
-    document.getElementById("quick-study-subject-group").style.display =
-      "block";
 
-    // Limpar display de tempo pausado
-    const pausedDisplay = document.getElementById("quick-study-paused-display");
-    if (pausedDisplay) {
-      pausedDisplay.style.display = "none";
-      pausedDisplay.innerText = "";
+    // Só limpar campos se não for restauração
+    if (!restoreMode) {
+      document.getElementById("quick-study-questions").value = "";
+      document.getElementById("quick-study-correct").value = "";
+      document.getElementById("quick-study-category").value = "";
+      document.getElementById("quick-study-subject").value = "";
+      document.getElementById("quick-study-no-subject-checkbox").checked =
+        false;
+      document.getElementById("quick-study-subject-group").style.display =
+        "block";
+
+      // Limpar display de tempo pausado
+      const pausedDisplay = document.getElementById(
+        "quick-study-paused-display",
+      );
+      if (pausedDisplay) {
+        pausedDisplay.style.display = "none";
+        pausedDisplay.innerText = "";
+      }
     }
 
     modal.style.display = "flex";

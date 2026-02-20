@@ -96,6 +96,116 @@ export class GeneralizedStudyController {
     }
   }
 
+  // --- Persistência de estado (sobreviver a reload) ---
+
+  saveState() {
+    const state = {
+      startTime: this.startTime,
+      accumulatedTime: this.accumulatedTime,
+      isPaused: this.isPaused,
+      pauseStartTime: this.pauseStartTime,
+      totalPausedSeconds: this.totalPausedSeconds,
+      sessionStartDate: this.sessionStartDate
+        ? this.sessionStartDate.toISOString()
+        : null,
+      currentSessionId: this.currentSessionId,
+      hasBeenPausedOnce: this.hasBeenPausedOnce,
+      seconds: this.seconds,
+    };
+    localStorage.setItem("quickStudyState", JSON.stringify(state));
+    localStorage.setItem("appState", "quick-study");
+  }
+
+  clearState() {
+    localStorage.removeItem("quickStudyState");
+    const appState = localStorage.getItem("appState");
+    if (appState === "quick-study") {
+      localStorage.removeItem("appState");
+    }
+  }
+
+  async restoreQuickStudy() {
+    const raw = localStorage.getItem("quickStudyState");
+    if (!raw) return false;
+
+    try {
+      const state = JSON.parse(raw);
+
+      // Restaurar estado do timer
+      this.startTime = state.startTime;
+      this.accumulatedTime = state.accumulatedTime || 0;
+      this.isPaused = state.isPaused || false;
+      this.pauseStartTime = state.pauseStartTime;
+      this.totalPausedSeconds = state.totalPausedSeconds || 0;
+      this.sessionStartDate = state.sessionStartDate
+        ? new Date(state.sessionStartDate)
+        : null;
+      this.currentSessionId = state.currentSessionId;
+      this.hasBeenPausedOnce = state.hasBeenPausedOnce || false;
+      this.seconds = state.seconds || 0;
+
+      // Recalcular o tempo real decorrido desde o último save
+      if (!this.isPaused && this.startTime) {
+        const now = Date.now();
+        const diff = Math.floor((now - this.startTime) / 1000);
+        this.seconds = this.accumulatedTime + diff;
+      }
+
+      // Carregar categorias e matérias
+      const categories = await this.getCategories();
+      this.ui.loadCategorySelectForQuickStudy(categories);
+      this.ui.loadSubjectSelectForQuickStudy(this.subjects.subjects || []);
+
+      // Mostrar modal com o tempo atual
+      this.ui.showQuickStudyModal(this.seconds, true); // true = restore mode (não limpar campos)
+
+      // Configurar botões de controle conforme estado
+      const playBtn = document.getElementById("btn-quick-study-play");
+      const pauseIconBtn = document.getElementById(
+        "btn-quick-study-play-pause",
+      );
+      const pauseBtn = document.getElementById("btn-quick-study-pause");
+      const controls = document.querySelector(
+        ".quick-study-controls-collapsed",
+      );
+
+      if (controls) controls.style.display = "flex";
+
+      if (this.isPaused) {
+        if (playBtn) playBtn.style.display = "flex";
+        if (pauseIconBtn) pauseIconBtn.style.display = "none";
+        if (pauseBtn) {
+          pauseBtn.innerText = "Retomar";
+          pauseBtn.classList.add("btn-outline");
+        }
+        this.updatePauseDisplay();
+      } else {
+        if (playBtn) playBtn.style.display = "none";
+        if (pauseIconBtn) pauseIconBtn.style.display = "flex";
+        if (pauseBtn) {
+          pauseBtn.innerText = "Pausar";
+          pauseBtn.classList.remove("btn-outline");
+        }
+      }
+
+      // Reiniciar o interval do timer
+      clearInterval(this.timerInterval);
+      this.timerInterval = setInterval(() => this.tick(), 1000);
+
+      // Atualizar display imediatamente
+      this.updateTimerDisplay();
+
+      // Reconectar eventos dos botões
+      this.attachModalEvents();
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao restaurar estudo rápido:", error);
+      this.clearState();
+      return false;
+    }
+  }
+
   reset() {
     clearInterval(this.timerInterval);
     this.timerInterval = null;
@@ -108,6 +218,7 @@ export class GeneralizedStudyController {
     this.totalPausedSeconds = 0;
     this.currentSessionId = null;
 
+    this.clearState();
     document.title = "Fluxo ESTRATÉGICO";
   }
 
@@ -140,6 +251,9 @@ export class GeneralizedStudyController {
     }
 
     document.title = text + " - Fluxo ESTRATÉGICO";
+
+    // Persistir estado a cada tick
+    this.saveState();
   }
 
   updatePauseDisplay() {
@@ -198,6 +312,9 @@ export class GeneralizedStudyController {
     if (pauseIconBtn) pauseIconBtn.style.display = "flex"; // Pause visível (timer rodando)
     if (controls) controls.style.display = "flex"; // Controles visíveis (formulário já começa colapsado)
 
+    // Capturar data de início
+    this.sessionStartDate = new Date();
+
     // Iniciar timer
     this.startTime = Date.now();
     this.accumulatedTime = 0;
@@ -205,6 +322,9 @@ export class GeneralizedStudyController {
 
     clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => this.tick(), 1000);
+
+    // Persistir estado para sobreviver a reload
+    this.saveState();
 
     // Adicionar event listeners dos botões do modal
     this.attachModalEvents();
@@ -289,6 +409,7 @@ export class GeneralizedStudyController {
 
       document.title = "(PAUSADO) - Fluxo ESTRATÉGICO";
       this.updatePauseDisplay();
+      this.saveState();
     } else {
       // Retomando
       if (this.pauseStartTime) {
@@ -309,6 +430,7 @@ export class GeneralizedStudyController {
       if (pauseIconBtn) pauseIconBtn.style.display = "flex";
 
       // Não limpar exibição de tempo pausado - manter visível após primeira pausa
+      this.saveState();
     }
   };
 

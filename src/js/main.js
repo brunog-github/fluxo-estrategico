@@ -307,7 +307,17 @@ class App {
     const s = this.services;
     const savedState = localStorage.getItem("appState");
 
-    if (savedState === "timer") {
+    if (savedState === "quick-study") {
+      // Recuperar Estudo Rápido ativo
+      // Renderizar Home normalmente (próxima matéria, depois, etc.)
+      s.homeUI.render();
+      await s.achievements.checkAndUnlockAchievements();
+
+      const restored = await s.generalizedStudy.restoreQuickStudy();
+      if (!restored) {
+        // Se falhou, estado já está na Home
+      }
+    } else if (savedState === "timer") {
       // Recuperar Timer Ativo
       const seconds = parseInt(
         localStorage.getItem("currentTimerSeconds") || "0",

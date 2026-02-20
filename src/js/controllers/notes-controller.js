@@ -373,6 +373,11 @@ export class NotesController {
     hint2.textContent =
       '🔍 No Google Imagens, clique com o botão direito na imagem e use "Copiar endereço da imagem", caso a imagem desejada não esteja disponível tente outra URL.';
 
+    const hint3 = document.createElement("p");
+    hint3.className = "img-url-dialog__hint";
+    hint3.textContent =
+      '🔍 Refine a busca utilizando "sua busca (filetype:png OR filetype:jpg)", por exemplo: "gato filetype:png".';
+
     const input = document.createElement("input");
     input.type = "url";
     input.className = "img-url-dialog__input";
@@ -411,7 +416,7 @@ export class NotesController {
     btnInsert.textContent = "Inserir";
 
     btnRow.append(btnCancel, btnInsert);
-    dialog.append(title, hint, hint2, input, preview, btnRow);
+    dialog.append(title, hint, hint2, hint3, input, preview, btnRow);
     overlay.appendChild(dialog);
     document.body.appendChild(overlay);
 

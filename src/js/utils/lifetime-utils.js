@@ -18,6 +18,7 @@ export function computeLifetimeStats(history, simulados = []) {
 
   let firstDateObj = null;
   const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
   // Processar histórico de estudos
   history.forEach((item) => {
@@ -77,7 +78,7 @@ export function computeLifetimeStats(history, simulados = []) {
   let totalDaysRange = 1;
   if (firstDateObj) {
     const diff = Math.abs(now - firstDateObj);
-    totalDaysRange = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    totalDaysRange = Math.round(diff / (1000 * 60 * 60 * 24));
     if (totalDaysRange < 1) totalDaysRange = 1;
   }
 

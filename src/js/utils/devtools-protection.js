@@ -113,11 +113,18 @@ export class DevToolsProtection {
 
   /**
    * Estratégia 4: Desabilita clique direito
+   * Permite o menu nativo dentro do Quill Editor (.ql-editor)
+   * para não quebrar copiar/colar no mobile
    */
   disableContextMenu() {
     document.addEventListener(
       "contextmenu",
       (e) => {
+        // Permitir menu de contexto dentro do Quill Editor (copiar/colar no mobile)
+        if (e.target.closest && e.target.closest(".ql-editor, .ql-container")) {
+          return;
+        }
+
         e.preventDefault();
         e.stopImmediatePropagation();
         this.log("🚫 Clique direito bloqueado");

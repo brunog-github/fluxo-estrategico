@@ -139,6 +139,16 @@ export class DevToolsProtection {
    */
   setupSizeDetection() {
     setInterval(() => {
+      // Ignorar quando a página não está visível (tela bloqueada, aba em background, minimizada)
+      if (document.hidden || document.visibilityState === "hidden") {
+        return;
+      }
+
+      // Ignorar quando a janela está minimizada (dimensões internas zeradas)
+      if (window.innerHeight === 0 || window.innerWidth === 0) {
+        return;
+      }
+
       const heightDiff = window.outerHeight - window.innerHeight;
       const widthDiff = window.outerWidth - window.innerWidth;
 

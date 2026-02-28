@@ -153,8 +153,9 @@ export class GeneralizedStudyController {
 
       // Carregar categorias e matérias
       const categories = await this.getCategories();
+      const subjects = await this.getSubjects();
       this.ui.loadCategorySelectForQuickStudy(categories);
-      this.ui.loadSubjectSelectForQuickStudy(this.subjects.subjects || []);
+      this.ui.loadSubjectSelectForQuickStudy(subjects);
 
       // Mostrar modal com o tempo atual
       this.ui.showQuickStudyModal(this.seconds, true); // true = restore mode (não limpar campos)
@@ -289,6 +290,29 @@ export class GeneralizedStudyController {
     }
   }
 
+  async getSubjects() {
+    try {
+      // Pega matérias configuradas
+      const configuredSubjects = this.subjects.subjects || [];
+
+      // Pega matérias do histórico
+      const history = await this.db.getHistory();
+      const historicalSubjects = history
+        .map((item) => item.subject)
+        .filter(
+          (subject) => subject && subject !== "-" && subject !== "Sem Matéria",
+        );
+
+      // Combina, remove duplicatas e ordena
+      return [
+        ...new Set([...configuredSubjects, ...historicalSubjects]),
+      ].sort();
+    } catch (error) {
+      console.error("Erro ao carregar matérias:", error);
+      return [];
+    }
+  }
+
   async startQuickStudy() {
     // Resetar estado anterior
     this.reset();
@@ -297,8 +321,9 @@ export class GeneralizedStudyController {
     this.currentSessionId = Date.now();
 
     const categories = await this.getCategories();
+    const subjects = await this.getSubjects();
     this.ui.loadCategorySelectForQuickStudy(categories);
-    this.ui.loadSubjectSelectForQuickStudy(this.subjects.subjects || []);
+    this.ui.loadSubjectSelectForQuickStudy(subjects);
 
     // Mostrar modal
     this.ui.showQuickStudyModal(0);

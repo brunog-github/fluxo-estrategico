@@ -5,7 +5,7 @@ export class DevToolsProtection {
       clearConsole: options.clearConsole !== false, // Padrão: true
       disableRightClick: options.disableRightClick !== false, // Padrão: true
       detectSize: options.detectSize !== false, // Padrão: true
-      sizeThreshold: options.sizeThreshold || 160, // pixels
+      sizeThreshold: options.sizeThreshold || 200, // pixels - aumentado para menos falsos positivos
       redirectOnDetect: options.redirectOnDetect !== false, // Padrão: true
       redirectUrl: options.redirectUrl || "about:blank",
       onDetect: options.onDetect || null, // Callback personalizado
@@ -13,7 +13,29 @@ export class DevToolsProtection {
     };
 
     this.devtoolsDetected = false;
+    this.isMobile = this.detectMobileDevice();
     this.init();
+  }
+
+  /**
+   * Detecta se é um dispositivo móvel/tablet
+   */
+  detectMobileDevice() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    // Verifica user agent para mobile/tablet
+    const isMobileUA =
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        userAgent.toLowerCase(),
+      );
+    // Também verifica Touch API (mais confiável)
+    const hasTouch = () => {
+      return (
+        (window.matchMedia && window.matchMedia("(pointer:coarse)").matches) ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) ||
+        (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 2)
+      );
+    };
+    return isMobileUA || hasTouch();
   }
 
   /**
@@ -36,7 +58,9 @@ export class DevToolsProtection {
       this.setupSizeDetection();
     }
 
-    this.log("✓ DevTools Protection initialized");
+    this.log(
+      `✓ DevTools Protection initialized (Device: ${this.isMobile ? "Mobile/Tablet" : "Desktop"})`,
+    );
   }
 
   /**
@@ -136,36 +160,47 @@ export class DevToolsProtection {
 
   /**
    * Estratégia 5: Detecta DevTools por tamanho da janela
+   * Desabilitada em dispositivos móveis para evitar falsos positivos
    */
   setupSizeDetection() {
-    setInterval(() => {
-      // Ignorar quando a página não está visível (tela bloqueada, aba em background, minimizada)
-      if (document.hidden || document.visibilityState === "hidden") {
-        return;
-      }
+    // Em dispositivos móveis/tablets, a detecção por tamanho não é confiável
+    // pois as barras de navegação variam muito. Desabilitar essa proteção.
+    if (this.isMobile) {
+      this.log("⚠️  Size detection desabilitada em dispositivos móveis");
+      return;
+    }
 
-      // Ignorar quando a janela está minimizada (dimensões internas zeradas)
-      if (window.innerHeight === 0 || window.innerWidth === 0) {
-        return;
-      }
-
-      const heightDiff = window.outerHeight - window.innerHeight;
-      const widthDiff = window.outerWidth - window.innerWidth;
-
-      // Se a diferença é maior que o threshold, DevTools provavelmente está aberto
-      if (
-        heightDiff > this.options.sizeThreshold ||
-        widthDiff > this.options.sizeThreshold
-      ) {
-        if (!this.devtoolsDetected) {
-          this.handleDevtoolsDetected(heightDiff, widthDiff);
+    // Aguardar 3 segundos antes de iniciar a detecção (evita falsos positivos no carregamento)
+    setTimeout(() => {
+      setInterval(() => {
+        // Ignorar quando a página não está visível (tela bloqueada, aba em background, minimizada)
+        if (document.hidden || document.visibilityState === "hidden") {
+          return;
         }
-      } else {
-        this.devtoolsDetected = false;
-      }
-    }, 1000);
 
-    this.log("✓ Size detection ativado");
+        // Ignorar quando a janela está minimizada (dimensões internas zeradas)
+        if (window.innerHeight === 0 || window.innerWidth === 0) {
+          return;
+        }
+
+        const heightDiff = window.outerHeight - window.innerHeight;
+        const widthDiff = window.outerWidth - window.innerWidth;
+
+        // Se a diferença é maior que o threshold, DevTools provavelmente está aberto
+        if (
+          heightDiff > this.options.sizeThreshold ||
+          widthDiff > this.options.sizeThreshold
+        ) {
+          if (!this.devtoolsDetected) {
+            this.handleDevtoolsDetected(heightDiff, widthDiff);
+          }
+        } else {
+          this.devtoolsDetected = false;
+        }
+      }, 1000);
+    }, 3000); // Delay de 3 segundos
+
+    this.log("✓ Size detection ativado (desktop apenas)");
   }
 
   /**

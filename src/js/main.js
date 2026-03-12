@@ -237,6 +237,8 @@ class App {
     s.generalizedStudy.ui.createFloatingButton();
     s.generalizedStudy.initFloatingButton();
     s.generalizedStudy.backupSync = s.backupSync; // Injetar referência do backupSync
+    s.generalizedStudy.streak = s.streak; // Injetar referência do streak
+    s.generalizedStudy.weeklyGoals = s.weeklyGoals; // Injetar referência do weeklyGoals
 
     // Ligações de callbacks
     s.screens.on("screen-home", async () => {

@@ -219,6 +219,11 @@ export class GeneralizedStudyController {
     this.totalPausedSeconds = 0;
     this.currentSessionId = null;
 
+    // Resetar anotações
+    if (this.notesController) {
+      this.notesController.reset();
+    }
+
     this.clearState();
     document.title = "Fluxo ESTRATÉGICO";
   }
@@ -495,6 +500,14 @@ export class GeneralizedStudyController {
     this.ui.hideQuickStudyModal();
     this.reset();
     this.toast.showToast("success", "Estudo rápido registrado com sucesso!");
+
+    // Atualizar streak e metas semanais após salvar
+    if (this.streak) {
+      this.streak.render();
+    }
+    if (this.weeklyGoals) {
+      this.weeklyGoals.render();
+    }
   };
 
   cancelQuickStudy = () => {

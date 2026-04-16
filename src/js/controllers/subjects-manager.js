@@ -64,6 +64,19 @@ export class SubjectsManager {
     this.save();
   }
 
+  duplicate(index) {
+    if (index < 0 || index >= this.subjects.length) {
+      this.toast.showToast("error", "Matéria não encontrada.");
+      return false;
+    }
+
+    const originalSubject = this.subjects[index];
+    this.subjects.push(originalSubject);
+    this.save();
+    this.toast.showToast("success", "Matéria duplicada!");
+    return true;
+  }
+
   reorder(newOrder) {
     this.subjects = newOrder;
     this.save();
@@ -84,4 +97,3 @@ export class SubjectsManager {
     }
   }
 }
-

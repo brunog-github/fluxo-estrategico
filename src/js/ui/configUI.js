@@ -9,27 +9,50 @@ export class ConfigUI {
     // Event delegation -> registrado APENAS UMA VEZ
     const list = document.getElementById("config-list");
     list.addEventListener("click", (e) => {
-      const btn = e.target.closest(".delete-subject");
-      if (!btn) return;
+      // Botão de delete
+      const deleteBtn = e.target.closest(".delete-subject");
+      if (deleteBtn) {
+        const checkbox = document.getElementById("mobile-lock-sort");
+        // Se o checkbox existir e estiver marcado (Bloqueado)
+        if (checkbox && checkbox.checked) {
+          // Mostra aviso e cancela a exclusão
+          this.toast.showToast(
+            "warning",
+            "Desbloqueie a lista para excluir matérias.",
+          );
+          return;
+        }
 
-      const checkbox = document.getElementById("mobile-lock-sort");
-      // Se o checkbox existir e estiver marcado (Bloqueado)
-      if (checkbox && checkbox.checked) {
-        // Mostra aviso e cancela a exclusão
-        this.toast.showToast(
-          "warning",
-          "Desbloqueie a lista para excluir matérias.",
-        );
+        const li = deleteBtn.closest("li");
+        const index = parseInt(li.dataset.index);
+
+        this.subjectsManager.remove(index);
+        this.toast.showToast("success", "Matéria removida!");
+
+        this.renderList();
         return;
       }
 
-      const li = btn.closest("li");
-      const index = parseInt(li.dataset.index);
+      // Botão de duplicação
+      const duplicateBtn = e.target.closest(".duplicate-subject");
+      if (duplicateBtn) {
+        const checkbox = document.getElementById("mobile-lock-sort");
+        // Se o checkbox existir e estiver marcado (Bloqueado)
+        if (checkbox && checkbox.checked) {
+          // Mostra aviso e cancela a duplicação
+          this.toast.showToast(
+            "warning",
+            "Desbloqueie a lista para duplicar matérias.",
+          );
+          return;
+        }
 
-      this.subjectsManager.remove(index);
-      this.toast.showToast("success", "Matéria removida!");
+        const li = duplicateBtn.closest("li");
+        const index = parseInt(li.dataset.index);
 
-      this.renderList();
+        this.subjectsManager.duplicate(index);
+        this.renderList();
+      }
     });
   }
 
@@ -90,9 +113,14 @@ export class ConfigUI {
           <span class="drag-handle">::</span>
           <span>${index + 1}. ${subj}</span>
         </div>
-        <button style="background:red; color:white; border:none; border-radius:5px; cursor:pointer; padding: 5px;" class="delete-subject">
-          <i class="fa-regular fa-trash-can"></i>
-        </button>
+        <div style="display:flex; gap:5px; align-items:center;">
+          <button style="background:var(--primary-color); color:white; border:none; border-radius:5px; cursor:pointer; padding: 5px;" class="duplicate-subject" title="Duplicar Matéria">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+          <button style="background:red; color:white; border:none; border-radius:5px; cursor:pointer; padding: 5px;" class="delete-subject" title="Deletar Matéria">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
       `;
 
       list.appendChild(li);

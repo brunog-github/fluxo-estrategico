@@ -23,6 +23,12 @@
   cursor: not-allowed; /* Mostra cursor de bloqueio no PC */
 }
 
+.config-list.locked .duplicate-subject {
+  opacity: 0.3; /* Deixa transparente */
+  filter: grayscale(100%); /* Tira a cor vermelha */
+  cursor: not-allowed; /* Mostra cursor de bloqueio no PC */
+}
+
 /* Icone de arrastar (Handle) */
 .drag-handle {
   cursor: grab;

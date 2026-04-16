@@ -108,10 +108,18 @@ export class ConfigUI {
       li.dataset.index = index;
       li.dataset.name = subj;
 
+      // Adiciona classe se for o subject atual
+      if (index === this.subjectsManager.currentIndex) {
+        li.classList.add("current-subject");
+      }
+
       li.innerHTML = `
-        <div style="display:flex; align-items:center;">
+        <div style="display:flex; align-items:center; gap:10px;">
           <span class="drag-handle">::</span>
-          <span>${index + 1}. ${subj}</span>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            ${index === this.subjectsManager.currentIndex ? '<span class="current-subject-badge">Matéria Atual</span>' : ""}
+            <span>${index + 1}. ${subj}</span>
+          </div>
         </div>
         <div style="display:flex; gap:5px; align-items:center;">
           <button style="background:var(--primary-color); color:white; border:none; border-radius:5px; cursor:pointer; padding: 5px;" class="duplicate-subject" title="Duplicar Matéria">

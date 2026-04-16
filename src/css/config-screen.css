@@ -16,6 +16,51 @@
   align-items: center;
 }
 
+/* Subject atual com degradê */
+.config-list li.current-subject {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--table-stripe) 100%
+  );
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: bold;
+  position: relative;
+  margin: 15px 0;
+}
+
+.config-list li.current-subject .drag-handle {
+  color: white;
+}
+
+.config-list li.current-subject span {
+  color: white;
+}
+
+/* Badge "matéria de estudo atual" */
+.current-subject-badge {
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  display: inline-block;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    rgba(69, 164, 196, 0.9) 100%
+  );
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--primary-color);
+  width: fit-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 /* Quando a lista está bloqueada, apaga o botão de deletar */
 .config-list.locked .delete-subject {
   opacity: 0.3; /* Deixa transparente */

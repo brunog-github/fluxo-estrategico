@@ -54,6 +54,27 @@ export class ConfigUI {
         this.renderList();
       }
     });
+
+    // Botão de reset da matéria atual
+    const resetBtn = document.getElementById("btn-reset-current-subject");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", async () => {
+        const checkbox = document.getElementById("mobile-lock-sort");
+        // Se o checkbox existir e estiver marcado (Bloqueado)
+        if (checkbox && checkbox.checked) {
+          // Mostra aviso e cancela o reset
+          this.toast.showToast(
+            "warning",
+            "Desbloqueie a lista para resetar a matéria atual.",
+          );
+          return;
+        }
+
+        await this.subjectsManager.resetCurrentIndex();
+        this.toast.showToast("success", "Matéria atual resetada!");
+        this.renderList();
+      });
+    }
   }
 
   /**
@@ -62,6 +83,7 @@ export class ConfigUI {
   setupMobileLock() {
     const checkbox = document.getElementById("mobile-lock-sort");
     const list = document.getElementById("config-list");
+    const resetBtn = document.getElementById("btn-reset-current-subject");
 
     const savedState = localStorage.getItem("sortableLocked");
     const isLocked = savedState === "true";
@@ -76,8 +98,10 @@ export class ConfigUI {
 
     if (isLocked) {
       list.classList.add("locked");
+      if (resetBtn) resetBtn.classList.add("locked");
     } else {
       list.classList.remove("locked");
+      if (resetBtn) resetBtn.classList.remove("locked");
     }
 
     // Adiciona o listener no novo elemento
@@ -88,8 +112,13 @@ export class ConfigUI {
       localStorage.setItem("sortableLocked", isLocked);
 
       // 1. Atualiza visual
-      if (isLocked) list.classList.add("locked");
-      else list.classList.remove("locked");
+      if (isLocked) {
+        list.classList.add("locked");
+        if (resetBtn) resetBtn.classList.add("locked");
+      } else {
+        list.classList.remove("locked");
+        if (resetBtn) resetBtn.classList.remove("locked");
+      }
 
       // 2. Atualiza a instância do SortableJS EM TEMPO REAL
       if (this.sortableInstance) {

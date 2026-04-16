@@ -61,6 +61,36 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* Botão de reset da matéria atual */
+.btn-reset-subject {
+  padding: 8px 16px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.btn-reset-subject:hover {
+  opacity: 1;
+}
+
+.btn-reset-subject:active {
+  transform: scale(0.98);
+}
+
+.btn-reset-subject.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Quando a lista está bloqueada, apaga o botão de deletar */
 .config-list.locked .delete-subject {
   opacity: 0.3; /* Deixa transparente */

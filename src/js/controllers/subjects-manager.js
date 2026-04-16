@@ -82,6 +82,11 @@ export class SubjectsManager {
     this.save();
   }
 
+  async resetCurrentIndex() {
+    this.currentIndex = 0;
+    await dbService.setCurrentIndex(0);
+  }
+
   getCurrent() {
     return this.subjects[this.currentIndex];
   }

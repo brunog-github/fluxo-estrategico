@@ -159,8 +159,15 @@ export class DevToolsProtection {
   }
 
   /**
+   * Detecta o nível de zoom da página
+   */
+  getZoomLevel() {
+    return window.devicePixelRatio || 1;
+  }
+
+  /**
    * Estratégia 5: Detecta DevTools por tamanho da janela
-   * Desabilitada em dispositivos móveis para evitar falsos positivos
+   * Desabilitada em dispositivos móveis e quando há zoom ativo
    */
   setupSizeDetection() {
     // Em dispositivos móveis/tablets, a detecção por tamanho não é confiável
@@ -183,6 +190,16 @@ export class DevToolsProtection {
           return;
         }
 
+        // Ignorar quando há zoom na página (zoom não é DevTools)
+        const zoomLevel = this.getZoomLevel();
+        if (zoomLevel !== 1) {
+          this.log(
+            `⚠️ Zoom detectado (${(zoomLevel * 100).toFixed(0)}%) - detecção ignorada`,
+          );
+          this.devtoolsDetected = false;
+          return;
+        }
+
         const heightDiff = window.outerHeight - window.innerHeight;
         const widthDiff = window.outerWidth - window.innerWidth;
 
@@ -200,7 +217,9 @@ export class DevToolsProtection {
       }, 1000);
     }, 3000); // Delay de 3 segundos
 
-    this.log("✓ Size detection ativado (desktop apenas)");
+    this.log(
+      "✓ Size detection ativado (desktop apenas - zoom will be ignored)",
+    );
   }
 
   /**
